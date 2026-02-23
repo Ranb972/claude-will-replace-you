@@ -44,6 +44,7 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
 
     const animate = (now: number) => {
       const elapsed = now - start;
+      // Non-linear: fast start, slow in middle, fast finish
       let pct: number;
       if (elapsed < 600) {
         pct = (elapsed / 600) * 40;

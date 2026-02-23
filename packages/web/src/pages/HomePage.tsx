@@ -13,11 +13,18 @@ const RECENT_RESULTS = [
   { name: "Amit", role: "DevOps Engineer", model: "Sonnet", days: 180 },
 ];
 
+const ERROR_ICONS: Record<string, string> = {
+  RATE_LIMITED: "🐌",
+  NETWORK_ERROR: "📡",
+  API_ERROR: "🤖",
+  NOT_FOUND: "🔍",
+};
+
 export function HomePage() {
   const navigate = useNavigate();
   const formRef = useRef<HTMLElement>(null);
   const [showForm, setShowForm] = useState(false);
-  const { isLoading, error, analyze } = useAnalysis();
+  const { isLoading, error, errorCode, analyze } = useAnalysis();
 
   useEffect(() => {
     if (showForm && formRef.current) {
@@ -35,6 +42,8 @@ export function HomePage() {
   function scrollToForm() {
     setShowForm(true);
   }
+
+  const errorIcon = errorCode ? ERROR_ICONS[errorCode] ?? "❌" : "❌";
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" dir="auto">
@@ -68,7 +77,14 @@ export function HomePage() {
           </button>
 
           {error && (
-            <p role="alert" className="text-red-400 text-sm mt-2">{error}</p>
+            <div
+              role="alert"
+              dir="rtl"
+              className="mt-4 mx-auto max-w-md rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+            >
+              <span className="text-lg mr-2">{errorIcon}</span>
+              {error}
+            </div>
           )}
         </div>
 
@@ -78,7 +94,8 @@ export function HomePage() {
             {[...RECENT_RESULTS, ...RECENT_RESULTS].map((r, i) => (
               <span key={i} className="text-sm text-gray-500">
                 {r.name}, {r.role} — replaced by{" "}
-                <span className="text-orange-400">{r.model}</span> in {r.days} days
+                <span className="text-orange-400">{r.model}</span> in {r.days}{" "}
+                days
               </span>
             ))}
           </div>
@@ -95,10 +112,23 @@ export function HomePage() {
             <div className="text-center">
               <h2 className="text-2xl sm:text-3xl font-bold">Your Profile</h2>
               <p className="text-gray-400 mt-2">
-                Tell us about yourself and we'll calculate your replacement risk.
+                Tell us about yourself and we'll calculate your replacement
+                risk.
               </p>
             </div>
             <InputForm onSubmit={handleSubmit} isSubmitting={isLoading} />
+
+            {/* Error below form */}
+            {error && (
+              <div
+                role="alert"
+                dir="rtl"
+                className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 text-center"
+              >
+                <span className="text-lg mr-2">{errorIcon}</span>
+                {error}
+              </div>
+            )}
           </div>
         </section>
       )}

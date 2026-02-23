@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import {
   fetchLeaderboard,
+  getErrorMessage,
   type LeaderboardEntry,
   type LeaderboardSort,
 } from "../lib/api";
@@ -109,7 +110,7 @@ export function LeaderboardPage() {
         setTotal(data.total);
         setHasMore(data.hasMore);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load leaderboard");
+        setError(getErrorMessage(err));
       } finally {
         setLoading(false);
         setLoadingMore(false);
@@ -184,10 +185,13 @@ export function LeaderboardPage() {
         {/* Error */}
         {error && (
           <div className="text-center py-8">
-            <p className="text-red-400">{error}</p>
+            <div className="text-4xl mb-3">😵</div>
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 max-w-sm mx-auto">
+              {error}
+            </div>
             <button
               onClick={() => loadData(activeTab, 0, false)}
-              className="mt-2 text-sm text-gray-400 hover:text-white underline cursor-pointer"
+              className="mt-3 text-sm text-gray-400 hover:text-white underline cursor-pointer"
             >
               נסה שוב
             </button>

@@ -1,14 +1,15 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ESNext",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "../..",
-    "types": ["@types/bun"]
+    "outDir": "./dist",
+    "rootDir": "../../",
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "paths": {
+      "drizzle-orm": ["./node_modules/drizzle-orm"],
+      "drizzle-orm/*": ["./node_modules/drizzle-orm/*"]
+    }
   },
-  "include": ["src/**/*.ts", "../../drizzle/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../../drizzle/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }

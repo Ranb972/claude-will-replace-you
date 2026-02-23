@@ -1,16 +1,13 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "strict": true,
-    "skipLibCheck": true,
-    "outDir": "dist",
-    "rootDir": "src",
-    "declaration": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true
+    "outDir": "./dist",
+    "rootDir": "../../",
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "paths": {
+      "@cwru/schema": ["../../drizzle/schema.ts"]
+    }
   },
-  "include": ["src"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../../drizzle/**/*.ts"]
 }

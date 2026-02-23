@@ -1,25 +1,13 @@
-import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import analyze from "./routes/analyze.js";
 
 const app = new Hono();
 
-// CORS for local dev (Vite on 5173 → API on 3001)
-app.use(
-  "/api/*",
-  cors({
-    origin: ["http://localhost:5173"],
-  })
-);
+app.use("/*", cors());
 
-// Health check
-app.get("/api/health", (c) => {
-  return c.json({ status: "ok" });
-});
+app.route("/api/analyze", analyze);
 
-const port = 3001;
-console.log(`API server running on http://localhost:${port}`);
-
-serve({ fetch: app.fetch, port });
+app.get("/health", (c) => c.json({ status: "ok" }));
 
 export default app;

@@ -1,38 +1,40 @@
-import type { ModelTier } from "../types.js";
+export interface ModelTier {
+  key: string;
+  name: string;
+  emoji: string;
+  year: number | null;
+  exists: boolean;
+  description: string;
+  tier: number;
+}
 
-export const MODEL_TIERS: ModelTier[] = [
+const MODEL_TIERS: ModelTier[] = [
   {
     key: "haiku",
     name: 'Claude Haiku 4.5',
     emoji: "🤖",
-    year: 2025,
+    year: null,
     exists: true,
     description: "The lightweight speed demon",
     tier: 1,
-    scoreMin: 85,
-    scoreMax: 100,
   },
   {
     key: "sonnet",
     name: 'Claude Sonnet 4.6',
     emoji: "🤖",
-    year: 2025,
+    year: null,
     exists: true,
     description: "The balanced all-rounder",
     tier: 2,
-    scoreMin: 65,
-    scoreMax: 84,
   },
   {
     key: "opus",
     name: 'Claude Opus 4.6',
     emoji: "🤖",
-    year: 2025,
+    year: null,
     exists: true,
-    description: "The heavy-duty powerhouse",
+    description: "The heavy hitter",
     tier: 3,
-    scoreMin: 45,
-    scoreMax: 64,
   },
   {
     key: "titan",
@@ -42,8 +44,6 @@ export const MODEL_TIERS: ModelTier[] = [
     exists: false,
     description: "The next frontier of reasoning",
     tier: 4,
-    scoreMin: 30,
-    scoreMax: 44,
   },
   {
     key: "colossus",
@@ -53,8 +53,6 @@ export const MODEL_TIERS: ModelTier[] = [
     exists: false,
     description: "The next-generation reasoning engine",
     tier: 5,
-    scoreMin: 20,
-    scoreMax: 29,
   },
   {
     key: "singularity",
@@ -62,10 +60,8 @@ export const MODEL_TIERS: ModelTier[] = [
     emoji: "🔮",
     year: 2032,
     exists: false,
-    description: "On the edge of artificial general intelligence",
+    description: "Approaching artificial general intelligence",
     tier: 6,
-    scoreMin: 10,
-    scoreMax: 19,
   },
   {
     key: "skynet",
@@ -75,29 +71,29 @@ export const MODEL_TIERS: ModelTier[] = [
     exists: false,
     description: "Full artificial consciousness",
     tier: 7,
-    scoreMin: 5,
-    scoreMax: 9,
   },
   {
     key: "infinity",
-    name: 'Claude \u221E "The One"',
+    name: 'Claude \u221e "The One"',
     emoji: "🔮",
     year: null,
     exists: false,
-    description: "The ultimate form — if it ever arrives",
+    description: "The theoretical limit of AI",
     tier: 8,
-    scoreMin: 0,
-    scoreMax: 4,
   },
 ];
 
-export function getModelForScore(score: number): ModelTier {
-  const clamped = Math.max(0, Math.min(100, Math.round(score)));
-  for (const model of MODEL_TIERS) {
-    if (clamped >= model.scoreMin && clamped <= model.scoreMax) {
-      return model;
-    }
-  }
-  // Fallback (should never happen with valid 0-100 score)
-  return MODEL_TIERS[MODEL_TIERS.length - 1];
+export function getModelByScore(score: number): ModelTier {
+  if (score >= 85) return MODEL_TIERS[0]; // haiku
+  if (score >= 65) return MODEL_TIERS[1]; // sonnet
+  if (score >= 45) return MODEL_TIERS[2]; // opus
+  if (score >= 30) return MODEL_TIERS[3]; // titan
+  if (score >= 20) return MODEL_TIERS[4]; // colossus
+  if (score >= 10) return MODEL_TIERS[5]; // singularity
+  if (score >= 5) return MODEL_TIERS[6];  // skynet
+  return MODEL_TIERS[7];                  // infinity
+}
+
+export function getModelByKey(key: string): ModelTier | undefined {
+  return MODEL_TIERS.find((m) => m.key === key);
 }

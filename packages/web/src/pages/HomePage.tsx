@@ -38,7 +38,7 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" dir="auto">
-      {isLoading && <LoadingScreen />}
+      <LoadingScreen visible={isLoading} />
 
       {/* Hero */}
       <section className="min-h-screen flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden">

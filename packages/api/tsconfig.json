@@ -2,8 +2,11 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "./src",
-    "types": ["node"]
+    "rootDir": "../../",
+    "types": ["node"],
+    "paths": {
+      "@cwru/schema": ["../../drizzle/schema.ts"]
+    }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "../../drizzle/**/*.ts"]
 }

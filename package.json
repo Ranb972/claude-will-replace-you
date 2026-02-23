@@ -1,0 +1,13 @@
+{
+  "name": "claude-will-replace-you",
+  "private": true,
+  "workspaces": ["packages/*"],
+  "devDependencies": {
+    "drizzle-orm": "^0.39.0"
+  },
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "build": "bun run --filter '*' build",
+    "db:push": "bun run --filter @cwru/api db:push"
+  }
+}

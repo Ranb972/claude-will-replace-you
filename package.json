@@ -1,0 +1,5 @@
+{
+  "name": "claude-will-replace-you",
+  "private": true,
+  "workspaces": ["packages/*"]
+}

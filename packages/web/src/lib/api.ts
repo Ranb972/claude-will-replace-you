@@ -38,6 +38,48 @@ export interface AnalysisResult {
   generatedBy: string;
 }
 
+// --- Leaderboard ---
+
+export interface LeaderboardEntry {
+  id: string;
+  name: string;
+  role: string;
+  score: number;
+  modelKey: string;
+  modelName: string;
+  daysLeft: number;
+  createdAt: string;
+}
+
+export interface LeaderboardResponse {
+  entries: LeaderboardEntry[];
+  total: number;
+  hasMore: boolean;
+}
+
+export type LeaderboardSort = "highest" | "lowest" | "recent";
+
+export async function fetchLeaderboard(
+  sort: LeaderboardSort = "highest",
+  limit = 20,
+  offset = 0,
+): Promise<LeaderboardResponse> {
+  const params = new URLSearchParams({
+    sort,
+    limit: String(limit),
+    offset: String(offset),
+  });
+  const res = await fetch(`/api/leaderboard?${params}`);
+
+  if (!res.ok) {
+    throw new Error(`Leaderboard request failed (${res.status})`);
+  }
+
+  return res.json();
+}
+
+// --- Analysis ---
+
 export async function submitAnalysis(
   payload: ProfilePayload,
 ): Promise<AnalysisResult> {

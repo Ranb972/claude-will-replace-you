@@ -28,7 +28,7 @@ export function HomePage() {
   async function handleSubmit(data: ProfilePayload) {
     const result = await analyze(data);
     if (result) {
-      navigate(`/result/${result.id}`);
+      navigate(`/result/${result.id}`, { state: { result } });
     }
   }
 
@@ -38,7 +38,7 @@ export function HomePage() {
 
   return (
     <div className="min-h-screen bg-gray-950 text-white" dir="auto">
-      {isLoading && <LoadingScreen />}
+      <LoadingScreen visible={isLoading} />
 
       {/* Hero */}
       <section className="min-h-screen flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden">

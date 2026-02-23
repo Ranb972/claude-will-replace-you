@@ -54,3 +54,14 @@ export async function submitAnalysis(
 
   return res.json();
 }
+
+export async function fetchResult(id: string): Promise<AnalysisResult> {
+  const res = await fetch(`/api/result/${encodeURIComponent(id)}`);
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => null);
+    throw new Error(body?.message ?? `Result not found (${res.status})`);
+  }
+
+  return res.json();
+}

@@ -2,12 +2,10 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "rootDir": "../../",
-    "types": ["node"],
+    "rootDir": "./src",
     "jsx": "react-jsx",
-    "paths": {
-      "@cwru/schema": ["../../drizzle/schema.ts"]
-    }
+    "jsxImportSource": "hono/jsx",
+    "types": ["node"]
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "../../drizzle/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
 }

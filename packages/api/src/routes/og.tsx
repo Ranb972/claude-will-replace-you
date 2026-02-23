@@ -1,452 +1,424 @@
 import { Hono } from "hono";
 import { ImageResponse } from "@vercel/og";
-import { getResult } from "../lib/db.js";
-import { MODEL_TIERS } from "../lib/models.js";
+import { MODEL_COLORS, getModelByKey } from "../lib/models.js";
 
-interface ResultRow {
+// Stub type for the DB result row used by this route.
+// The actual DB module is provided by the database layer — this route
+// only needs these fields from the result row.
+export interface OgResultRow {
   id: string;
   name: string;
   role: string;
   experience: number;
-  description: string;
-  technologies: string[];
-  githubUrl: string | null;
-  modelKey: string;
-  modelName: string;
+  model_key: string;
+  model_name: string;
   score: number;
-  daysLeft: number;
-  headline: string;
+  days_left: number;
   quote: string;
-  skillsAnalysis: { skill: string; replaced: boolean; comment: string }[];
-  generatedBy: string;
-  createdAt: string | null;
-  shareCount: number | null;
+  created_at: string | null;
 }
 
-const og = new Hono();
+// Dependency: a function that fetches a result row by ID.
+// Injected at wire-up time so the route is decoupled from the DB layer.
+export type GetResultById = (id: string) => Promise<OgResultRow | undefined>;
 
-// Color accent by danger level (score ranges)
-function getDangerColor(score: number): string {
-  if (score >= 85) return "#ef4444"; // red — imminent replacement
-  if (score >= 65) return "#f97316"; // orange — high danger
-  if (score >= 45) return "#eab308"; // yellow — moderate
-  if (score >= 30) return "#22c55e"; // green — relatively safe
-  return "#3b82f6"; // blue — very safe
+export function createOgRoute(getResultById: GetResultById) {
+  const og = new Hono();
+
+  og.get("/:id", async (c) => {
+    const id = c.req.param("id");
+
+    let result: OgResultRow | undefined;
+    try {
+      result = await getResultById(id);
+    } catch {
+      // DB error — return generic fallback image
+      return createFallbackImage();
+    }
+
+    if (!result) {
+      return c.json({ error: "Result not found" }, 404);
+    }
+
+    try {
+      const image = renderCertificate(result);
+      return new Response(image.body, {
+        headers: {
+          "Content-Type": "image/png",
+          "Cache-Control": "public, max-age=86400, s-maxage=86400",
+        },
+      });
+    } catch {
+      return createFallbackImage();
+    }
+  });
+
+  return og;
 }
 
-function getDangerLabel(score: number): string {
-  if (score >= 85) return "CRITICAL";
-  if (score >= 65) return "HIGH";
-  if (score >= 45) return "MODERATE";
-  if (score >= 30) return "LOW";
-  return "MINIMAL";
-}
+// ---------------------------------------------------------------------------
+// Certificate renderer
+// ---------------------------------------------------------------------------
 
-function getModelYear(modelKey: string): string | null {
-  const model = MODEL_TIERS.find((m) => m.key === modelKey);
-  if (!model || model.exists) return null;
-  if (model.year === null) return "∞";
-  return String(model.year);
-}
+function renderCertificate(result: OgResultRow): ImageResponse {
+  const model = getModelByKey(result.model_key);
+  const colors = MODEL_COLORS[result.model_key] ?? MODEL_COLORS.opus;
+  const accent = colors.accent;
+  const bgColor = colors.bg;
 
-og.get("/:id", async (c) => {
-  const { id } = c.req.param();
-
-  const raw = await getResult(id);
-  if (!raw) {
-    return c.notFound();
-  }
-  const result = raw as ResultRow;
-
-  const dangerColor = getDangerColor(result.score);
-  const dangerLabel = getDangerLabel(result.score);
-  const fictionalYear = getModelYear(result.modelKey);
+  const yearLabel = model?.year ? `Expected ${model.year}` : model?.exists ? "Available Now" : "";
+  const futureEmoji = model?.exists ? "" : " 🔮";
+  const daysLabel = formatDaysLeft(result.days_left);
   const scorePercent = Math.min(100, Math.max(0, result.score));
-  const createdDate = result.createdAt
-    ? new Date(result.createdAt).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-    : "N/A";
+  const dateStr = result.created_at
+    ? new Date(result.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+    : new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
-  // Truncate quote if too long for the image
-  const displayQuote =
-    result.quote.length > 120
-      ? result.quote.slice(0, 117) + "..."
-      : result.quote;
+  // Truncate quote to fit certificate
+  const quote = result.quote.length > 120 ? result.quote.slice(0, 117) + "..." : result.quote;
 
-  try {
-    const image = new ImageResponse(
-      (
+  return new ImageResponse(
+    (
+      <div
+        style={{
+          width: "1200px",
+          height: "630px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: bgColor,
+          fontFamily: "sans-serif",
+          color: "#e0e0e0",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        {/* Border glow */}
         <div
           style={{
-            width: "1200px",
-            height: "630px",
+            position: "absolute",
+            top: "0",
+            left: "0",
+            right: "0",
+            bottom: "0",
+            border: `3px solid ${accent}`,
+            borderRadius: "0px",
+            boxShadow: `inset 0 0 60px ${colors.glow}, 0 0 60px ${colors.glow}`,
             display: "flex",
-            flexDirection: "column",
-            backgroundColor: "#0f172a",
-            fontFamily: "sans-serif",
-            padding: "0",
-            position: "relative",
-            overflow: "hidden",
           }}
-        >
-          {/* Top accent bar */}
-          <div
-            style={{
-              width: "100%",
-              height: "6px",
-              backgroundColor: dangerColor,
-              display: "flex",
-            }}
-          />
+        />
 
-          {/* Content area */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              padding: "32px 48px 24px",
-              flex: 1,
-            }}
-          >
-            {/* Header row */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "20px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                }}
-              >
-                <span style={{ fontSize: "28px" }}>🤖</span>
-                <span
-                  style={{
-                    fontSize: "20px",
-                    fontWeight: 700,
-                    color: "#f8fafc",
-                    letterSpacing: "3px",
-                    textTransform: "uppercase" as const,
-                  }}
-                >
-                  OFFICIAL REPLACEMENT CERTIFICATE
-                </span>
-              </div>
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  backgroundColor: dangerColor + "22",
-                  border: `1px solid ${dangerColor}`,
-                  borderRadius: "6px",
-                  padding: "4px 12px",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "13px",
-                    fontWeight: 700,
-                    color: dangerColor,
-                    letterSpacing: "1px",
-                  }}
-                >
-                  THREAT LEVEL: {dangerLabel}
-                </span>
-              </div>
-            </div>
-
-            {/* Divider */}
-            <div
-              style={{
-                width: "100%",
-                height: "1px",
-                backgroundColor: "#334155",
-                display: "flex",
-                marginBottom: "24px",
-              }}
-            />
-
-            {/* Name and role */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                marginBottom: "16px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "36px",
-                  fontWeight: 700,
-                  color: "#f8fafc",
-                  lineHeight: 1.2,
-                }}
-              >
-                {result.name}
-              </span>
-              <span
-                style={{
-                  fontSize: "18px",
-                  color: "#94a3b8",
-                  marginTop: "4px",
-                }}
-              >
-                {result.role} · {result.experience}{" "}
-                {result.experience === 1 ? "year" : "years"} experience
-              </span>
-            </div>
-
-            {/* Model + Score row */}
-            <div
-              style={{
-                display: "flex",
-                gap: "32px",
-                alignItems: "center",
-                marginBottom: "20px",
-              }}
-            >
-              {/* Replacing model */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  flex: 1,
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "#64748b",
-                    textTransform: "uppercase" as const,
-                    letterSpacing: "1px",
-                    marginBottom: "4px",
-                  }}
-                >
-                  Will be replaced by
-                </span>
-                <span
-                  style={{
-                    fontSize: "26px",
-                    fontWeight: 700,
-                    color: dangerColor,
-                  }}
-                >
-                  {result.modelName}
-                  {fictionalYear ? ` (${fictionalYear})` : ""}
-                </span>
-              </div>
-
-              {/* Days remaining */}
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  backgroundColor: "#1e293b",
-                  borderRadius: "12px",
-                  padding: "12px 24px",
-                  minWidth: "140px",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "32px",
-                    fontWeight: 700,
-                    color: dangerColor,
-                  }}
-                >
-                  {result.daysLeft.toLocaleString()}
-                </span>
-                <span style={{ fontSize: "12px", color: "#64748b" }}>
-                  days remaining
-                </span>
-              </div>
-            </div>
-
-            {/* Score bar */}
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                marginBottom: "20px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  marginBottom: "6px",
-                }}
-              >
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "#64748b",
-                    textTransform: "uppercase" as const,
-                    letterSpacing: "1px",
-                  }}
-                >
-                  Replacement Probability
-                </span>
-                <span
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: 700,
-                    color: dangerColor,
-                  }}
-                >
-                  {scorePercent}%
-                </span>
-              </div>
-              {/* Bar background */}
-              <div
-                style={{
-                  display: "flex",
-                  width: "100%",
-                  height: "14px",
-                  backgroundColor: "#1e293b",
-                  borderRadius: "7px",
-                  overflow: "hidden",
-                }}
-              >
-                {/* Bar fill */}
-                <div
-                  style={{
-                    width: `${scorePercent}%`,
-                    height: "100%",
-                    backgroundColor: dangerColor,
-                    borderRadius: "7px",
-                    display: "flex",
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* Quote */}
-            <div
-              style={{
-                display: "flex",
-                backgroundColor: "#1e293b",
-                borderLeft: `3px solid ${dangerColor}`,
-                borderRadius: "0 8px 8px 0",
-                padding: "12px 16px",
-                marginBottom: "20px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "15px",
-                  color: "#cbd5e1",
-                  fontStyle: "italic",
-                  lineHeight: 1.4,
-                }}
-              >
-                "{displayQuote}"
-              </span>
-            </div>
-
-            {/* Footer */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginTop: "auto",
-              }}
-            >
-              <span style={{ fontSize: "13px", color: "#475569" }}>
-                claudewillreplaceyou.com
-              </span>
-              <span style={{ fontSize: "12px", color: "#334155" }}>
-                Certificate #{id} · {createdDate}
-              </span>
-            </div>
-          </div>
-        </div>
-      ),
-      {
-        width: 1200,
-        height: 630,
-      }
-    );
-
-    // Copy headers from ImageResponse and add caching
-    const headers = new Headers(image.headers);
-    headers.set(
-      "Cache-Control",
-      "public, max-age=86400, s-maxage=86400"
-    );
-    headers.set("Content-Type", "image/png");
-
-    return new Response(image.body, {
-      status: 200,
-      headers,
-    });
-  } catch {
-    // Generic fallback image on error
-    const fallback = new ImageResponse(
-      (
+        {/* Inner border */}
         <div
           style={{
-            width: "1200px",
-            height: "630px",
+            position: "absolute",
+            top: "12px",
+            left: "12px",
+            right: "12px",
+            bottom: "12px",
+            border: `1px solid ${accent}40`,
+            display: "flex",
+          }}
+        />
+
+        {/* Content */}
+        <div
+          style={{
             display: "flex",
             flexDirection: "column",
             alignItems: "center",
             justifyContent: "center",
-            backgroundColor: "#0f172a",
-            fontFamily: "sans-serif",
+            padding: "40px 60px",
+            width: "100%",
+            height: "100%",
           }}
         >
-          <span style={{ fontSize: "48px", marginBottom: "16px" }}>🤖</span>
-          <span
+          {/* Title */}
+          <div
             style={{
-              fontSize: "28px",
+              display: "flex",
+              alignItems: "center",
+              fontSize: "26px",
               fontWeight: 700,
-              color: "#f8fafc",
-              marginBottom: "8px",
+              color: accent,
+              letterSpacing: "3px",
+              textTransform: "uppercase" as const,
+              marginBottom: "4px",
             }}
           >
-            Claude Will Replace You
-          </span>
-          <span style={{ fontSize: "16px", color: "#94a3b8" }}>
-            Find out which AI model will take your job
-          </span>
-          <span
+            🤖 OFFICIAL REPLACEMENT CERTIFICATE
+          </div>
+
+          {/* Divider */}
+          <div
             style={{
-              fontSize: "14px",
-              color: "#475569",
-              marginTop: "24px",
+              width: "500px",
+              height: "2px",
+              backgroundColor: accent,
+              marginBottom: "20px",
+              display: "flex",
+            }}
+          />
+
+          {/* "This certifies that" */}
+          <div
+            style={{
+              fontSize: "16px",
+              color: "#888",
+              marginBottom: "8px",
+              display: "flex",
             }}
           >
-            claudewillreplaceyou.com
-          </span>
+            This certifies that
+          </div>
+
+          {/* Name */}
+          <div
+            style={{
+              fontSize: "38px",
+              fontWeight: 700,
+              color: "#ffffff",
+              marginBottom: "4px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            ★ {result.name} ★
+          </div>
+
+          {/* Role + Years */}
+          <div
+            style={{
+              fontSize: "18px",
+              color: "#aaa",
+              marginBottom: "16px",
+              display: "flex",
+            }}
+          >
+            {result.role} • {result.experience} years
+          </div>
+
+          {/* "will be officially replaced by" */}
+          <div
+            style={{
+              fontSize: "15px",
+              color: "#888",
+              marginBottom: "8px",
+              display: "flex",
+            }}
+          >
+            will be officially replaced by
+          </div>
+
+          {/* Model name */}
+          <div
+            style={{
+              fontSize: "32px",
+              fontWeight: 700,
+              color: accent,
+              marginBottom: "4px",
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            ✦ {result.model_name}{futureEmoji} ✦
+          </div>
+
+          {/* Year label */}
+          {yearLabel && (
+            <div
+              style={{
+                fontSize: "14px",
+                color: accent,
+                opacity: 0.8,
+                marginBottom: "14px",
+                display: "flex",
+              }}
+            >
+              🔮 {yearLabel}
+            </div>
+          )}
+          {!yearLabel && (
+            <div style={{ marginBottom: "14px", display: "flex" }} />
+          )}
+
+          {/* Score bar */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              marginBottom: "10px",
+              width: "100%",
+            }}
+          >
+            <div
+              style={{
+                fontSize: "14px",
+                color: "#888",
+                marginBottom: "6px",
+                display: "flex",
+              }}
+            >
+              Replacement Score:
+            </div>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                alignItems: "center",
+                width: "420px",
+              }}
+            >
+              {/* Bar background */}
+              <div
+                style={{
+                  display: "flex",
+                  width: "360px",
+                  height: "24px",
+                  backgroundColor: "#222",
+                  borderRadius: "12px",
+                  overflow: "hidden",
+                  position: "relative",
+                }}
+              >
+                {/* Filled portion */}
+                <div
+                  style={{
+                    width: `${scorePercent}%`,
+                    height: "100%",
+                    backgroundColor: accent,
+                    borderRadius: "12px",
+                    display: "flex",
+                  }}
+                />
+              </div>
+              <div
+                style={{
+                  fontSize: "20px",
+                  fontWeight: 700,
+                  color: accent,
+                  marginLeft: "12px",
+                  display: "flex",
+                }}
+              >
+                {scorePercent}%
+              </div>
+            </div>
+          </div>
+
+          {/* Days remaining */}
+          <div
+            style={{
+              fontSize: "16px",
+              color: "#ccc",
+              marginBottom: "12px",
+              display: "flex",
+            }}
+          >
+            Days Remaining: <span style={{ fontWeight: 700, color: accent, marginLeft: "6px" }}>{daysLabel}</span>
+          </div>
+
+          {/* Quote */}
+          <div
+            style={{
+              fontSize: "15px",
+              color: "#bbb",
+              fontStyle: "italic",
+              textAlign: "center" as const,
+              maxWidth: "700px",
+              marginBottom: "16px",
+              display: "flex",
+            }}
+          >
+            &ldquo;{quote}&rdquo;
+          </div>
+
+          {/* Footer */}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+              paddingLeft: "40px",
+              paddingRight: "40px",
+            }}
+          >
+            <div style={{ fontSize: "12px", color: "#555", display: "flex" }}>
+              Certificate #{result.id} • {dateStr}
+            </div>
+            <div style={{ fontSize: "12px", color: "#555", display: "flex" }}>
+              claude-will-replace-you.vercel.app
+            </div>
+          </div>
         </div>
-      ),
-      { width: 1200, height: 630 }
-    );
+      </div>
+    ),
+    {
+      width: 1200,
+      height: 630,
+    }
+  );
+}
 
-    const headers = new Headers(fallback.headers);
-    headers.set(
-      "Cache-Control",
-      "public, max-age=86400, s-maxage=86400"
-    );
-    headers.set("Content-Type", "image/png");
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
 
-    return new Response(fallback.body, {
-      status: 200,
-      headers,
-    });
+function formatDaysLeft(days: number): string {
+  if (days >= 99999) return "♾️";
+  if (days >= 365) {
+    const years = Math.floor(days / 365);
+    return `~${years} year${years > 1 ? "s" : ""} (${days.toLocaleString()} days)`;
   }
-});
+  return `${days}`;
+}
 
-export default og;
+function createFallbackImage(): Response {
+  const fallback = new ImageResponse(
+    (
+      <div
+        style={{
+          width: "1200px",
+          height: "630px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: "#0a0a0a",
+          fontFamily: "sans-serif",
+          color: "#e0e0e0",
+        }}
+      >
+        <div style={{ fontSize: "40px", marginBottom: "16px", display: "flex" }}>
+          🤖
+        </div>
+        <div
+          style={{
+            fontSize: "28px",
+            fontWeight: 700,
+            color: "#f97316",
+            marginBottom: "12px",
+            display: "flex",
+          }}
+        >
+          Claude Will Replace You
+        </div>
+        <div style={{ fontSize: "18px", color: "#888", display: "flex" }}>
+          Find out which Claude model will take your job
+        </div>
+      </div>
+    ),
+    { width: 1200, height: 630 }
+  );
+
+  return new Response(fallback.body, {
+    headers: {
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=86400, s-maxage=86400",
+    },
+  });
+}

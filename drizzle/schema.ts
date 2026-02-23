@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 
 export const results = sqliteTable("results", {
@@ -22,4 +22,7 @@ export const results = sqliteTable("results", {
 
   createdAt: text("created_at").default(sql`(datetime('now'))`),
   shareCount: integer("share_count").default(0),
-});
+}, (table) => [
+  index("idx_results_score").on(table.score),
+  index("idx_results_created").on(table.createdAt),
+]);

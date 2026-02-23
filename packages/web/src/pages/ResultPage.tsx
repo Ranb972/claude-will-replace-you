@@ -1,7 +1,7 @@
 import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { ReplacementMeter } from "../components/ReplacementMeter";
-import { fetchResult, type AnalysisResult } from "../lib/api";
+import { fetchResult, getErrorMessage, type AnalysisResult } from "../lib/api";
 
 function getDaysMessage(days: number): string {
   if (days <= 7) return "Better start packing...";
@@ -51,9 +51,7 @@ export function ResultPage() {
     setLoading(true);
     fetchResult(id)
       .then(setResult)
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load result"),
-      )
+      .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false));
   }, [id, result]);
 
@@ -73,7 +71,9 @@ export function ResultPage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white">
         <div className="text-center space-y-4">
           <div className="text-5xl">😵</div>
-          <p className="text-red-400">{error ?? "Result not found"}</p>
+          <p dir="rtl" className="text-red-300 max-w-sm mx-auto">
+            {error ?? "לא נמצא 🔍 אולי הקישור שגוי?"}
+          </p>
           <Link
             to="/"
             className="inline-block mt-4 rounded-lg bg-gray-800 px-6 py-2 text-sm hover:bg-gray-700 transition-colors"

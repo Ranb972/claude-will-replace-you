@@ -10,6 +10,8 @@ const client = createClient({
 
 export const db = drizzle(client);
 
+// --- Types ---
+
 export interface SaveResultData {
   id: string;
   name: string;
@@ -27,6 +29,28 @@ export interface SaveResultData {
   skillsAnalysis: { skill: string; replaced: boolean; comment: string }[];
   generatedBy: string;
 }
+
+export interface ResultRow {
+  id: string;
+  name: string;
+  role: string;
+  experience: number;
+  description: string;
+  technologies: string[];
+  githubUrl: string | null;
+  modelKey: string;
+  modelName: string;
+  score: number;
+  daysLeft: number;
+  headline: string;
+  quote: string;
+  skillsAnalysis: { skill: string; replaced: boolean; comment: string }[];
+  generatedBy: string;
+  createdAt: string | null;
+  shareCount: number | null;
+}
+
+// --- CRUD ---
 
 export async function saveResult(data: SaveResultData): Promise<string> {
   await db.insert(results).values({
@@ -49,15 +73,19 @@ export async function saveResult(data: SaveResultData): Promise<string> {
   return data.id;
 }
 
-export async function getResult(id: string) {
-  const rows = await db.select().from(results).where(eq(results.id, id)).limit(1);
+export async function getResult(id: string): Promise<ResultRow | null> {
+  const rows = await db
+    .select()
+    .from(results)
+    .where(eq(results.id, id))
+    .limit(1);
   const row = rows[0];
   if (!row) return null;
   return {
     ...row,
     technologies: row.technologies ? JSON.parse(row.technologies) : [],
     skillsAnalysis: JSON.parse(row.skillsAnalysis),
-  };
+  } as ResultRow;
 }
 
 export type LeaderboardSort = "highest" | "lowest" | "recent";
@@ -65,8 +93,8 @@ export type LeaderboardSort = "highest" | "lowest" | "recent";
 export async function getLeaderboard(
   sort: LeaderboardSort = "highest",
   limit = 20,
-  offset = 0
-): Promise<{ entries: Awaited<ReturnType<typeof getResult>>[]; total: number }> {
+  offset = 0,
+): Promise<{ entries: ResultRow[]; total: number }> {
   const orderBy =
     sort === "highest"
       ? desc(results.score)
@@ -79,11 +107,14 @@ export async function getLeaderboard(
     db.select({ count: count() }).from(results),
   ]);
 
-  const entries = rows.map((row) => ({
-    ...row,
-    technologies: row.technologies ? JSON.parse(row.technologies) : [],
-    skillsAnalysis: JSON.parse(row.skillsAnalysis),
-  }));
+  const entries = rows.map(
+    (row) =>
+      ({
+        ...row,
+        technologies: row.technologies ? JSON.parse(row.technologies) : [],
+        skillsAnalysis: JSON.parse(row.skillsAnalysis),
+      }) as ResultRow,
+  );
 
   return { entries, total: totalResult[0]?.count ?? 0 };
 }

@@ -59,6 +59,74 @@ export interface LeaderboardResponse {
 
 export type LeaderboardSort = "highest" | "lowest" | "recent";
 
+// --- Error types ---
+
+export type ApiErrorCode =
+  | "RATE_LIMITED"
+  | "NETWORK_ERROR"
+  | "API_ERROR"
+  | "NOT_FOUND";
+
+export class ApiError extends Error {
+  code: ApiErrorCode;
+  status: number;
+
+  constructor(message: string, code: ApiErrorCode, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.code = code;
+    this.status = status;
+  }
+}
+
+const ERROR_MESSAGES: Record<ApiErrorCode, string> = {
+  RATE_LIMITED: "לאט לאט! יותר מדי בקשות 🐌 נסה שוב בעוד כמה דקות",
+  NETWORK_ERROR: "אין חיבור לשרת 😵 בדוק את האינטרנט ונסה שוב",
+  API_ERROR: "משהו השתבש בצד שלנו 🤖 נסה שוב מאוחר יותר",
+  NOT_FOUND: "לא נמצא 🔍 אולי הקישור שגוי?",
+};
+
+export function getErrorMessage(error: unknown): string {
+  if (error instanceof ApiError) {
+    return ERROR_MESSAGES[error.code];
+  }
+  if (error instanceof TypeError && error.message === "Failed to fetch") {
+    return ERROR_MESSAGES.NETWORK_ERROR;
+  }
+  return ERROR_MESSAGES.API_ERROR;
+}
+
+export function getErrorCode(error: unknown): ApiErrorCode {
+  if (error instanceof ApiError) {
+    return error.code;
+  }
+  if (error instanceof TypeError && error.message === "Failed to fetch") {
+    return "NETWORK_ERROR";
+  }
+  return "API_ERROR";
+}
+
+// --- API calls ---
+
+async function handleResponse<T>(
+  res: Response,
+  notFoundCode?: ApiErrorCode,
+): Promise<T> {
+  if (res.ok) {
+    return res.json();
+  }
+
+  if (res.status === 429) {
+    throw new ApiError("Rate limited", "RATE_LIMITED", 429);
+  }
+
+  if (res.status === 404) {
+    throw new ApiError("Not found", notFoundCode ?? "NOT_FOUND", 404);
+  }
+
+  throw new ApiError("API error", "API_ERROR", res.status);
+}
+
 export async function fetchLeaderboard(
   sort: LeaderboardSort = "highest",
   limit = 20,
@@ -69,16 +137,10 @@ export async function fetchLeaderboard(
     limit: String(limit),
     offset: String(offset),
   });
+
   const res = await fetch(`/api/leaderboard?${params}`);
-
-  if (!res.ok) {
-    throw new Error(`Leaderboard request failed (${res.status})`);
-  }
-
-  return res.json();
+  return handleResponse(res);
 }
-
-// --- Analysis ---
 
 export async function submitAnalysis(
   payload: ProfilePayload,
@@ -89,21 +151,10 @@ export async function submitAnalysis(
     body: JSON.stringify(payload),
   });
 
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(body?.message ?? `Request failed (${res.status})`);
-  }
-
-  return res.json();
+  return handleResponse(res);
 }
 
 export async function fetchResult(id: string): Promise<AnalysisResult> {
   const res = await fetch(`/api/result/${encodeURIComponent(id)}`);
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(body?.message ?? `Result not found (${res.status})`);
-  }
-
-  return res.json();
+  return handleResponse(res, "NOT_FOUND");
 }

@@ -6,8 +6,10 @@
     "types": ["node"],
     "jsx": "react-jsx",
     "paths": {
-      "@cwru/schema": ["../../drizzle/schema.ts"]
+      "drizzle-orm": ["./node_modules/drizzle-orm"],
+      "drizzle-orm/*": ["./node_modules/drizzle-orm/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "../../drizzle/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../../drizzle/**/*.ts"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }

@@ -1,5 +1,13 @@
-import type { ProfileInput, ScoringResult } from "../types.js";
+import type { ScoringResult } from "../types.js";
 import { getModelForScore } from "./models.js";
+
+export interface ScoringInput {
+  experience: number;
+  role: string;
+  description: string;
+  technologies?: string[];
+  githubUrl?: string;
+}
 
 // ─── Role Protection (0-20) ───────────────────────────────────────────────────
 
@@ -228,7 +236,7 @@ function calculateDaysLeft(score: number): number {
 
 // ─── Main Export ──────────────────────────────────────────────────────────────
 
-export function calculateScore(input: ProfileInput): ScoringResult {
+export function calculateScore(input: ScoringInput): ScoringResult {
   const expPts = experienceProtection(input.experience);
   const rolePts = roleProtection(input.role);
   const techPts = techProtection(input.technologies ?? []);

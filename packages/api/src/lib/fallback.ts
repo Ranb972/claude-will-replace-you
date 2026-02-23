@@ -6,49 +6,7 @@
  * Never mean-spirited. Self-deprecating AI humor + tech industry inside jokes.
  */
 
-// ---------------------------------------------------------------------------
-// Types (will be imported from ../types.ts once branches merge)
-// ---------------------------------------------------------------------------
-
-interface ProfileInput {
-  name: string;
-  role: string;
-  experience: number;
-  description: string;
-  technologies: string[];
-  githubUrl?: string;
-}
-
-interface ModelTier {
-  key: string;
-  name: string;
-  emoji: string;
-  year: number | null;
-  exists: boolean;
-  description: string;
-  tier: number;
-  scoreMin: number;
-  scoreMax: number;
-}
-
-interface ScoringResult {
-  score: number;
-  model: ModelTier;
-  daysLeft: number;
-  tier: number;
-}
-
-interface SkillAnalysis {
-  skill: string;
-  replaced: boolean;
-  comment: string;
-}
-
-interface HumorContent {
-  headline: string;
-  quote: string;
-  skillsAnalysis: SkillAnalysis[];
-}
+import type { ProfileInput, ScoringResult, SkillAnalysis, HumorContent } from "../types.js";
 
 // ---------------------------------------------------------------------------
 // Tier key mapping

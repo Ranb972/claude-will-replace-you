@@ -4,9 +4,10 @@
     "outDir": "./dist",
     "rootDir": "../../",
     "types": ["node"],
+    "jsx": "react-jsx",
     "paths": {
       "@cwru/schema": ["../../drizzle/schema.ts"]
     }
   },
-  "include": ["src/**/*.ts", "../../drizzle/**/*.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "../../drizzle/**/*.ts"]
 }

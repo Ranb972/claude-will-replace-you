@@ -1,6 +1,7 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import og from "./routes/og.js";
 
 const app = new Hono();
 
@@ -16,6 +17,9 @@ app.use(
 app.get("/api/health", (c) => {
   return c.json({ status: "ok" });
 });
+
+// OG certificate image generation
+app.route("/api/og", og);
 
 const port = 3001;
 console.log(`API server running on http://localhost:${port}`);

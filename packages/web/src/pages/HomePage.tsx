@@ -28,7 +28,7 @@ export function HomePage() {
   async function handleSubmit(data: ProfilePayload) {
     const result = await analyze(data);
     if (result) {
-      navigate(`/result/${result.id}`);
+      navigate(`/result/${result.id}`, { state: { result } });
     }
   }
 

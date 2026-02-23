@@ -1,9 +1,5 @@
 @import "tailwindcss";
 
-@theme {
-  --animate-fade-in: fade-in 0.4s ease-out;
-}
-
 /* Dark background default */
 html {
   color-scheme: dark;
@@ -15,6 +11,10 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@theme {
+  --animate-fade-in: fade-in 0.4s ease-out;
 }
 
 @keyframes fade-in {

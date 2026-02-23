@@ -2,18 +2,12 @@
   "name": "claude-will-replace-you",
   "private": true,
   "workspaces": ["packages/*"],
-  "scripts": {
-    "dev": "concurrently \"bun run dev:api\" \"bun run dev:web\"",
-    "dev:api": "bun run --filter @cwru/api dev",
-    "dev:web": "bun run --filter @cwru/web dev",
-    "build": "bun run build:web && bun run build:api",
-    "build:api": "bun run --filter @cwru/api build",
-    "build:web": "bun run --filter @cwru/web build",
-    "db:push": "drizzle-kit push"
-  },
   "devDependencies": {
-    "concurrently": "^9.1.2",
-    "drizzle-kit": "^0.30.4",
-    "typescript": "^5.7.3"
+    "drizzle-orm": "^0.39.0"
+  },
+  "scripts": {
+    "dev": "bun run --filter '*' dev",
+    "build": "bun run --filter '*' build",
+    "db:push": "bun run --filter @cwru/api db:push"
   }
 }

@@ -1,252 +1,133 @@
-import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { ReplacementMeter } from "../components/ReplacementMeter";
-import { fetchResult, type AnalysisResult } from "../lib/api";
-
-function getDaysMessage(days: number): string {
-  if (days <= 7) return "Better start packing...";
-  if (days <= 30) return "You've got about a month. Use it wisely.";
-  if (days <= 180) return "Still some runway left.";
-  if (days <= 365) return "A year-ish. Not bad!";
-  if (days <= 1000) return "You've got time. Probably.";
-  return "You might actually retire before this happens.";
-}
-
-function getModelEmoji(key: string): string {
-  const emojis: Record<string, string> = {
-    haiku: "⚡",
-    sonnet: "🎭",
-    opus: "🎼",
-    titan: "🔮",
-    colossus: "🌋",
-    singularity: "🌀",
-    skynet: "💀",
-    infinity: "♾️",
-  };
-  return emojis[key] ?? "🤖";
-}
-
-function getScoreClass(score: number): string {
-  if (score < 30) return "text-green-400";
-  if (score < 55) return "text-yellow-400";
-  if (score < 80) return "text-orange-400";
-  return "text-red-400";
-}
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import type { AnalysisResult } from "../lib/api";
+import { fetchResult } from "../lib/api";
+import { ShareButtons } from "../components/ShareButtons";
 
 export function ResultPage() {
   const { id } = useParams<{ id: string }>();
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  const [result, setResult] = useState<AnalysisResult | null>(
-    (location.state as { result?: AnalysisResult })?.result ?? null,
-  );
+  const [result, setResult] = useState<AnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(!result);
+  const [loading, setLoading] = useState(true);
 
-  // Fetch from API if we don't have the result from route state
   useEffect(() => {
-    if (result || !id) return;
+    if (!id) {
+      setError("Missing result ID");
+      setLoading(false);
+      return;
+    }
 
-    setLoading(true);
     fetchResult(id)
       .then(setResult)
-      .catch((err) =>
-        setError(err instanceof Error ? err.message : "Failed to load result"),
-      )
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
-  }, [id, result]);
+  }, [id]);
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white">
-        <div className="text-center space-y-4">
-          <div className="text-5xl animate-bounce">🤖</div>
-          <p className="text-gray-400">Loading your results...</p>
-        </div>
+        <p className="text-xl animate-pulse">טוען תוצאה...</p>
       </div>
     );
   }
 
   if (error || !result) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white">
-        <div className="text-center space-y-4">
-          <div className="text-5xl">😵</div>
-          <p className="text-red-400">{error ?? "Result not found"}</p>
-          <Link
-            to="/"
-            className="inline-block mt-4 rounded-lg bg-gray-800 px-6 py-2 text-sm hover:bg-gray-700 transition-colors"
-          >
-            Try Again
-          </Link>
-        </div>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-950 text-white gap-4">
+        <p className="text-xl text-red-400">{error || "Result not found"}</p>
+        <Link to="/" className="text-purple-400 hover:text-purple-300 underline">
+          חזרה לדף הבית
+        </Link>
       </div>
     );
   }
 
-  const { model, score, daysLeft, headline, quote, skillsAnalysis } = result;
-  const emoji = getModelEmoji(model.key);
-
-  const shareText = encodeURIComponent(
-    `${emoji} ${model.name} will replace me in ${daysLeft} days (${score}% replaceable)! Find out your fate:`,
-  );
-  const shareUrl = encodeURIComponent(result.shareUrl);
-
   return (
-    <div className="min-h-screen bg-gray-950 text-white" dir="auto">
-      {/* Background glow based on danger level */}
-      <div
-        className={`fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full blur-[160px] pointer-events-none opacity-15 ${
-          score >= 80
-            ? "bg-red-500"
-            : score >= 55
-              ? "bg-orange-500"
-              : score >= 30
-                ? "bg-yellow-500"
-                : "bg-green-500"
-        }`}
-      />
-
-      <div className="relative z-10 max-w-2xl mx-auto px-4 py-12 sm:py-16 space-y-10">
-        {/* Section 1: Model Card */}
-        <section className="text-center space-y-4 animate-fade-in">
-          <div className="text-6xl sm:text-7xl">{emoji}</div>
-          <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold">
-            <span className={getScoreClass(score)}>{model.name}</span>
-          </h1>
-          {!model.exists && model.year && (
-            <p className="text-sm text-gray-500">
-              Coming in ~{model.year} {model.emoji}
-            </p>
+    <div className="min-h-screen bg-gray-950 text-white py-8 px-4" dir="rtl">
+      <div className="max-w-2xl mx-auto space-y-8">
+        {/* Model card */}
+        <div className="text-center space-y-4">
+          <div className="text-6xl">{result.model.emoji || "🤖"}</div>
+          <h1 className="text-3xl font-bold">{result.model.name}</h1>
+          {result.model.exists === false && result.model.year && (
+            <p className="text-gray-400">🔮 צפוי לצאת ב-{result.model.year}</p>
           )}
-          <p className="text-lg sm:text-xl text-gray-300 max-w-md mx-auto font-medium">
-            {headline}
-          </p>
-        </section>
+          <p className="text-xl text-purple-300">{result.headline}</p>
+        </div>
 
-        {/* Section 2: Animated Replacement Meter */}
-        <section className="rounded-2xl bg-gray-900/60 border border-gray-800 p-6 sm:p-8 backdrop-blur-sm">
-          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-5">
-            Replacement Risk
-          </h2>
-          <ReplacementMeter score={score} />
-        </section>
+        {/* Score */}
+        <div className="text-center space-y-2">
+          <p className="text-gray-400 text-sm">אחוז החלפה</p>
+          <div className="w-full bg-gray-800 rounded-full h-6 overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-1000"
+              style={{
+                width: `${result.score}%`,
+                backgroundColor: scoreColor(result.score),
+              }}
+            />
+          </div>
+          <p className="text-4xl font-bold">{result.score}%</p>
+        </div>
 
-        {/* Section 3: Days Countdown */}
-        <section className="rounded-2xl bg-gray-900/60 border border-gray-800 p-6 sm:p-8 backdrop-blur-sm text-center space-y-2">
-          <p className="text-sm text-gray-400 uppercase tracking-wider font-semibold">
-            Days Until Replacement
+        {/* Days left */}
+        <div className="text-center">
+          <p className="text-gray-400 text-sm">ימים עד החלפה</p>
+          <p className="text-5xl font-bold mt-2">
+            {result.daysLeft >= 99999 ? "♾️" : result.daysLeft.toLocaleString("he-IL")}
           </p>
-          <p
-            className={`text-5xl sm:text-6xl font-black tabular-nums ${getScoreClass(score)}`}
-          >
-            {daysLeft.toLocaleString()}
-          </p>
-          <p className="text-gray-400 text-sm">{getDaysMessage(daysLeft)}</p>
-        </section>
+          {result.daysLeft < 99999 && <p className="text-gray-400 mt-1">ימים</p>}
+        </div>
 
-        {/* Section 4: Skills Analysis */}
-        {skillsAnalysis.length > 0 && (
-          <section className="rounded-2xl bg-gray-900/60 border border-gray-800 p-6 sm:p-8 backdrop-blur-sm space-y-4">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">
-              Skills Breakdown
-            </h2>
-            <ul className="space-y-3">
-              {skillsAnalysis.map((s, i) => (
-                <li
-                  key={i}
-                  className="flex items-start gap-3 rounded-xl bg-gray-800/50 p-4"
+        {/* Quote */}
+        <div className="bg-gray-900 border border-gray-800 rounded-xl p-6 text-center">
+          <p className="text-lg italic text-gray-200">"{result.quote}"</p>
+          <p className="text-gray-500 mt-2">— {result.model.name}</p>
+        </div>
+
+        {/* Skills analysis */}
+        {result.skillsAnalysis.length > 0 && (
+          <div className="space-y-3">
+            <h2 className="text-xl font-semibold text-center">ניתוח כישורים</h2>
+            <div className="space-y-2">
+              {result.skillsAnalysis.map((skill) => (
+                <div
+                  key={skill.skill}
+                  className="flex items-start gap-3 bg-gray-900 rounded-lg p-3"
                 >
-                  <span className="text-xl mt-0.5 shrink-0">
-                    {s.replaced ? "✅" : "🛡️"}
+                  <span className="text-lg mt-0.5">
+                    {skill.replaced ? "✅" : "🛡️"}
                   </span>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-white">{s.skill}</p>
-                    <p className="text-sm text-gray-400 mt-0.5">{s.comment}</p>
+                  <div>
+                    <p className="font-medium">{skill.skill}</p>
+                    <p className="text-gray-400 text-sm">{skill.comment}</p>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
-          </section>
-        )}
-
-        {/* Section 5: Speech Bubble Quote */}
-        <section className="relative">
-          <div className="rounded-2xl bg-gray-900/60 border border-gray-800 p-6 sm:p-8 backdrop-blur-sm">
-            <div className="flex gap-4 items-start">
-              <div className="text-3xl shrink-0">🤖</div>
-              <div>
-                <p className="text-sm text-gray-500 mb-1 font-medium">
-                  {model.name} says:
-                </p>
-                <blockquote className="text-gray-200 text-lg italic leading-relaxed">
-                  &ldquo;{quote}&rdquo;
-                </blockquote>
-              </div>
             </div>
           </div>
-          {/* Speech bubble tail */}
-          <div className="absolute -bottom-2 left-10 w-4 h-4 bg-gray-900/60 border-b border-r border-gray-800 rotate-45" />
-        </section>
+        )}
 
-        {/* Section 6: Action Buttons */}
-        <section className="space-y-4">
-          {/* Primary action: Download certificate */}
-          <a
-            href={result.certificateUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full rounded-xl bg-gradient-to-r from-orange-500 to-red-500 px-6 py-3.5 font-bold text-lg shadow-lg shadow-orange-500/20 hover:shadow-orange-500/40 hover:scale-[1.02] transition-all"
-          >
-            📜 Download Certificate
-          </a>
+        {/* Share buttons */}
+        <ShareButtons result={result} />
 
-          {/* Share buttons */}
-          <div className="grid grid-cols-3 gap-3">
-            <a
-              href={`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl bg-gray-800 px-4 py-3 font-medium hover:bg-gray-700 transition-colors"
-            >
-              𝕏 <span className="hidden sm:inline">Twitter</span>
-            </a>
-            <a
-              href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl bg-gray-800 px-4 py-3 font-medium hover:bg-gray-700 transition-colors"
-            >
-              💼 <span className="hidden sm:inline">LinkedIn</span>
-            </a>
-            <a
-              href={`https://wa.me/?text=${shareText}%20${shareUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl bg-gray-800 px-4 py-3 font-medium hover:bg-gray-700 transition-colors"
-            >
-              💬 <span className="hidden sm:inline">WhatsApp</span>
-            </a>
-          </div>
-
-          {/* Secondary actions */}
-          <div className="grid grid-cols-2 gap-3">
-            <Link
-              to="/leaderboard"
-              className="flex items-center justify-center gap-2 rounded-xl border border-gray-700 px-4 py-3 font-medium hover:bg-gray-800 transition-colors"
-            >
-              🏆 Leaderboard
-            </Link>
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center justify-center gap-2 rounded-xl border border-gray-700 px-4 py-3 font-medium hover:bg-gray-800 transition-colors cursor-pointer"
-            >
-              🔄 Try Again
-            </button>
-          </div>
-        </section>
+        {/* Navigation */}
+        <div className="flex justify-center gap-4 text-sm">
+          <Link to="/" className="text-purple-400 hover:text-purple-300">
+            🔄 נסה שוב
+          </Link>
+          <Link to="/leaderboard" className="text-purple-400 hover:text-purple-300">
+            🏆 לידרבורד
+          </Link>
+        </div>
       </div>
     </div>
   );
+}
+
+function scoreColor(score: number): string {
+  if (score >= 85) return "#a855f7"; // purple
+  if (score >= 60) return "#ef4444"; // red
+  if (score >= 30) return "#f97316"; // orange
+  return "#22c55e"; // green
 }

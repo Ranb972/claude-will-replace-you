@@ -1,11 +1,4 @@
-export interface ProfilePayload {
-  name: string;
-  role: string;
-  experience: number;
-  description: string;
-  technologies: string[];
-  githubUrl?: string;
-}
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 export interface SkillAnalysis {
   skill: string;
@@ -13,21 +6,21 @@ export interface SkillAnalysis {
   comment: string;
 }
 
-export interface ModelInfo {
+export interface ResultModel {
   key: string;
   name: string;
-  emoji: string;
-  year: number | null;
-  exists: boolean;
-  description: string;
-  tier: number;
-  scoreMin: number;
-  scoreMax: number;
+  emoji?: string;
+  year?: number | null;
+  exists?: boolean;
+  description?: string;
 }
 
 export interface AnalysisResult {
   id: string;
-  model: ModelInfo;
+  name: string;
+  role: string;
+  experience: number;
+  model: ResultModel;
   score: number;
   daysLeft: number;
   headline: string;
@@ -36,74 +29,25 @@ export interface AnalysisResult {
   shareUrl: string;
   certificateUrl: string;
   generatedBy: string;
-}
-
-// --- Leaderboard ---
-
-export interface LeaderboardEntry {
-  id: string;
-  name: string;
-  role: string;
-  score: number;
-  modelKey: string;
-  modelName: string;
-  daysLeft: number;
   createdAt: string;
-}
-
-export interface LeaderboardResponse {
-  entries: LeaderboardEntry[];
-  total: number;
-  hasMore: boolean;
-}
-
-export type LeaderboardSort = "highest" | "lowest" | "recent";
-
-export async function fetchLeaderboard(
-  sort: LeaderboardSort = "highest",
-  limit = 20,
-  offset = 0,
-): Promise<LeaderboardResponse> {
-  const params = new URLSearchParams({
-    sort,
-    limit: String(limit),
-    offset: String(offset),
-  });
-  const res = await fetch(`/api/leaderboard?${params}`);
-
-  if (!res.ok) {
-    throw new Error(`Leaderboard request failed (${res.status})`);
-  }
-
-  return res.json();
-}
-
-// --- Analysis ---
-
-export async function submitAnalysis(
-  payload: ProfilePayload,
-): Promise<AnalysisResult> {
-  const res = await fetch("/api/analyze", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-
-  if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(body?.message ?? `Request failed (${res.status})`);
-  }
-
-  return res.json();
+  shareCount: number;
 }
 
 export async function fetchResult(id: string): Promise<AnalysisResult> {
-  const res = await fetch(`/api/result/${encodeURIComponent(id)}`);
-
+  const res = await fetch(`${API_BASE}/result/${encodeURIComponent(id)}`);
   if (!res.ok) {
-    const body = await res.json().catch(() => null);
-    throw new Error(body?.message ?? `Result not found (${res.status})`);
+    throw new Error(res.status === 404 ? "Result not found" : "Failed to fetch result");
   }
-
   return res.json();
+}
+
+export async function trackShare(
+  id: string,
+  platform: "twitter" | "linkedin" | "whatsapp" | "download"
+): Promise<void> {
+  await fetch(`${API_BASE}/result/${encodeURIComponent(id)}/share`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ platform }),
+  });
 }

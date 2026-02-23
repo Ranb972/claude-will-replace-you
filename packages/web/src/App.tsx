@@ -1,14 +1,21 @@
-import { Routes, Route } from "react-router-dom";
-import { HomePage } from "./pages/HomePage";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ResultPage } from "./pages/ResultPage";
-import { LeaderboardPage } from "./pages/LeaderboardPage";
 
-export function App() {
+export default function App() {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/result/:id" element={<ResultPage />} />
-      <Route path="/leaderboard" element={<LeaderboardPage />} />
-    </Routes>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/result/:id" element={<ResultPage />} />
+        {/* Other routes will be added by other layers */}
+        <Route
+          path="*"
+          element={
+            <div className="min-h-screen flex items-center justify-center bg-gray-950 text-white">
+              <p>Claude Will Replace You — Coming Soon</p>
+            </div>
+          }
+        />
+      </Routes>
+    </BrowserRouter>
   );
 }

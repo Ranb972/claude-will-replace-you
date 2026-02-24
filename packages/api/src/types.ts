@@ -23,8 +23,6 @@ export interface ModelTier {
   exists: boolean;
   description: string;
   tier: number;
-  scoreMin: number;
-  scoreMax: number;
 }
 
 // --- Scoring ---

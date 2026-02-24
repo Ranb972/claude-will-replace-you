@@ -1,7 +1,6 @@
 import { Hono } from "hono";
-import { eq } from "drizzle-orm";
-import { db, schema } from "../lib/db";
-import { getModelByKey } from "../lib/models";
+import { getResult } from "../lib/db.js";
+import { getModelByKey } from "../lib/models.js";
 
 const app = new Hono();
 
@@ -11,11 +10,7 @@ const app = new Hono();
 app.get("/:id", async (c) => {
   const { id } = c.req.param();
 
-  const row = await db
-    .select()
-    .from(schema.results)
-    .where(eq(schema.results.id, id))
-    .get();
+  const row = await getResult(id);
 
   if (!row) {
     return c.html(

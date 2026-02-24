@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useRef, useState, useEffect } from "react";
+import { useRef } from "react";
 import { InputForm } from "../components/InputForm";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { useAnalysis } from "../hooks/useAnalysis";
@@ -11,6 +11,8 @@ const RECENT_RESULTS = [
   { name: "Yossi", role: "Junior Dev", model: "Haiku", days: 12 },
   { name: "Shira", role: "CTO", model: "Singularity", days: 4200 },
   { name: "Amit", role: "DevOps Engineer", model: "Sonnet", days: 180 },
+  { name: "Tal", role: "Backend Developer", model: "Opus", days: 620 },
+  { name: "Maya", role: "Data Scientist", model: "Titan", days: 1800 },
 ];
 
 const ERROR_ICONS: Record<string, string> = {
@@ -22,15 +24,8 @@ const ERROR_ICONS: Record<string, string> = {
 
 export function HomePage() {
   const navigate = useNavigate();
-  const formRef = useRef<HTMLElement>(null);
-  const [showForm, setShowForm] = useState(false);
+  const formRef = useRef<HTMLDivElement>(null);
   const { isLoading, error, errorCode, analyze } = useAnalysis();
-
-  useEffect(() => {
-    if (showForm && formRef.current) {
-      formRef.current.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [showForm]);
 
   async function handleSubmit(data: ProfilePayload) {
     const result = await analyze(data);
@@ -40,98 +35,141 @@ export function HomePage() {
   }
 
   function scrollToForm() {
-    setShowForm(true);
+    formRef.current?.scrollIntoView({ behavior: "smooth" });
   }
 
   const errorIcon = errorCode ? ERROR_ICONS[errorCode] ?? "❌" : "❌";
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" dir="auto">
+    <div className="min-h-screen" style={{ backgroundColor: "#0a0a0f" }}>
       <LoadingScreen visible={isLoading} />
 
-      {/* Hero */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-4 py-16 relative overflow-hidden">
+      {/* ── Hero Section ── */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden">
         {/* Background glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-orange-500/10 rounded-full blur-[128px] pointer-events-none" />
+        <div
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          style={{
+            width: 700,
+            height: 700,
+            borderRadius: "50%",
+            background: "radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%)",
+            filter: "blur(80px)",
+          }}
+        />
 
-        <div className="relative z-10 text-center max-w-2xl mx-auto space-y-6">
-          <div className="text-7xl mb-4">🤖</div>
+        <div className="relative z-10 text-center max-w-[800px] mx-auto">
+          <div className="text-7xl sm:text-8xl mb-6">🤖</div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight">
-            <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
-              Which Claude Model
+          <h1
+            dir="rtl"
+            className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-4"
+          >
+            <span
+              style={{
+                background: "linear-gradient(90deg, #f97316, #ef4444)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
+              איזה מודל של Claude
             </span>
             <br />
-            Will Replace You?
+            <span className="text-white">?יחליף אותך</span>
           </h1>
 
-          <p className="text-lg sm:text-xl text-gray-400 max-w-md mx-auto">
-            Enter your profile and find out how many days you have left.
+          <p dir="rtl" className="text-lg sm:text-xl text-gray-400 max-w-md mx-auto mb-8">
+            הכנס את הפרופיל שלך וגלה כמה ימים נשארו לך.
           </p>
 
           <button
             onClick={scrollToForm}
-            className="inline-block mt-4 rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-8 py-3.5 text-lg font-bold shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 hover:scale-105 transition-all cursor-pointer"
+            className="rounded-xl px-8 py-3.5 text-lg font-bold text-white cursor-pointer transition-all hover:scale-105"
+            style={{
+              background: "linear-gradient(135deg, #f97316, #ef4444)",
+              boxShadow: "0 4px 24px rgba(249,115,22,0.3)",
+            }}
           >
-            Discover the Truth 😰
+            גלה את האמת 😰
           </button>
 
           {error && (
             <div
               role="alert"
               dir="rtl"
-              className="mt-4 mx-auto max-w-md rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300"
+              className="mt-6 mx-auto max-w-md rounded-xl px-4 py-3 text-sm text-red-300"
+              style={{
+                backgroundColor: "rgba(239,68,68,0.1)",
+                border: "1px solid rgba(239,68,68,0.25)",
+              }}
             >
-              <span className="text-lg mr-2">{errorIcon}</span>
+              <span className="text-lg ml-2">{errorIcon}</span>
               {error}
             </div>
           )}
         </div>
 
-        {/* Recent results ticker */}
-        <div className="absolute bottom-8 left-0 right-0 overflow-hidden">
-          <div className="ticker-track flex gap-8 whitespace-nowrap">
-            {[...RECENT_RESULTS, ...RECENT_RESULTS].map((r, i) => (
-              <span key={i} className="text-sm text-gray-500">
-                {r.name}, {r.role} — replaced by{" "}
-                <span className="text-orange-400">{r.model}</span> in {r.days}{" "}
-                days
+        {/* ── Ticker ── */}
+        <div className="absolute bottom-6 left-0 right-0 overflow-hidden">
+          <div className="ticker-track">
+            {[...RECENT_RESULTS, ...RECENT_RESULTS, ...RECENT_RESULTS].map((r, i) => (
+              <span
+                key={i}
+                className="text-sm text-gray-600 whitespace-nowrap"
+                style={{ padding: "0 24px" }}
+              >
+                {r.name}, {r.role}
+                <span className="text-gray-700 mx-2">—</span>
+                replaced by{" "}
+                <span className="text-orange-500/70">{r.model}</span>
+                {" "}in {r.days} days
               </span>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Form Section */}
-      {showForm && (
-        <section
-          ref={formRef}
-          className="min-h-screen flex items-start justify-center px-4 py-16"
-        >
-          <div className="w-full max-w-lg space-y-8">
-            <div className="text-center">
-              <h2 className="text-2xl sm:text-3xl font-bold">Your Profile</h2>
-              <p className="text-gray-400 mt-2">
-                Tell us about yourself and we'll calculate your replacement
-                risk.
+      {/* ── Form Section ── */}
+      <section
+        ref={formRef}
+        className="flex justify-center px-4 py-16 sm:py-24"
+      >
+        <div className="w-full max-w-[800px]">
+          <div
+            className="rounded-2xl p-6 sm:p-10"
+            style={{
+              backgroundColor: "#12121a",
+              border: "1px solid #1e1e2e",
+            }}
+          >
+            <div className="text-center mb-8">
+              <h2 dir="rtl" className="text-2xl sm:text-3xl font-bold text-white">
+                הפרופיל שלך
+              </h2>
+              <p dir="rtl" className="text-gray-400 mt-2 text-sm sm:text-base">
+                ספר לנו על עצמך ונחשב את סיכוי ההחלפה שלך.
               </p>
             </div>
+
             <InputForm onSubmit={handleSubmit} isSubmitting={isLoading} />
 
-            {/* Error below form */}
             {error && (
               <div
                 role="alert"
                 dir="rtl"
-                className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 text-center"
+                className="mt-6 rounded-xl px-4 py-3 text-sm text-red-300 text-center"
+                style={{
+                  backgroundColor: "rgba(239,68,68,0.1)",
+                  border: "1px solid rgba(239,68,68,0.25)",
+                }}
               >
-                <span className="text-lg mr-2">{errorIcon}</span>
+                <span className="text-lg ml-2">{errorIcon}</span>
                 {error}
               </div>
             )}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </div>
   );
 }

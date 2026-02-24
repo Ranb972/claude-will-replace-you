@@ -21,12 +21,11 @@ export interface ModelInfo {
   exists: boolean;
   description: string;
   tier: number;
-  scoreMin: number;
-  scoreMax: number;
 }
 
 export interface AnalysisResult {
   id: string;
+  name?: string;
   model: ModelInfo;
   score: number;
   daysLeft: number;
@@ -157,4 +156,14 @@ export async function submitAnalysis(
 export async function fetchResult(id: string): Promise<AnalysisResult> {
   const res = await fetch(`/api/result/${encodeURIComponent(id)}`);
   return handleResponse(res, "NOT_FOUND");
+}
+
+export async function trackShare(id: string, _platform: string): Promise<void> {
+  try {
+    await fetch(`/api/result/${encodeURIComponent(id)}/share`, {
+      method: "POST",
+    });
+  } catch {
+    // Fire-and-forget — don't block the UI if tracking fails
+  }
 }

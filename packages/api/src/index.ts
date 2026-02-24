@@ -6,7 +6,6 @@ import analyze from "./routes/analyze.js";
 import result from "./routes/result.js";
 import share from "./routes/share.js";
 import { leaderboard } from "./routes/leaderboard.js";
-import og from "./routes/og.js";
 import { getResult } from "./lib/db.js";
 import { MODEL_TIERS } from "./lib/models.js";
 
@@ -58,8 +57,6 @@ app.route("/api/analyze", analyze);
 app.route("/api/result", result);
 app.route("/api/result", share);
 app.route("/", leaderboard);
-app.route("/api/og", og);
-
 // ---------------------------------------------------------------------------
 // Share page — minimal HTML with OG meta tags for social crawlers,
 // then redirects to the SPA.

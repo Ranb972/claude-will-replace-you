@@ -2,7 +2,7 @@ import OpenAI from "openai";
 import { ANALYZER_SYSTEM_PROMPT } from "../prompts/analyzer.js";
 import { generateLocalFallback } from "./fallback.js";
 import type { HumorContent, ProfileInput } from "./types.js";
-import type { ScoringResult } from "./scoring.js";
+import type { ScoringResult } from "../types.js";
 
 const MODELS = {
   primary: [

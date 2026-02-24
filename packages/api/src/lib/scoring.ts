@@ -1,5 +1,5 @@
 import type { ScoringResult } from "../types.js";
-import { getModelForScore } from "./models.js";
+import { getModelByScore } from "./models.js";
 
 export interface ScoringInput {
   experience: number;
@@ -246,7 +246,7 @@ export function calculateScore(input: ScoringInput): ScoringResult {
   const protection = Math.min(expPts + rolePts + techPts + descPts + ghPts, 100);
   const score = Math.max(0, Math.min(100 - protection, 100));
 
-  const model = getModelForScore(score);
+  const model = getModelByScore(score);
   const daysLeft = calculateDaysLeft(score);
 
   return {

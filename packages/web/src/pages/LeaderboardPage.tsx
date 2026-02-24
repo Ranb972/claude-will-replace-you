@@ -9,31 +9,25 @@ import {
 
 // --- Model badge colors ---
 
-const MODEL_BADGE_STYLES: Record<string, { bg: string; text: string }> = {
-  // Real models — warm/hot colors
-  haiku: { bg: "bg-red-500/20", text: "text-red-400" },
-  sonnet: { bg: "bg-orange-500/20", text: "text-orange-400" },
-  opus: { bg: "bg-yellow-500/20", text: "text-yellow-400" },
-  // Fictional models — cool/purple colors
-  titan: { bg: "bg-purple-500/20", text: "text-purple-400" },
-  colossus: { bg: "bg-violet-500/20", text: "text-violet-400" },
-  singularity: { bg: "bg-indigo-500/20", text: "text-indigo-400" },
-  skynet: { bg: "bg-blue-500/20", text: "text-blue-400" },
-  infinity: { bg: "bg-cyan-500/20", text: "text-cyan-400" },
+const MODEL_BADGE_COLORS: Record<string, { bg: string; text: string }> = {
+  haiku: { bg: "rgba(239,68,68,0.15)", text: "#f87171" },
+  sonnet: { bg: "rgba(249,115,22,0.15)", text: "#fb923c" },
+  opus: { bg: "rgba(250,204,21,0.15)", text: "#facc15" },
+  titan: { bg: "rgba(168,85,247,0.15)", text: "#c084fc" },
+  colossus: { bg: "rgba(139,92,246,0.15)", text: "#a78bfa" },
+  singularity: { bg: "rgba(99,102,241,0.15)", text: "#818cf8" },
+  skynet: { bg: "rgba(59,130,246,0.15)", text: "#60a5fa" },
+  infinity: { bg: "rgba(6,182,212,0.15)", text: "#22d3ee" },
 };
 
 function ModelBadge({ modelKey, modelName }: { modelKey: string; modelName: string }) {
-  const style = MODEL_BADGE_STYLES[modelKey] ?? {
-    bg: "bg-gray-500/20",
-    text: "text-gray-400",
-  };
+  const colors = MODEL_BADGE_COLORS[modelKey] ?? { bg: "rgba(107,114,128,0.15)", text: "#9ca3af" };
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${style.bg} ${style.text}`}
+      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
+      style={{ backgroundColor: colors.bg, color: colors.text }}
     >
-      {modelKey === "haiku" || modelKey === "sonnet" || modelKey === "opus"
-        ? "🤖"
-        : "🔮"}{" "}
+      {modelKey === "haiku" || modelKey === "sonnet" || modelKey === "opus" ? "🤖" : "🔮"}{" "}
       {modelName}
     </span>
   );
@@ -43,20 +37,14 @@ function ModelBadge({ modelKey, modelName }: { modelKey: string; modelName: stri
 
 function ScoreMeter({ score }: { score: number }) {
   const color =
-    score >= 85
-      ? "bg-red-500"
-      : score >= 60
-        ? "bg-orange-500"
-        : score >= 30
-          ? "bg-yellow-500"
-          : "bg-green-500";
+    score >= 85 ? "#ef4444" : score >= 60 ? "#f97316" : score >= 30 ? "#facc15" : "#4ade80";
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-16 h-2 rounded-full bg-gray-700 overflow-hidden">
+      <div className="w-16 h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#1e1e2e" }}>
         <div
-          className={`h-full rounded-full ${color} transition-all duration-500`}
-          style={{ width: `${score}%` }}
+          className="h-full rounded-full transition-all duration-500"
+          style={{ width: `${score}%`, backgroundColor: color }}
         />
       </div>
       <span className="text-xs text-gray-400 tabular-nums w-8">{score}%</span>
@@ -142,8 +130,8 @@ export function LeaderboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-950 text-white" dir="rtl">
-      <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12">
+    <div className="min-h-screen text-white" dir="rtl" style={{ backgroundColor: "#0a0a0f" }}>
+      <div className="max-w-[800px] mx-auto px-4 py-8 sm:py-12">
         {/* Header */}
         <div className="text-center mb-8">
           <Link
@@ -153,7 +141,13 @@ export function LeaderboardPage() {
             ← חזרה לדף הבית
           </Link>
           <h1 className="text-3xl sm:text-4xl font-extrabold">
-            <span className="bg-gradient-to-r from-orange-400 to-red-500 bg-clip-text text-transparent">
+            <span
+              style={{
+                background: "linear-gradient(90deg, #f97316, #ef4444)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+              }}
+            >
               לוח המוחלפים
             </span>{" "}
             🏆
@@ -166,16 +160,20 @@ export function LeaderboardPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-1 mb-8 bg-gray-900 rounded-lg p-1 max-w-md mx-auto">
+        <div
+          className="flex justify-center gap-1 mb-8 rounded-xl p-1 max-w-md mx-auto"
+          style={{ backgroundColor: "#12121a" }}
+        >
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className={`flex-1 px-3 py-2 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+              className="flex-1 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+              style={
                 activeTab === tab.key
-                  ? "bg-gray-800 text-white shadow-sm"
-                  : "text-gray-400 hover:text-gray-200"
-              }`}
+                  ? { backgroundColor: "#1e1e2e", color: "#fff" }
+                  : { color: "#9ca3af" }
+              }
             >
               {tab.label}
             </button>
@@ -204,7 +202,8 @@ export function LeaderboardPage() {
             {Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={i}
-                className="h-16 rounded-lg bg-gray-900 animate-pulse"
+                className="h-16 rounded-lg animate-pulse"
+                style={{ backgroundColor: "#12121a" }}
               />
             ))}
           </div>
@@ -228,10 +227,10 @@ export function LeaderboardPage() {
         {!loading && !error && entries.length > 0 && (
           <>
             {/* Desktop table */}
-            <div className="hidden sm:block overflow-hidden rounded-lg border border-gray-800">
+            <div className="hidden sm:block overflow-hidden rounded-xl" style={{ border: "1px solid #1e1e2e" }}>
               <table className="w-full">
                 <thead>
-                  <tr className="bg-gray-900/50 text-gray-400 text-xs uppercase tracking-wider">
+                  <tr className="text-gray-400 text-xs uppercase tracking-wider" style={{ backgroundColor: "#12121a" }}>
                     <th className="px-4 py-3 text-right w-12">#</th>
                     <th className="px-4 py-3 text-right">שם</th>
                     <th className="px-4 py-3 text-right">תפקיד</th>
@@ -240,7 +239,7 @@ export function LeaderboardPage() {
                     <th className="px-4 py-3 text-right">ימים</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-800/50">
+                <tbody className="divide-y" style={{ borderColor: "#1e1e2e" }}>
                   {entries.map((entry, i) => {
                     const rank =
                       activeTab === "recent" ? null : i + 1;
@@ -300,7 +299,8 @@ export function LeaderboardPage() {
                   <Link
                     key={entry.id}
                     to={`/result/${entry.id}`}
-                    className="block rounded-lg border border-gray-800 bg-gray-900/30 p-4 hover:border-gray-700 transition-colors"
+                    className="block rounded-xl p-4 transition-colors hover:brightness-110"
+                    style={{ backgroundColor: "#12121a", border: "1px solid #1e1e2e" }}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">

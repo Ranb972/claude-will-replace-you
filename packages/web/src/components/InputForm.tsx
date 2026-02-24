@@ -31,6 +31,13 @@ interface InputFormProps {
   isSubmitting: boolean;
 }
 
+const inputClasses =
+  "w-full rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/60 transition-colors";
+const inputStyle = {
+  backgroundColor: "#1a1a28",
+  border: "1px solid #2a2a3a",
+};
+
 export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
   const [form, setForm] = useState<FormData>({
     name: "",
@@ -91,10 +98,10 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-lg mx-auto">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-[600px] mx-auto">
       {/* Name */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
+        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5">
           Name / Nickname *
         </label>
         <input
@@ -106,17 +113,18 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           onBlur={() => handleBlur("name")}
           aria-describedby={touched.name && errors.name ? "name-error" : undefined}
           aria-invalid={touched.name && !!errors.name}
-          className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+          className={inputClasses}
+          style={inputStyle}
           placeholder="e.g. Ran"
         />
         {touched.name && errors.name && (
-          <p id="name-error" role="alert" className="mt-1 text-sm text-red-400">{errors.name}</p>
+          <p id="name-error" role="alert" className="mt-1.5 text-sm text-red-400">{errors.name}</p>
         )}
       </div>
 
       {/* Role */}
       <div>
-        <label htmlFor="role" className="block text-sm font-medium text-gray-300 mb-1">
+        <label htmlFor="role" className="block text-sm font-medium text-gray-300 mb-1.5">
           Job Title *
         </label>
         <input
@@ -128,18 +136,20 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           onBlur={() => handleBlur("role")}
           aria-describedby={touched.role && errors.role ? "role-error" : undefined}
           aria-invalid={touched.role && !!errors.role}
-          className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+          className={inputClasses}
+          style={inputStyle}
           placeholder="e.g. Full Stack Developer"
         />
         {touched.role && errors.role && (
-          <p id="role-error" role="alert" className="mt-1 text-sm text-red-400">{errors.role}</p>
+          <p id="role-error" role="alert" className="mt-1.5 text-sm text-red-400">{errors.role}</p>
         )}
       </div>
 
       {/* Experience slider */}
       <div>
-        <label htmlFor="experience" className="block text-sm font-medium text-gray-300 mb-1">
-          Years of Experience: <span className="text-orange-400 font-bold">{form.experience}</span>
+        <label htmlFor="experience" className="block text-sm font-medium text-gray-300 mb-1.5">
+          Years of Experience:{" "}
+          <span className="text-orange-400 font-bold text-base">{form.experience}</span>
         </label>
         <input
           id="experience"
@@ -150,9 +160,8 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           onChange={(e) =>
             setForm((f) => ({ ...f, experience: Number(e.target.value) }))
           }
-          className="w-full accent-orange-500"
         />
-        <div className="flex justify-between text-xs text-gray-500 mt-1">
+        <div className="flex justify-between text-xs text-gray-600 mt-1 px-0.5">
           <span>0</span>
           <span>10</span>
           <span>20</span>
@@ -163,7 +172,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1">
+        <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1.5">
           What do you do? *
         </label>
         <textarea
@@ -175,16 +184,17 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           onBlur={() => handleBlur("description")}
           aria-describedby={touched.description && errors.description ? "description-error" : undefined}
           aria-invalid={touched.description && !!errors.description}
-          className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors resize-none"
+          className={`${inputClasses} resize-none`}
+          style={inputStyle}
           placeholder="e.g. Building web apps, designing APIs, managing a team of 5..."
         />
-        <div className="flex justify-between mt-1">
+        <div className="flex justify-between mt-1.5">
           {touched.description && errors.description ? (
             <p id="description-error" role="alert" className="text-sm text-red-400">{errors.description}</p>
           ) : (
             <span />
           )}
-          <span className="text-xs text-gray-500">{form.description.length}/500</span>
+          <span className="text-xs text-gray-600">{form.description.length}/500</span>
         </div>
       </div>
 
@@ -202,11 +212,20 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
                 type="button"
                 onClick={() => toggleTech(tech)}
                 aria-pressed={selected}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer"
+                style={
                   selected
-                    ? "bg-orange-500/20 text-orange-400 border border-orange-500/50"
-                    : "bg-gray-800 text-gray-400 border border-gray-700 hover:border-gray-500"
-                }`}
+                    ? {
+                        backgroundColor: "rgba(249,115,22,0.15)",
+                        color: "#fb923c",
+                        border: "1px solid rgba(249,115,22,0.4)",
+                      }
+                    : {
+                        backgroundColor: "#1a1a28",
+                        color: "#9ca3af",
+                        border: "1px solid #2a2a3a",
+                      }
+                }
               >
                 {tech}
               </button>
@@ -217,8 +236,8 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
 
       {/* GitHub URL */}
       <div>
-        <label htmlFor="github" className="block text-sm font-medium text-gray-300 mb-1">
-          GitHub URL <span className="text-gray-500">(optional)</span>
+        <label htmlFor="github" className="block text-sm font-medium text-gray-300 mb-1.5">
+          GitHub URL <span className="text-gray-600">(optional)</span>
         </label>
         <input
           id="github"
@@ -228,11 +247,12 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           onBlur={() => handleBlur("githubUrl")}
           aria-describedby={touched.githubUrl && errors.githubUrl ? "github-error" : undefined}
           aria-invalid={touched.githubUrl && !!errors.githubUrl}
-          className="w-full rounded-lg bg-gray-800 border border-gray-700 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-colors"
+          className={inputClasses}
+          style={inputStyle}
           placeholder="https://github.com/username"
         />
         {touched.githubUrl && errors.githubUrl && (
-          <p id="github-error" role="alert" className="mt-1 text-sm text-red-400">{errors.githubUrl}</p>
+          <p id="github-error" role="alert" className="mt-1.5 text-sm text-red-400">{errors.githubUrl}</p>
         )}
       </div>
 
@@ -240,9 +260,13 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-lg bg-gradient-to-r from-orange-500 to-red-500 px-6 py-3 text-lg font-bold text-white shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40 transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+        className="w-full rounded-xl px-6 py-3.5 text-lg font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:scale-[1.02]"
+        style={{
+          background: "linear-gradient(135deg, #f97316, #ef4444)",
+          boxShadow: "0 4px 24px rgba(249,115,22,0.25)",
+        }}
       >
-        {isSubmitting ? "Analyzing..." : "Discover the Truth 😰"}
+        {isSubmitting ? "...מנתח" : "גלה את האמת 😰"}
       </button>
     </form>
   );

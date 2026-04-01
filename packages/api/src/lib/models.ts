@@ -23,6 +23,17 @@ export function getModelByKey(key: string): ModelTier | undefined {
   return MODEL_TIERS.find((m) => m.key === key);
 }
 
+export const MODEL_COLORS: Record<string, { accent: string; bg: string; glow: string }> = {
+  haiku:       { accent: "#f87171", bg: "#0a0a0f", glow: "rgba(248,113,113,0.15)" },
+  sonnet:      { accent: "#fb923c", bg: "#0a0a0f", glow: "rgba(251,146,60,0.15)" },
+  opus:        { accent: "#facc15", bg: "#0a0a0f", glow: "rgba(250,204,21,0.15)" },
+  titan:       { accent: "#c084fc", bg: "#0a0a0f", glow: "rgba(192,132,252,0.15)" },
+  colossus:    { accent: "#a78bfa", bg: "#0a0a0f", glow: "rgba(167,139,250,0.15)" },
+  singularity: { accent: "#818cf8", bg: "#0a0a0f", glow: "rgba(129,140,248,0.15)" },
+  skynet:      { accent: "#60a5fa", bg: "#0a0a0f", glow: "rgba(96,165,250,0.15)" },
+  infinity:    { accent: "#22d3ee", bg: "#0a0a0f", glow: "rgba(34,211,238,0.15)" },
+};
+
 export function getModelByScore(score: number): ModelTier {
   if (score >= 85) return MODEL_TIERS[0]; // haiku
   if (score >= 65) return MODEL_TIERS[1]; // sonnet

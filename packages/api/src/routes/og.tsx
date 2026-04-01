@@ -1,80 +1,70 @@
 import { Hono } from "hono";
 import { ImageResponse } from "@vercel/og";
 import { MODEL_COLORS, getModelByKey } from "../lib/models.js";
+import { getResult } from "../lib/db.js";
 
-// Stub type for the DB result row used by this route.
-// The actual DB module is provided by the database layer — this route
-// only needs these fields from the result row.
-export interface OgResultRow {
-  id: string;
-  name: string;
-  role: string;
-  experience: number;
-  model_key: string;
-  model_name: string;
-  score: number;
-  days_left: number;
-  quote: string;
-  created_at: string | null;
-}
+const og = new Hono();
 
-// Dependency: a function that fetches a result row by ID.
-// Injected at wire-up time so the route is decoupled from the DB layer.
-export type GetResultById = (id: string) => Promise<OgResultRow | undefined>;
+og.get("/:id", async (c) => {
+  const id = c.req.param("id");
 
-export function createOgRoute(getResultById: GetResultById) {
-  const og = new Hono();
+  let row;
+  try {
+    row = await getResult(id);
+  } catch {
+    return createFallbackImage();
+  }
 
-  og.get("/:id", async (c) => {
-    const id = c.req.param("id");
+  if (!row) {
+    return c.json({ error: "Result not found" }, 404);
+  }
 
-    let result: OgResultRow | undefined;
-    try {
-      result = await getResultById(id);
-    } catch {
-      // DB error — return generic fallback image
-      return createFallbackImage();
-    }
+  try {
+    const image = renderCertificate(row);
+    return new Response(image.body, {
+      headers: {
+        "Content-Type": "image/png",
+        "Cache-Control": "public, max-age=86400, s-maxage=86400",
+      },
+    });
+  } catch {
+    return createFallbackImage();
+  }
+});
 
-    if (!result) {
-      return c.json({ error: "Result not found" }, 404);
-    }
-
-    try {
-      const image = renderCertificate(result);
-      return new Response(image.body, {
-        headers: {
-          "Content-Type": "image/png",
-          "Cache-Control": "public, max-age=86400, s-maxage=86400",
-        },
-      });
-    } catch {
-      return createFallbackImage();
-    }
-  });
-
-  return og;
-}
+export default og;
 
 // ---------------------------------------------------------------------------
 // Certificate renderer
 // ---------------------------------------------------------------------------
 
-function renderCertificate(result: OgResultRow): ImageResponse {
-  const model = getModelByKey(result.model_key);
-  const colors = MODEL_COLORS[result.model_key] ?? MODEL_COLORS.opus;
+interface CertRow {
+  id: string;
+  name: string;
+  role: string;
+  experience: number;
+  modelKey: string;
+  modelName: string;
+  score: number;
+  daysLeft: number;
+  quote: string;
+  createdAt: string | null;
+}
+
+function renderCertificate(result: CertRow): ImageResponse {
+  const model = getModelByKey(result.modelKey);
+  const colors = MODEL_COLORS[result.modelKey] ?? MODEL_COLORS.opus;
   const accent = colors.accent;
   const bgColor = colors.bg;
 
   const yearLabel = model?.year ? `Expected ${model.year}` : model?.exists ? "Available Now" : "";
   const futureEmoji = model?.exists ? "" : " 🔮";
-  const daysLabel = formatDaysLeft(result.days_left);
+  const daysLabel = formatDaysLeft(result.daysLeft);
   const scorePercent = Math.min(100, Math.max(0, result.score));
-  const dateStr = result.created_at
-    ? new Date(result.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+  const dateStr = result.createdAt
+    ? new Date(result.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
     : new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
 
-  // Truncate quote to fit certificate
   const quote = result.quote.length > 120 ? result.quote.slice(0, 117) + "..." : result.quote;
 
   return new ImageResponse(
@@ -222,7 +212,7 @@ function renderCertificate(result: OgResultRow): ImageResponse {
               alignItems: "center",
             }}
           >
-            ✦ {result.model_name}{futureEmoji} ✦
+            ✦ {result.modelName}{futureEmoji} ✦
           </div>
 
           {/* Year label */}
@@ -271,7 +261,6 @@ function renderCertificate(result: OgResultRow): ImageResponse {
                 width: "420px",
               }}
             >
-              {/* Bar background */}
               <div
                 style={{
                   display: "flex",
@@ -283,7 +272,6 @@ function renderCertificate(result: OgResultRow): ImageResponse {
                   position: "relative",
                 }}
               >
-                {/* Filled portion */}
                 <div
                   style={{
                     width: `${scorePercent}%`,

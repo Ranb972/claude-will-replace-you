@@ -6,3 +6,4 @@ dist
 .vercel
 *.tsbuildinfo
 package-lock.json
+*.db

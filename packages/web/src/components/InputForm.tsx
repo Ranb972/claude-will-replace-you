@@ -32,11 +32,19 @@ interface InputFormProps {
 }
 
 const inputClasses =
-  "w-full rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500/60 transition-colors";
+  "w-full rounded-lg px-4 py-3 text-white placeholder-gray-600 font-display focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/60 transition-colors";
 const inputStyle = {
-  backgroundColor: "#1a1a28",
-  border: "1px solid #2a2a3a",
+  backgroundColor: "rgba(26,26,40,0.8)",
+  border: "1px dashed #2a2a3a",
 };
+
+function AiComment({ text }: { text: string }) {
+  return (
+    <span dir="rtl" className="font-mono text-xs text-[var(--color-accent)] opacity-60 mr-2">
+      {text}
+    </span>
+  );
+}
 
 export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
   const [form, setForm] = useState<FormData>({
@@ -101,7 +109,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
     <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-[600px] mx-auto">
       {/* Name */}
       <div>
-        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5">
+        <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5 font-mono">
           Name / Nickname *
         </label>
         <input
@@ -124,7 +132,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
 
       {/* Role */}
       <div>
-        <label htmlFor="role" className="block text-sm font-medium text-gray-300 mb-1.5">
+        <label htmlFor="role" className="block text-sm font-medium text-gray-300 mb-1.5 font-mono">
           Job Title *
         </label>
         <input
@@ -147,10 +155,13 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
 
       {/* Experience slider */}
       <div>
-        <label htmlFor="experience" className="block text-sm font-medium text-gray-300 mb-1.5">
-          Years of Experience:{" "}
-          <span className="text-orange-400 font-bold text-base">{form.experience}</span>
-        </label>
+        <div className="flex items-baseline justify-between mb-1.5">
+          <label htmlFor="experience" className="block text-sm font-medium text-gray-300 font-mono">
+            Years of Experience:{" "}
+            <span className="text-[var(--color-accent)] font-bold text-base">{form.experience}</span>
+          </label>
+          <AiComment text="( כל שנה שווה פחות )" />
+        </div>
         <input
           id="experience"
           type="range"
@@ -161,7 +172,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
             setForm((f) => ({ ...f, experience: Number(e.target.value) }))
           }
         />
-        <div className="flex justify-between text-xs text-gray-600 mt-1 px-0.5">
+        <div className="flex justify-between text-xs text-gray-600 mt-1 px-0.5 font-mono">
           <span>0</span>
           <span>10</span>
           <span>20</span>
@@ -172,9 +183,12 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
 
       {/* Description */}
       <div>
-        <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1.5">
-          What do you do? *
-        </label>
+        <div className="flex items-baseline justify-between mb-1.5">
+          <label htmlFor="description" className="block text-sm font-medium text-gray-300 font-mono">
+            What do you do? *
+          </label>
+          <AiComment text="( Claude קורא כל מילה )" />
+        </div>
         <textarea
           id="description"
           rows={3}
@@ -194,13 +208,13 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           ) : (
             <span />
           )}
-          <span className="text-xs text-gray-600">{form.description.length}/500</span>
+          <span className="text-xs text-gray-600 font-mono">{form.description.length}/500</span>
         </div>
       </div>
 
       {/* Technologies */}
       <div>
-        <label className="block text-sm font-medium text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-300 mb-2 font-mono">
           Technologies
         </label>
         <div className="flex flex-wrap gap-2">
@@ -212,18 +226,19 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
                 type="button"
                 onClick={() => toggleTech(tech)}
                 aria-pressed={selected}
-                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer"
+                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer font-display"
                 style={
                   selected
                     ? {
-                        backgroundColor: "rgba(249,115,22,0.15)",
-                        color: "#fb923c",
-                        border: "1px solid rgba(249,115,22,0.4)",
+                        backgroundColor: "rgba(232,115,74,0.15)",
+                        color: "#E8734A",
+                        border: "1px solid rgba(232,115,74,0.5)",
+                        boxShadow: "0 0 8px rgba(232,115,74,0.2)",
                       }
                     : {
-                        backgroundColor: "#1a1a28",
-                        color: "#9ca3af",
-                        border: "1px solid #2a2a3a",
+                        backgroundColor: "rgba(26,26,40,0.8)",
+                        color: "#8B8B8B",
+                        border: "1px dashed #2a2a3a",
                       }
                 }
               >
@@ -236,9 +251,12 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
 
       {/* GitHub URL */}
       <div>
-        <label htmlFor="github" className="block text-sm font-medium text-gray-300 mb-1.5">
-          GitHub URL <span className="text-gray-600">(optional)</span>
-        </label>
+        <div className="flex items-baseline justify-between mb-1.5">
+          <label htmlFor="github" className="block text-sm font-medium text-gray-300 font-mono">
+            GitHub URL <span className="text-gray-600">(optional)</span>
+          </label>
+          <AiComment text="( +5 הגנה. אם הקוד טוב. )" />
+        </div>
         <input
           id="github"
           type="url"
@@ -260,13 +278,13 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-xl px-6 py-3.5 text-lg font-bold text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:scale-[1.02]"
+        className="w-full rounded-xl px-6 py-3.5 text-lg font-bold text-white font-display transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:scale-[1.02] hover:animate-pulse-glow"
         style={{
-          background: "linear-gradient(135deg, #f97316, #ef4444)",
-          boxShadow: "0 4px 24px rgba(249,115,22,0.25)",
+          background: "linear-gradient(135deg, #E8734A, #ef4444)",
+          boxShadow: "0 4px 24px rgba(232,115,74,0.25)",
         }}
       >
-        {isSubmitting ? "...מנתח" : "גלה את האמת 😰"}
+        {isSubmitting ? "...מנתח" : "📋 Submit for AI Review"}
       </button>
     </form>
   );

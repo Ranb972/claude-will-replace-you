@@ -6,14 +6,23 @@ import { useAnalysis } from "../hooks/useAnalysis";
 import type { ProfilePayload } from "../lib/api";
 
 const RECENT_RESULTS = [
-  { name: "Doron", role: "Full Stack Developer", model: "Haiku", days: 47 },
-  { name: "Noa", role: "ML Engineer", model: "Colossus", days: 2541 },
-  { name: "Yossi", role: "Junior Dev", model: "Haiku", days: 12 },
-  { name: "Shira", role: "CTO", model: "Singularity", days: 4200 },
-  { name: "Amit", role: "DevOps Engineer", model: "Sonnet", days: 180 },
-  { name: "Tal", role: "Backend Developer", model: "Opus", days: 620 },
-  { name: "Maya", role: "Data Scientist", model: "Titan", days: 1800 },
+  { name: "Doron", role: "Full Stack Developer", model: "Haiku", days: 47, score: 88 },
+  { name: "Noa", role: "ML Engineer", model: "Colossus", days: 2541, score: 24 },
+  { name: "Yossi", role: "Junior Dev", model: "Haiku", days: 12, score: 92 },
+  { name: "Shira", role: "CTO", model: "Singularity", days: 4200, score: 14 },
+  { name: "Amit", role: "DevOps Engineer", model: "Sonnet", days: 180, score: 71 },
+  { name: "Tal", role: "Backend Developer", model: "Opus", days: 620, score: 52 },
+  { name: "Maya", role: "Data Scientist", model: "Titan", days: 1800, score: 35 },
 ];
+
+const ASCII_ROBOT = `
+  ┌───────┐
+  │ ◉   ◉ │
+  │  ───  │
+  └──┬┬┬──┘
+    ┌┤││├┐
+    └┤││├┘
+     └┘└┘`;
 
 const ERROR_ICONS: Record<string, string> = {
   RATE_LIMITED: "🐌",
@@ -41,11 +50,11 @@ export function HomePage() {
   const errorIcon = errorCode ? ERROR_ICONS[errorCode] ?? "❌" : "❌";
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#0a0a0f" }}>
+    <div className="min-h-screen bg-noise bg-scanline" style={{ backgroundColor: "#08080c" }}>
       <LoadingScreen visible={isLoading} />
 
       {/* ── Hero Section ── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden bg-grid">
         {/* Background glow */}
         <div
           className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
@@ -53,21 +62,32 @@ export function HomePage() {
             width: 700,
             height: 700,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(249,115,22,0.08) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(232,115,74,0.06) 0%, transparent 70%)",
             filter: "blur(80px)",
           }}
         />
 
         <div className="relative z-10 text-center max-w-[800px] mx-auto">
-          <div className="text-7xl sm:text-8xl mb-6">🤖</div>
+          {/* ASCII Robot */}
+          <pre
+            className="font-mono text-[var(--color-accent)] text-sm sm:text-base mx-auto mb-6 animate-float select-none"
+            style={{ lineHeight: 1.2 }}
+          >
+            {ASCII_ROBOT}
+          </pre>
+
+          {/* Department badge */}
+          <div className="font-mono text-xs sm:text-sm tracking-[0.2em] uppercase text-[var(--color-text-muted)] mb-4">
+            🤖 AI HR DEPARTMENT — OFFICIAL NOTICE
+          </div>
 
           <h1
             dir="rtl"
-            className="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-4"
+            className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-4 text-glitch"
           >
             <span
               style={{
-                background: "linear-gradient(90deg, #f97316, #ef4444)",
+                background: "linear-gradient(90deg, #E8734A, #ef4444)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
@@ -75,22 +95,21 @@ export function HomePage() {
               איזה מודל של Claude
             </span>
             <br />
-            <span className="text-white">?יחליף אותך</span>
+            <span className="text-white">יחליף אותך?</span>
           </h1>
 
-          <p dir="rtl" className="text-lg sm:text-xl text-gray-400 max-w-md mx-auto mb-8">
-            הכנס את הפרופיל שלך וגלה כמה ימים נשארו לך.
+          <p dir="rtl" className="text-lg sm:text-xl text-[var(--color-text-muted)] max-w-md mx-auto mb-8">
+            <span className="typewriter-cursor">הכנס את הפרופיל שלך וגלה כמה ימים נשארו לך</span>
           </p>
 
           <button
             onClick={scrollToForm}
-            className="rounded-xl px-8 py-3.5 text-lg font-bold text-white cursor-pointer transition-all hover:scale-105"
+            className="font-display rounded-xl px-8 py-3.5 text-lg font-bold text-white cursor-pointer transition-all hover:scale-105 animate-pulse-glow"
             style={{
-              background: "linear-gradient(135deg, #f97316, #ef4444)",
-              boxShadow: "0 4px 24px rgba(249,115,22,0.3)",
+              background: "linear-gradient(135deg, #E8734A, #ef4444)",
             }}
           >
-            גלה את האמת 😰
+            גלה את האמת
           </button>
 
           {error && (
@@ -110,21 +129,27 @@ export function HomePage() {
         </div>
 
         {/* ── Ticker ── */}
-        <div className="absolute bottom-6 left-0 right-0 overflow-hidden">
+        <div
+          className="absolute bottom-0 left-0 right-0 overflow-hidden py-3"
+          style={{ borderTop: "1px solid rgba(232,115,74,0.1)", borderBottom: "1px solid rgba(232,115,74,0.1)", backgroundColor: "rgba(8,8,12,0.8)" }}
+        >
           <div className="ticker-track">
-            {[...RECENT_RESULTS, ...RECENT_RESULTS, ...RECENT_RESULTS].map((r, i) => (
-              <span
-                key={i}
-                className="text-sm text-gray-600 whitespace-nowrap"
-                style={{ padding: "0 24px" }}
-              >
-                {r.name}, {r.role}
-                <span className="text-gray-700 mx-2">—</span>
-                replaced by{" "}
-                <span className="text-orange-500/70">{r.model}</span>
-                {" "}in {r.days} days
-              </span>
-            ))}
+            {[...RECENT_RESULTS, ...RECENT_RESULTS, ...RECENT_RESULTS].map((r, i) => {
+              const dotColor = r.score > 60 ? "#ef4444" : r.score < 40 ? "#2dd4bf" : "#f59e0b";
+              return (
+                <span
+                  key={i}
+                  className="font-mono text-xs sm:text-sm text-[var(--color-text-muted)] whitespace-nowrap"
+                  style={{ padding: "0 24px" }}
+                >
+                  <span style={{ color: dotColor }}>●</span>{" "}
+                  {r.name}, {r.role}
+                  <span className="mx-2 opacity-30">|</span>
+                  <span style={{ color: dotColor }}>{r.model}</span>
+                  {" "}{r.days}d
+                </span>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -136,28 +161,37 @@ export function HomePage() {
       >
         <div className="w-full max-w-[800px]">
           <div
-            className="rounded-2xl p-6 sm:p-10"
+            className="relative rounded-2xl p-6 sm:p-10 overflow-hidden"
             style={{
-              backgroundColor: "#12121a",
-              border: "1px solid #1e1e2e",
+              backgroundColor: "#0f0f17",
+              border: "1px dashed rgba(232,115,74,0.25)",
             }}
           >
-            <div className="text-center mb-8">
-              <h2 dir="rtl" className="text-2xl sm:text-3xl font-bold text-white">
+            {/* Watermark */}
+            <div className="watermark-classified">CLASSIFIED</div>
+
+            {/* Header stamp */}
+            <div className="relative z-10 text-center mb-8">
+              <div className="font-mono text-xs tracking-[0.15em] uppercase text-[var(--color-accent)] mb-3">
+                📋 CLASSIFIED — PERSONNEL FILE
+              </div>
+              <h2 dir="rtl" className="font-display text-2xl sm:text-3xl font-bold text-white">
                 הפרופיל שלך
               </h2>
-              <p dir="rtl" className="text-gray-400 mt-2 text-sm sm:text-base">
-                ספר לנו על עצמך ונחשב את סיכוי ההחלפה שלך.
+              <p dir="rtl" className="text-[var(--color-text-muted)] mt-2 text-sm sm:text-base">
+                ספר לנו על עצמך ונחשב את סיכוי ההחלפה שלך
               </p>
             </div>
 
-            <InputForm onSubmit={handleSubmit} isSubmitting={isLoading} />
+            <div className="relative z-10">
+              <InputForm onSubmit={handleSubmit} isSubmitting={isLoading} />
+            </div>
 
             {error && (
               <div
                 role="alert"
                 dir="rtl"
-                className="mt-6 rounded-xl px-4 py-3 text-sm text-red-300 text-center"
+                className="relative z-10 mt-6 rounded-xl px-4 py-3 text-sm text-red-300 text-center"
                 style={{
                   backgroundColor: "rgba(239,68,68,0.1)",
                   border: "1px solid rgba(239,68,68,0.25)",

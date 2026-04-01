@@ -6,25 +6,25 @@ interface ReplacementMeterProps {
 }
 
 function getGradient(score: number): string {
-  if (score < 30) return "linear-gradient(90deg, #4ade80, #22c55e)";
-  if (score < 55) return "linear-gradient(90deg, #facc15, #f97316)";
-  if (score < 80) return "linear-gradient(90deg, #f97316, #ef4444)";
+  if (score < 30) return "linear-gradient(90deg, #2dd4bf, #14b8a6)";
+  if (score < 55) return "linear-gradient(90deg, #f59e0b, #E8734A)";
+  if (score < 80) return "linear-gradient(90deg, #E8734A, #ef4444)";
   return "linear-gradient(90deg, #ef4444, #a855f7)";
 }
 
 function getGlow(score: number): string {
-  if (score < 30) return "0 0 16px rgba(74,222,128,0.3)";
-  if (score < 55) return "0 0 16px rgba(250,204,21,0.3)";
-  if (score < 80) return "0 0 16px rgba(249,115,22,0.3)";
+  if (score < 30) return "0 0 16px rgba(45,212,191,0.3)";
+  if (score < 55) return "0 0 16px rgba(245,158,11,0.3)";
+  if (score < 80) return "0 0 16px rgba(232,115,74,0.3)";
   return "0 0 16px rgba(239,68,68,0.3)";
 }
 
-function getLabel(score: number): string {
-  if (score < 20) return "Safe... for now";
-  if (score < 40) return "Getting warm";
-  if (score < 60) return "Sweat zone";
-  if (score < 80) return "Update your LinkedIn";
-  return "Pack your desk";
+function getThreatLabel(score: number): { text: string; color: string; pulse: boolean } {
+  if (score < 20) return { text: "LOW THREAT", color: "#2dd4bf", pulse: false };
+  if (score < 40) return { text: "MODERATE", color: "#f59e0b", pulse: false };
+  if (score < 60) return { text: "ELEVATED", color: "#E8734A", pulse: false };
+  if (score < 80) return { text: "HIGH THREAT", color: "#ef4444", pulse: false };
+  return { text: "CRITICAL", color: "#ef4444", pulse: true };
 }
 
 export function ReplacementMeter({ score, duration = 2000 }: ReplacementMeterProps) {
@@ -68,19 +68,26 @@ export function ReplacementMeter({ score, duration = 2000 }: ReplacementMeterPro
     requestAnimationFrame(tick);
   }, [hasAnimated, score, duration]);
 
+  const threat = getThreatLabel(score);
+
   return (
     <div ref={ref} className="w-full space-y-3">
       <div className="flex items-end justify-between">
-        <span className="text-5xl sm:text-6xl font-black tabular-nums text-white">
+        <span className="font-mono text-5xl sm:text-6xl font-bold tabular-nums text-white">
           {current}
-          <span className="text-2xl sm:text-3xl text-gray-500">%</span>
+          <span className="text-2xl sm:text-3xl text-[var(--color-text-muted)]">%</span>
         </span>
-        <span className="text-sm text-gray-400 pb-2">{getLabel(score)}</span>
+        <span
+          className={`font-mono text-xs sm:text-sm tracking-wider uppercase pb-2 font-bold ${threat.pulse ? "animate-pulse" : ""}`}
+          style={{ color: threat.color }}
+        >
+          {threat.text}
+        </span>
       </div>
 
       <div
         className="relative h-4 rounded-full overflow-hidden"
-        style={{ backgroundColor: "#1e1e2e" }}
+        style={{ backgroundColor: "#1a1a2e" }}
       >
         <div
           className="h-full rounded-full"
@@ -93,7 +100,7 @@ export function ReplacementMeter({ score, duration = 2000 }: ReplacementMeterPro
         />
       </div>
 
-      <div className="flex justify-between text-xs text-gray-600 px-0.5">
+      <div className="flex justify-between text-xs text-gray-600 px-0.5 font-mono">
         <span>0%</span>
         <span>25%</span>
         <span>50%</span>

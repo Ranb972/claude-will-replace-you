@@ -76,12 +76,16 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
 
   if (!visible && !exiting) return null;
 
+  const pctRound = Math.round(progress);
+  const filled = Math.round((pctRound / 100) * 20);
+  const barText = "█".repeat(filled) + "░".repeat(20 - filled);
+
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center transition-opacity duration-500 bg-matrix bg-grid ${
         exiting ? "opacity-0 pointer-events-none" : "opacity-100"
       }`}
-      style={{ backgroundColor: "#0a0a0f" }}
+      style={{ backgroundColor: "#08080c" }}
       onTransitionEnd={() => {
         if (exiting) {
           setExiting(false);
@@ -90,45 +94,50 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
         }
       }}
     >
+      {/* Title */}
+      <div className="font-mono text-xs sm:text-sm tracking-[0.2em] uppercase text-[var(--color-accent)] mb-8">
+        THREAT ASSESSMENT IN PROGRESS
+      </div>
+
+      {/* Robot */}
       <div className="text-6xl sm:text-7xl mb-8 animate-bounce">🤖</div>
 
+      {/* Message */}
       <p
         key={messageIndex}
         dir="rtl"
-        className="text-xl sm:text-2xl text-white font-medium text-center px-6 min-h-[2em] animate-fade-in"
+        className="font-mono text-lg sm:text-xl text-white font-medium text-center px-6 min-h-[2em] animate-fade-in-up"
       >
+        <span className="text-[var(--color-accent)] opacity-50 mr-2">&gt;</span>
         {MESSAGES[messageIndex]}
+        <span className="animate-terminal-blink text-[var(--color-accent)] mr-1">_</span>
       </p>
 
+      {/* Progress bar */}
       <div className="w-72 sm:w-96 mt-10">
+        <div className="font-mono text-xs text-[var(--color-text-muted)] mb-2 text-center tracking-wider uppercase">
+          THREAT LEVEL
+        </div>
         <div
-          className="h-2 rounded-full overflow-hidden"
-          style={{ backgroundColor: "#1e1e2e" }}
+          className="h-3 rounded-full overflow-hidden"
+          style={{ backgroundColor: "#1a1a2e" }}
         >
           <div
             className="h-full rounded-full transition-[width] duration-300 ease-out"
             style={{
               width: `${progress}%`,
-              background: "linear-gradient(90deg, #f97316, #ef4444, #ec4899)",
+              background: "linear-gradient(90deg, #E8734A, #ef4444, #a855f7)",
             }}
           />
         </div>
-        <p className="text-gray-600 text-sm text-center mt-3">
-          {Math.round(progress)}%
+        <p className="font-mono text-[var(--color-accent)] text-xs text-center mt-3 tracking-wider">
+          [{barText}] {pctRound}%
         </p>
       </div>
 
-      <div className="flex gap-2 mt-8">
-        {[0, 1, 2].map((i) => (
-          <div
-            key={i}
-            className="w-2 h-2 rounded-full animate-pulse"
-            style={{
-              backgroundColor: "#f97316",
-              animationDelay: `${i * 200}ms`,
-            }}
-          />
-        ))}
+      {/* Blinking cursor */}
+      <div className="mt-8 font-mono text-[var(--color-accent)] animate-terminal-blink text-lg">
+        _
       </div>
     </div>
   );

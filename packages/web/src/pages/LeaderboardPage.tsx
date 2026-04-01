@@ -11,20 +11,20 @@ import {
 
 const MODEL_BADGE_COLORS: Record<string, { bg: string; text: string }> = {
   haiku: { bg: "rgba(239,68,68,0.15)", text: "#f87171" },
-  sonnet: { bg: "rgba(249,115,22,0.15)", text: "#fb923c" },
-  opus: { bg: "rgba(250,204,21,0.15)", text: "#facc15" },
+  sonnet: { bg: "rgba(232,115,74,0.15)", text: "#E8734A" },
+  opus: { bg: "rgba(245,158,11,0.15)", text: "#f59e0b" },
   titan: { bg: "rgba(168,85,247,0.15)", text: "#c084fc" },
   colossus: { bg: "rgba(139,92,246,0.15)", text: "#a78bfa" },
   singularity: { bg: "rgba(99,102,241,0.15)", text: "#818cf8" },
   skynet: { bg: "rgba(59,130,246,0.15)", text: "#60a5fa" },
-  infinity: { bg: "rgba(6,182,212,0.15)", text: "#22d3ee" },
+  infinity: { bg: "rgba(45,212,191,0.15)", text: "#2dd4bf" },
 };
 
 function ModelBadge({ modelKey, modelName }: { modelKey: string; modelName: string }) {
   const colors = MODEL_BADGE_COLORS[modelKey] ?? { bg: "rgba(107,114,128,0.15)", text: "#9ca3af" };
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium"
+      className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium font-mono"
       style={{ backgroundColor: colors.bg, color: colors.text }}
     >
       {modelKey === "haiku" || modelKey === "sonnet" || modelKey === "opus" ? "🤖" : "🔮"}{" "}
@@ -37,17 +37,17 @@ function ModelBadge({ modelKey, modelName }: { modelKey: string; modelName: stri
 
 function ScoreMeter({ score }: { score: number }) {
   const color =
-    score >= 85 ? "#ef4444" : score >= 60 ? "#f97316" : score >= 30 ? "#facc15" : "#4ade80";
+    score >= 85 ? "#ef4444" : score >= 60 ? "#E8734A" : score >= 30 ? "#f59e0b" : "#2dd4bf";
 
   return (
     <div className="flex items-center gap-2">
-      <div className="w-16 h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#1e1e2e" }}>
+      <div className="w-16 h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#1a1a2e" }}>
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{ width: `${score}%`, backgroundColor: color }}
         />
       </div>
-      <span className="text-xs text-gray-400 tabular-nums w-8">{score}%</span>
+      <span className="text-xs text-[var(--color-text-muted)] tabular-nums w-8 font-mono">{score}%</span>
     </div>
   );
 }
@@ -60,9 +60,9 @@ interface TabConfig {
 }
 
 const TABS: TabConfig[] = [
-  { key: "highest", label: "הכי מוחלפים 🔥" },
-  { key: "lowest", label: "הכי בטוחים 🛡️" },
-  { key: "recent", label: "אחרונים 🕐" },
+  { key: "highest", label: "🔥 הכי מוחלפים" },
+  { key: "lowest", label: "🛡️ הכי בטוחים" },
+  { key: "recent", label: "🕐 אחרונים" },
 ];
 
 const PAGE_SIZE = 20;
@@ -107,7 +107,6 @@ export function LeaderboardPage() {
     [],
   );
 
-  // Load on tab change
   useEffect(() => {
     loadData(activeTab, 0, false);
   }, [activeTab, loadData]);
@@ -123,36 +122,49 @@ export function LeaderboardPage() {
   }
 
   function formatDaysLeft(days: number): string {
+    if (days >= 99999) return "♾️";
     if (days <= 0) return "כבר 💀";
     if (days < 30) return `${days} ימים`;
     if (days < 365) return `${Math.round(days / 30)} חודשים`;
     return `${(days / 365).toFixed(1)} שנים`;
   }
 
+  function getRowBorderColor(score: number): string {
+    if (score >= 80) return "#ef4444";
+    if (score >= 60) return "#E8734A";
+    if (score >= 30) return "#f59e0b";
+    return "#2dd4bf";
+  }
+
   return (
-    <div className="min-h-screen text-white" dir="rtl" style={{ backgroundColor: "#0a0a0f" }}>
+    <div className="min-h-screen text-white bg-noise bg-scanline bg-grid" dir="rtl" style={{ backgroundColor: "#08080c" }}>
       <div className="max-w-[800px] mx-auto px-4 py-8 sm:py-12">
         {/* Header */}
         <div className="text-center mb-8">
           <Link
             to="/"
-            className="text-gray-500 hover:text-gray-300 text-sm mb-4 inline-block transition-colors"
+            className="text-[var(--color-text-muted)] hover:text-gray-300 text-sm mb-4 inline-block transition-colors font-display"
           >
             ← חזרה לדף הבית
           </Link>
-          <h1 className="text-3xl sm:text-4xl font-extrabold">
+
+          <div className="font-mono text-xs tracking-[0.15em] uppercase text-[var(--color-accent)] mb-2">
+            🤖 TERMINATION QUEUE
+          </div>
+
+          <h1 className="font-display text-3xl sm:text-4xl font-extrabold">
             <span
               style={{
-                background: "linear-gradient(90deg, #f97316, #ef4444)",
+                background: "linear-gradient(90deg, #E8734A, #ef4444)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
             >
-              לוח המוחלפים
+              תור לפיטורין
             </span>{" "}
-            🏆
+            🔥
           </h1>
-          <p className="text-gray-400 mt-2">
+          <p className="text-[var(--color-text-muted)] mt-2 font-display">
             {total > 0
               ? `${total} מפתחים כבר גילו את האמת`
               : "עדיין אין תוצאות — תהיה הראשון!"}
@@ -162,17 +174,17 @@ export function LeaderboardPage() {
         {/* Tabs */}
         <div
           className="flex justify-center gap-1 mb-8 rounded-xl p-1 max-w-md mx-auto"
-          style={{ backgroundColor: "#12121a" }}
+          style={{ backgroundColor: "#0f0f17", border: "1px solid #1a1a2e" }}
         >
           {TABS.map((tab) => (
             <button
               key={tab.key}
               onClick={() => handleTabChange(tab.key)}
-              className="flex-1 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+              className="flex-1 px-3 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer font-display"
               style={
                 activeTab === tab.key
-                  ? { backgroundColor: "#1e1e2e", color: "#fff" }
-                  : { color: "#9ca3af" }
+                  ? { backgroundColor: "#1a1a2e", color: "#fff", borderBottom: "2px solid #E8734A" }
+                  : { color: "#8B8B8B" }
               }
             >
               {tab.label}
@@ -184,12 +196,12 @@ export function LeaderboardPage() {
         {error && (
           <div className="text-center py-8">
             <div className="text-4xl mb-3">😵</div>
-            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 max-w-sm mx-auto">
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300 max-w-sm mx-auto font-display">
               {error}
             </div>
             <button
               onClick={() => loadData(activeTab, 0, false)}
-              className="mt-3 text-sm text-gray-400 hover:text-white underline cursor-pointer"
+              className="mt-3 text-sm text-[var(--color-text-muted)] hover:text-white underline cursor-pointer font-display"
             >
               נסה שוב
             </button>
@@ -203,7 +215,7 @@ export function LeaderboardPage() {
               <div
                 key={i}
                 className="h-16 rounded-lg animate-pulse"
-                style={{ backgroundColor: "#12121a" }}
+                style={{ backgroundColor: "#0f0f17" }}
               />
             ))}
           </div>
@@ -213,10 +225,10 @@ export function LeaderboardPage() {
         {!loading && !error && entries.length === 0 && (
           <div className="text-center py-16">
             <div className="text-5xl mb-4">🦗</div>
-            <p className="text-gray-400 text-lg">אין תוצאות עדיין</p>
+            <p className="text-[var(--color-text-muted)] text-lg font-display">אין תוצאות עדיין</p>
             <Link
               to="/"
-              className="inline-block mt-4 text-orange-400 hover:text-orange-300 underline"
+              className="inline-block mt-4 text-[var(--color-accent)] hover:brightness-125 underline font-display"
             >
               תבדוק את עצמך ותהיה הראשון
             </Link>
@@ -227,10 +239,10 @@ export function LeaderboardPage() {
         {!loading && !error && entries.length > 0 && (
           <>
             {/* Desktop table */}
-            <div className="hidden sm:block overflow-hidden rounded-xl" style={{ border: "1px solid #1e1e2e" }}>
+            <div className="hidden sm:block overflow-hidden rounded-xl" style={{ border: "1px solid #1a1a2e" }}>
               <table className="w-full">
                 <thead>
-                  <tr className="text-gray-400 text-xs uppercase tracking-wider" style={{ backgroundColor: "#12121a" }}>
+                  <tr className="font-mono text-[var(--color-text-muted)] text-xs uppercase tracking-wider" style={{ backgroundColor: "#0f0f17" }}>
                     <th className="px-4 py-3 text-right w-12">#</th>
                     <th className="px-4 py-3 text-right">שם</th>
                     <th className="px-4 py-3 text-right">תפקיד</th>
@@ -239,16 +251,17 @@ export function LeaderboardPage() {
                     <th className="px-4 py-3 text-right">ימים</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y" style={{ borderColor: "#1e1e2e" }}>
+                <tbody className="divide-y" style={{ borderColor: "#1a1a2e" }}>
                   {entries.map((entry, i) => {
-                    const rank =
-                      activeTab === "recent" ? null : i + 1;
+                    const rank = activeTab === "recent" ? null : i + 1;
+                    const isTop3 = rank !== null && rank <= 3;
                     return (
                       <tr
                         key={entry.id}
-                        className="hover:bg-gray-900/30 transition-colors"
+                        className="hover:bg-white/[0.02] transition-colors"
+                        style={isTop3 ? { borderRight: `3px solid ${getRowBorderColor(entry.score)}` } : undefined}
                       >
-                        <td className="px-4 py-3 text-gray-500 tabular-nums">
+                        <td className="px-4 py-3 text-[var(--color-text-muted)] tabular-nums font-mono">
                           {rank !== null ? (
                             rank <= 3 ? (
                               <span className="text-lg">
@@ -258,18 +271,18 @@ export function LeaderboardPage() {
                               rank
                             )
                           ) : (
-                            <span className="text-gray-600">—</span>
+                            <span className="text-gray-700">—</span>
                           )}
                         </td>
                         <td className="px-4 py-3">
                           <Link
                             to={`/result/${entry.id}`}
-                            className="font-medium hover:text-orange-400 transition-colors"
+                            className="font-medium hover:text-[var(--color-accent)] transition-colors font-display"
                           >
-                            {entry.name}
+                            {rank === 1 && "⚠️ "}{entry.name}
                           </Link>
                         </td>
-                        <td className="px-4 py-3 text-gray-400 text-sm truncate max-w-[200px]">
+                        <td className="px-4 py-3 text-[var(--color-text-muted)] text-sm truncate max-w-[200px] font-display">
                           {entry.role}
                         </td>
                         <td className="px-4 py-3">
@@ -281,7 +294,7 @@ export function LeaderboardPage() {
                             modelName={entry.modelName}
                           />
                         </td>
-                        <td className="px-4 py-3 text-gray-400 text-sm tabular-nums">
+                        <td className="px-4 py-3 text-[var(--color-text-muted)] text-sm tabular-nums font-mono">
                           {formatDaysLeft(entry.daysLeft)}
                         </td>
                       </tr>
@@ -299,8 +312,12 @@ export function LeaderboardPage() {
                   <Link
                     key={entry.id}
                     to={`/result/${entry.id}`}
-                    className="block rounded-xl p-4 transition-colors hover:brightness-110"
-                    style={{ backgroundColor: "#12121a", border: "1px solid #1e1e2e" }}
+                    className="block rounded-xl p-4 transition-all hover:brightness-110"
+                    style={{
+                      backgroundColor: "#0f0f17",
+                      border: "1px solid #1a1a2e",
+                      borderRight: `3px solid ${getRowBorderColor(entry.score)}`,
+                    }}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -310,15 +327,17 @@ export function LeaderboardPage() {
                           </span>
                         )}
                         {rank !== null && rank > 3 && (
-                          <span className="text-gray-500 text-sm">#{rank}</span>
+                          <span className="text-[var(--color-text-muted)] text-sm font-mono">#{rank}</span>
                         )}
-                        <span className="font-medium">{entry.name}</span>
+                        <span className="font-medium font-display">
+                          {rank !== null && rank <= 3 && "⚠️ "}{entry.name}
+                        </span>
                       </div>
-                      <span className="text-gray-400 text-sm">
+                      <span className="text-[var(--color-text-muted)] text-sm font-mono">
                         {formatDaysLeft(entry.daysLeft)}
                       </span>
                     </div>
-                    <p className="text-gray-400 text-sm mb-2">{entry.role}</p>
+                    <p className="text-[var(--color-text-muted)] text-sm mb-2 font-display">{entry.role}</p>
                     <div className="flex items-center justify-between">
                       <ScoreMeter score={entry.score} />
                       <ModelBadge
@@ -337,11 +356,12 @@ export function LeaderboardPage() {
                 <button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  className="rounded-lg border border-gray-700 px-6 py-2.5 text-sm font-medium text-gray-300 hover:border-gray-500 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+                  className="rounded-lg px-6 py-2.5 text-sm font-medium text-gray-300 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all cursor-pointer font-mono"
+                  style={{ border: "1px dashed #2a2a3a" }}
                 >
                   {loadingMore ? "טוען..." : "טען עוד"}
                 </button>
-                <p className="text-gray-600 text-xs mt-2">
+                <p className="text-gray-600 text-xs mt-2 font-mono">
                   מציג {entries.length} מתוך {total}
                 </p>
               </div>

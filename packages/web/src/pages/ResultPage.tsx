@@ -1,7 +1,42 @@
 import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, type ReactNode } from "react";
 import { ReplacementMeter } from "../components/ReplacementMeter";
 import { fetchResult, getErrorMessage, type AnalysisResult } from "../lib/api";
+
+// ── Scroll-reveal wrapper ──
+
+function RevealSection({ children, className, style }: { children: ReactNode; className?: string; style?: React.CSSProperties }) {
+  const ref = useRef<HTMLElement>(null);
+  const [revealed, setRevealed] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRevealed(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.15 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <section
+      ref={ref}
+      className={`transition-all duration-700 ${revealed ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"} ${className ?? ""}`}
+      style={style}
+    >
+      {children}
+    </section>
+  );
+}
+
+// ── Helpers ──
 
 function getModelEmoji(key: string): string {
   const emojis: Record<string, string> = {
@@ -24,6 +59,20 @@ function getScoreColor(score: number): string {
   return "#ef4444";
 }
 
+function getDaysMessage(days: number): string {
+  if (days >= 99999) return "You're safe. For now.";
+  if (days <= 7) return "Better start packing...";
+  if (days <= 30) return "You've got about a month. Use it wisely.";
+  if (days <= 180) return "Still some runway left.";
+  if (days <= 365) return "A year-ish. Not bad!";
+  if (days <= 1000) return "You've got time. Probably.";
+  return "You might actually retire before this happens.";
+}
+
+const SKILLS_COLLAPSED_LIMIT = 8;
+
+// ── Component ──
+
 export function ResultPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
@@ -34,6 +83,8 @@ export function ResultPage() {
   );
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(!result);
+  const [showAllSkills, setShowAllSkills] = useState(false);
+  const [showScoreExplainer, setShowScoreExplainer] = useState(false);
 
   useEffect(() => {
     if (result || !id) return;
@@ -89,6 +140,9 @@ export function ResultPage() {
     border: "1px solid #1a1a2e",
   };
 
+  const hasExtraSkills = skillsAnalysis.length > SKILLS_COLLAPSED_LIMIT;
+  const visibleSkills = showAllSkills ? skillsAnalysis : skillsAnalysis.slice(0, SKILLS_COLLAPSED_LIMIT);
+
   return (
     <div className="min-h-screen text-white bg-noise bg-scanline bg-grid" style={{ backgroundColor: "#08080c" }}>
       {/* Background glow */}
@@ -139,15 +193,38 @@ export function ResultPage() {
         </section>
 
         {/* Replacement Meter */}
-        <section className="rounded-2xl p-6 sm:p-8" style={cardStyle}>
-          <h2 className="font-mono text-xs font-semibold text-[var(--color-accent)] uppercase tracking-[0.15em] mb-5">
-            REPLACEMENT RISK ASSESSMENT
-          </h2>
+        <RevealSection className="rounded-2xl p-6 sm:p-8" style={cardStyle}>
+          <div className="flex items-baseline justify-between mb-5">
+            <h2 className="font-mono text-xs font-semibold text-[var(--color-accent)] uppercase tracking-[0.15em]">
+              REPLACEMENT RISK ASSESSMENT
+            </h2>
+            <button
+              onClick={() => setShowScoreExplainer((v) => !v)}
+              dir="rtl"
+              className="font-mono text-xs text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors cursor-pointer underline underline-offset-2"
+            >
+              מה זה אומר?
+            </button>
+          </div>
+
+          {showScoreExplainer && (
+            <div
+              dir="rtl"
+              className="mb-5 rounded-lg p-4 text-sm space-y-1.5 font-display"
+              style={{ backgroundColor: "rgba(26,26,40,0.7)", border: "1px dashed #2a2a3a" }}
+            >
+              <p><span className="text-[#2dd4bf] font-bold">0-30%</span> — בטוח יחסית. Claude צריך עוד כמה שנות פיתוח</p>
+              <p><span className="text-[#f59e0b] font-bold">30-60%</span> — אזור האפור. תלוי ביום.</p>
+              <p><span className="text-[#E8734A] font-bold">60-85%</span> — סיכון גבוה. Claude כבר מתקרב.</p>
+              <p><span className="text-[#ef4444] font-bold">85-100%</span> — כמעט שם. עדכן את הלינקדאין.</p>
+            </div>
+          )}
+
           <ReplacementMeter score={score} />
-        </section>
+        </RevealSection>
 
         {/* Days Countdown */}
-        <section className="rounded-2xl p-6 sm:p-8 text-center space-y-2" style={cardStyle}>
+        <RevealSection className="rounded-2xl p-6 sm:p-8 text-center space-y-2" style={cardStyle}>
           <p className="font-mono text-xs text-[var(--color-text-muted)] uppercase tracking-[0.15em] font-semibold">
             DAYS UNTIL TERMINATION
           </p>
@@ -160,16 +237,16 @@ export function ResultPage() {
           <p className="text-[var(--color-text-muted)] text-sm font-display">
             {getDaysMessage(daysLeft)}
           </p>
-        </section>
+        </RevealSection>
 
         {/* Skills Analysis */}
         {skillsAnalysis.length > 0 && (
-          <section className="rounded-2xl p-6 sm:p-8 space-y-4" style={cardStyle}>
+          <RevealSection className="rounded-2xl p-6 sm:p-8 space-y-4" style={cardStyle}>
             <h2 className="font-mono text-xs font-semibold text-[var(--color-accent)] uppercase tracking-[0.15em]">
               SKILLS CLEARANCE STATUS
             </h2>
             <ul className="space-y-3">
-              {skillsAnalysis.map((s, i) => (
+              {visibleSkills.map((s, i) => (
                 <li
                   key={i}
                   className="flex items-start gap-3 rounded-xl p-4"
@@ -178,8 +255,8 @@ export function ResultPage() {
                     borderLeft: `3px solid ${s.replaced ? "#E8734A" : "#2dd4bf"}`,
                   }}
                 >
-                  <span className="font-mono text-xs mt-1 shrink-0 font-bold tracking-wider" style={{ color: s.replaced ? "#E8734A" : "#2dd4bf" }}>
-                    {s.replaced ? "✅ COMPROMISED" : "🛡️ CLASSIFIED"}
+                  <span dir="rtl" className="font-mono text-xs mt-1 shrink-0 font-bold" style={{ color: s.replaced ? "#E8734A" : "#2dd4bf" }}>
+                    {s.replaced ? "🤖 Claude כבר יודע" : "🛡️ עדיין בטוח"}
                   </span>
                   <div className="min-w-0 mr-auto">
                     <p className="font-semibold text-white font-display">{s.skill}</p>
@@ -188,11 +265,23 @@ export function ResultPage() {
                 </li>
               ))}
             </ul>
-          </section>
+
+            {hasExtraSkills && (
+              <button
+                onClick={() => setShowAllSkills((v) => !v)}
+                dir="rtl"
+                className="w-full text-center font-mono text-sm text-[var(--color-accent)] hover:brightness-125 transition-colors cursor-pointer py-2"
+              >
+                {showAllSkills
+                  ? "הצג פחות ▲"
+                  : `הצג עוד ${skillsAnalysis.length - SKILLS_COLLAPSED_LIMIT} כישורות ▼`}
+              </button>
+            )}
+          </RevealSection>
         )}
 
         {/* Quote Bubble */}
-        <section className="rounded-2xl p-6 sm:p-8" style={cardStyle}>
+        <RevealSection className="rounded-2xl p-6 sm:p-8" style={cardStyle}>
           <div className="flex gap-4 items-start">
             {/* Claude avatar */}
             <div
@@ -213,10 +302,20 @@ export function ResultPage() {
               </blockquote>
             </div>
           </div>
-        </section>
+        </RevealSection>
 
         {/* Action Buttons */}
-        <section className="space-y-4">
+        <RevealSection className="space-y-4">
+          {/* Share header */}
+          <div className="text-center mb-2">
+            <h2 dir="rtl" className="font-display text-lg font-bold text-white">
+              שתף את גזר הדין שלך
+            </h2>
+            <p dir="rtl" className="text-[var(--color-text-muted)] text-sm mt-1">
+              תן לעולם לדעת מי יחליף אותך
+            </p>
+          </div>
+
           <a
             href={result.certificateUrl}
             target="_blank"
@@ -235,7 +334,7 @@ export function ResultPage() {
               href={`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-gray-200 transition-all hover:brightness-125 font-display"
+              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-medium text-gray-200 transition-all hover:brightness-125 hover:shadow-[0_0_12px_rgba(232,115,74,0.15)] font-display"
               style={cardStyle}
             >
               𝕏 <span className="hidden sm:inline">Twitter</span>
@@ -244,7 +343,7 @@ export function ResultPage() {
               href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-gray-200 transition-all hover:brightness-125 font-display"
+              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-medium text-gray-200 transition-all hover:brightness-125 hover:shadow-[0_0_12px_rgba(232,115,74,0.15)] font-display"
               style={cardStyle}
             >
               💼 <span className="hidden sm:inline">LinkedIn</span>
@@ -253,7 +352,7 @@ export function ResultPage() {
               href={`https://wa.me/?text=${shareText}%20${shareUrl}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-gray-200 transition-all hover:brightness-125 font-display"
+              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-medium text-gray-200 transition-all hover:brightness-125 hover:shadow-[0_0_12px_rgba(232,115,74,0.15)] font-display"
               style={cardStyle}
             >
               💬 <span className="hidden sm:inline">WhatsApp</span>
@@ -276,18 +375,8 @@ export function ResultPage() {
               🔄 Try Again
             </button>
           </div>
-        </section>
+        </RevealSection>
       </div>
     </div>
   );
-}
-
-function getDaysMessage(days: number): string {
-  if (days >= 99999) return "You're safe. For now.";
-  if (days <= 7) return "Better start packing...";
-  if (days <= 30) return "You've got about a month. Use it wisely.";
-  if (days <= 180) return "Still some runway left.";
-  if (days <= 365) return "A year-ish. Not bad!";
-  if (days <= 1000) return "You've got time. Probably.";
-  return "You might actually retire before this happens.";
 }

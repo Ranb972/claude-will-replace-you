@@ -38,6 +38,14 @@ const inputStyle = {
   border: "1px dashed #2a2a3a",
 };
 
+function getExperienceLabel(years: number): string {
+  if (years <= 2) return "ג'וניור 🌱";
+  if (years <= 5) return "מידלוול 💪";
+  if (years <= 10) return "סיניור 🎯";
+  if (years <= 20) return "ותיק 👑";
+  return "לג'נדה 🏆";
+}
+
 function AiComment({ text }: { text: string }) {
   return (
     <span dir="rtl" className="font-mono text-xs text-[var(--color-accent)] opacity-60 mr-2">
@@ -123,7 +131,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           aria-invalid={touched.name && !!errors.name}
           className={inputClasses}
           style={inputStyle}
-          placeholder="e.g. Ran"
+          placeholder="למשל: רן"
         />
         {touched.name && errors.name && (
           <p id="name-error" role="alert" className="mt-1.5 text-sm text-red-400">{errors.name}</p>
@@ -146,7 +154,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           aria-invalid={touched.role && !!errors.role}
           className={inputClasses}
           style={inputStyle}
-          placeholder="e.g. Full Stack Developer"
+          placeholder="למשל: Full Stack Developer"
         />
         {touched.role && errors.role && (
           <p id="role-error" role="alert" className="mt-1.5 text-sm text-red-400">{errors.role}</p>
@@ -159,6 +167,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           <label htmlFor="experience" className="block text-sm font-medium text-gray-300 font-mono">
             Years of Experience:{" "}
             <span className="text-[var(--color-accent)] font-bold text-base">{form.experience}</span>
+            <span dir="rtl" className="text-[var(--color-text-muted)] text-xs mr-2">{getExperienceLabel(form.experience)}</span>
           </label>
           <AiComment text="( כל שנה שווה פחות )" />
         </div>
@@ -284,7 +293,12 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           boxShadow: "0 4px 24px rgba(232,115,74,0.25)",
         }}
       >
-        {isSubmitting ? "...מנתח" : "📋 Submit for AI Review"}
+        {isSubmitting ? (
+          <span className="flex items-center justify-center gap-2">
+            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
+            <span>...מנתח</span>
+          </span>
+        ) : "📋 Submit for AI Review"}
       </button>
     </form>
   );

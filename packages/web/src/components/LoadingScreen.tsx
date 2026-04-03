@@ -14,6 +14,7 @@ const MESSAGES = [
 ];
 
 const MESSAGE_INTERVAL_MS = 800;
+const COUNTDOWN_INTERVAL_MS = 700;
 const MIN_DISPLAY_MS = 2000;
 
 interface LoadingScreenProps {
@@ -22,20 +23,40 @@ interface LoadingScreenProps {
 }
 
 export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps) {
+  const [countdown, setCountdown] = useState(3);
   const [messageIndex, setMessageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
   const [exiting, setExiting] = useState(false);
 
+  // Countdown 3 → 2 → 1 → 0
   useEffect(() => {
     if (!visible) return;
+    setCountdown(3);
+    const interval = setInterval(() => {
+      setCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, COUNTDOWN_INTERVAL_MS);
+    return () => clearInterval(interval);
+  }, [visible]);
+
+  // Rotate messages (only after countdown finishes)
+  useEffect(() => {
+    if (!visible || countdown > 0) return;
+    setMessageIndex(0);
     const interval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % MESSAGES.length);
     }, MESSAGE_INTERVAL_MS);
     return () => clearInterval(interval);
-  }, [visible]);
+  }, [visible, countdown]);
 
+  // Progress bar (only after countdown)
   useEffect(() => {
-    if (!visible) return;
+    if (!visible || countdown > 0) return;
     setProgress(0);
     let frame: number;
     const start = performance.now();
@@ -59,7 +80,7 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
 
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
-  }, [visible]);
+  }, [visible, countdown]);
 
   useEffect(() => {
     if (!visible || !onMinimumElapsed) return;
@@ -68,17 +89,41 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
   }, [visible, onMinimumElapsed]);
 
   useEffect(() => {
-    if (!visible && progress > 0) {
+    if (!visible && (progress > 0 || countdown > 0)) {
       setProgress(100);
       setExiting(true);
     }
-  }, [visible, progress]);
+  }, [visible, progress, countdown]);
 
   if (!visible && !exiting) return null;
 
   const pctRound = Math.round(progress);
   const filled = Math.round((pctRound / 100) * 20);
-  const barText = "█".repeat(filled) + "░".repeat(20 - filled);
+  const barText = "\u2588".repeat(filled) + "\u2591".repeat(20 - filled);
+
+  // Countdown phase
+  if (countdown > 0 && !exiting) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-grid"
+        style={{ backgroundColor: "#08080c" }}
+      >
+        <div className="font-mono text-xs sm:text-sm tracking-[0.2em] uppercase text-[var(--color-text-muted)] mb-6">
+          INITIALIZING SCAN
+        </div>
+        <div
+          key={countdown}
+          className="font-mono text-8xl sm:text-9xl font-bold animate-reveal-scale"
+          style={{ color: "#E8734A", textShadow: "0 0 40px rgba(232,115,74,0.4)" }}
+        >
+          {countdown}
+        </div>
+        <p dir="rtl" className="font-mono text-sm text-[var(--color-text-muted)] mt-6">
+          ...מתחיל סריקה
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -91,6 +136,7 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
           setExiting(false);
           setProgress(0);
           setMessageIndex(0);
+          setCountdown(3);
         }
       }}
     >

@@ -16,13 +16,12 @@ const RECENT_RESULTS = [
 ];
 
 const ASCII_ROBOT = `
-  ┌───────┐
-  │ ◉   ◉ │
-  │  ───  │
-  └──┬┬┬──┘
-    ┌┤││├┐
-    └┤││├┘
-     └┘└┘`;
+  ╭─────╮
+  │ ^_^ │
+  ╰──┬──╯
+   ╭─┴─╮
+   │   │
+   ╰───╯`;
 
 const ERROR_ICONS: Record<string, string> = {
   RATE_LIMITED: "🐌",
@@ -144,7 +143,7 @@ export function HomePage() {
                 >
                   <span style={{ color: dotColor }}>●</span>{" "}
                   {r.name}, {r.role}
-                  <span className="mx-2 opacity-30">|</span>
+                  <span className="mx-2 opacity-40">·</span>
                   <span style={{ color: dotColor }}>{r.model}</span>
                   {" "}{r.days}d
                 </span>

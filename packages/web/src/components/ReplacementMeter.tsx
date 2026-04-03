@@ -30,7 +30,7 @@ function getThreatInfo(score: number): { key: ThreatKey; color: string; pulse: b
   return { key: "meter.critical", color: "#ef4444", pulse: true };
 }
 
-export function ReplacementMeter({ score, duration = 2000 }: ReplacementMeterProps) {
+export function ReplacementMeter({ score, duration = 1500 }: ReplacementMeterProps) {
   const [current, setCurrent] = useState(0);
   const [hasAnimated, setHasAnimated] = useState(false);
   const ref = useRef<HTMLDivElement>(null);

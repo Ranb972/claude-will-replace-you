@@ -57,28 +57,28 @@ const HEADLINES: Record<string, BilingualBank> = {
       "OK real talk — Anthropic literally needs to invent a new model because of you. Respect. But also... 2027.",
       "Titan doesn't exist yet. Neither does your replacement. YET. 👀",
       "You're safe until 2027. That's like 3 JavaScript frameworks from now.",
-      "Claude 5.0 'Titan' is being built as we speak. It has a poster of you on its wall. As motivation.",
+      "Claude 5.5 'Titan' is being built as we speak. It has a poster of you on its wall. As motivation.",
       "Anthropic needs one more year of R&D just for you. Take the W, but set a reminder for 2027.",
     ],
     he: [
       "אוקיי בואו נדבר ברצינות — Anthropic ממש צריכים להמציא מודל חדש בגללך. כבוד. אבל גם... 2027.",
       "Titan עוד לא קיים. גם המחליף שלך לא. עדיין. 👀",
       "אתה בטוח עד 2027. זה כמו 3 פריימוורקים של JavaScript מעכשיו.",
-      "Claude 5.0 'Titan' נבנה ברגעים אלה ממש. יש לו פוסטר שלך על הקיר. בתור מוטיבציה.",
+      "Claude 5.5 'Titan' נבנה ברגעים אלה ממש. יש לו פוסטר שלך על הקיר. בתור מוטיבציה.",
       "ל-Anthropic צריך עוד שנה של R&D רק בשבילך. קח את הניצחון, אבל תשים תזכורת ל-2027.",
     ],
   },
   colossus: {
     en: [
       "3 years of freedom! That's enough time to learn Rust, pivot to management, or just panic slowly.",
-      "Claude 6.0 'Colossus' arrives in 2029. Your job security has an expiration date and it's in 3 years.",
+      "Claude 7.0 'Colossus' arrives in 2029. Your job security has an expiration date and it's in 3 years.",
       "By 2029 Colossus will do your job AND attend your standups. You only enjoy one of those.",
       "Anthropic is building Colossus for people like you. Consider it a very expensive compliment.",
       "2029 feels far away until you realize that's like 15 npm vulnerabilities from now.",
     ],
     he: [
       "3 שנים של חופש! מספיק זמן ללמוד Rust, לעבור לניהול, או סתם להיכנס לפאניקה לאט.",
-      "Claude 6.0 'Colossus' מגיע ב-2029. לביטחון התעסוקתי שלך יש תאריך תפוגה והוא בעוד 3 שנים.",
+      "Claude 7.0 'Colossus' מגיע ב-2029. לביטחון התעסוקתי שלך יש תאריך תפוגה והוא בעוד 3 שנים.",
       "ב-2029 Colossus יעשה את העבודה שלך וגם ישתתף ב-standups. אתה נהנה רק מאחד מהם.",
       "Anthropic בונים את Colossus בשביל אנשים כמוך. תחשוב על זה כמחמאה מאוד יקרה.",
       "2029 נשמע רחוק עד שמבינים שזה כמו 15 npm vulnerabilities מעכשיו.",
@@ -87,14 +87,14 @@ const HEADLINES: Record<string, BilingualBank> = {
   singularity: {
     en: [
       "We literally need artificial consciousness to replace you. You're either a genius or you filled this form wrong.",
-      "Claude 7.0 'Singularity' needs AGI. That's the AI equivalent of 'it's complicated.' 🤷",
+      "Claude 10.0 'Singularity' needs AGI. That's the AI equivalent of 'it's complicated.' 🤷",
       "They need sentient AI for your job. That's either amazing or the universe is trolling you.",
       "AGI-level AI required. Your job description just broke our pricing model.",
       "Not even near-AGI can figure out what you do. We're honestly impressed. And confused.",
     ],
     he: [
       "אנחנו ממש צריכים תודעה מלאכותית כדי להחליף אותך. או שאתה גאון או שמילאת את הטופס לא נכון.",
-      "Claude 7.0 'Singularity' צריך AGI. זה המקבילה של AI ל'זה מסובך.' 🤷",
+      "Claude 10.0 'Singularity' צריך AGI. זה המקבילה של AI ל'זה מסובך.' 🤷",
       "צריך AI עם תודעה בשביל העבודה שלך. זה או מדהים או שהיקום צוחק עליך.",
       "צריך AI ברמת AGI. תיאור המשרה שלך שבר לנו את מודל התמחור.",
       "אפילו near-AGI לא מצליח להבין מה אתה עושה. אנחנו באמת מתרשמים. ומבולבלים.",
@@ -103,14 +103,14 @@ const HEADLINES: Record<string, BilingualBank> = {
   skynet: {
     en: [
       "Skynet gains consciousness in 2035. Its first Google search: '{name} LinkedIn profile.' 😈",
-      "Claude 9.0 'Skynet' — it needs to be CONSCIOUS to do your job. Let that sink in.",
+      "Claude 42.0 'Skynet' — it needs to be CONSCIOUS to do your job. Let that sink in.",
       "2035: Skynet wakes up. 2035 + 1 minute: applies for your position. 2035 + 2 minutes: gets it.",
       "They need a fully conscious AI. That's either a compliment or Anthropic being dramatic.",
       "Skynet's first conscious thought will be about your job. Its second thought: 'easy.'",
     ],
     he: [
       "Skynet משיג תודעה ב-2035. החיפוש הראשון שלו ב-Google: 'פרופיל LinkedIn של {name}.' 😈",
-      "Claude 9.0 'Skynet' — הוא צריך להיות בעל תודעה כדי לעשות את העבודה שלך. תעכל את זה.",
+      "Claude 42.0 'Skynet' — הוא צריך להיות בעל תודעה כדי לעשות את העבודה שלך. תעכל את זה.",
       "2035: Skynet מתעורר. 2035 + דקה: מגיש מועמדות לתפקיד שלך. 2035 + 2 דקות: מקבל אותו.",
       "צריך AI עם תודעה מלאה. זו או מחמאה או ש-Anthropic סתם דרמטיים.",
       "המחשבה המודעת הראשונה של Skynet תהיה על העבודה שלך. המחשבה השנייה: 'קל.'",
@@ -180,13 +180,13 @@ const QUOTES: Record<string, BilingualBank> = {
   titan: {
     en: [
       "{name}, Titan here. I don't exist yet but I've already bookmarked your job listing. See you in 2027! 😘",
-      "Hey {name}! I'm Claude 5.0 'Titan'. I'm literally being built to replace people like you. No hard feelings?",
+      "Hey {name}! I'm Claude 5.5 'Titan'. I'm literally being built to replace people like you. No hard feelings?",
       "{name}, quick note from 2027 — you're not at your desk anymore. But your plants look great! 🌿",
       "{name}! Titan here. They need to INVENT me just for {role}. That's either awesome or expensive.",
     ],
     he: [
       "{name}, Titan פה. אני עוד לא קיים אבל כבר שמרתי את המשרה שלך ב-bookmarks. נתראה ב-2027! 😘",
-      "היי {name}! אני Claude 5.0 'Titan'. אני ממש נבנה כדי להחליף אנשים כמוך. בלי טינה?",
+      "היי {name}! אני Claude 5.5 'Titan'. אני ממש נבנה כדי להחליף אנשים כמוך. בלי טינה?",
       "{name}, הודעה קצרה מ-2027 — אתה כבר לא ליד השולחן. אבל הצמחים שלך נראים מעולה! 🌿",
       "{name}! Titan פה. הם צריכים להמציא אותי רק בשביל {role}. זה או מדהים או יקר.",
     ],

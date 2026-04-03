@@ -6,7 +6,7 @@ export const profileInputSchema = z.object({
   name: z.string().min(1).max(50),
   role: z.string().min(1).max(100),
   experience: z.number().int().min(0).max(40),
-  description: z.string().min(20).max(500),
+  description: z.string().max(500).optional().default(""),
   technologies: z.array(z.string()).optional().default([]),
   githubUrl: z.string().url().optional().or(z.literal("")),
   lang: z.enum(["en", "he"]).optional().default("en"),

@@ -12,11 +12,11 @@ export const MODEL_TIERS: ModelTier[] = [
   { key: "haiku", name: 'Claude Haiku 4.5', emoji: "⚡", year: null, exists: true, description: "The fastest, lightest Claude", tier: 1 },
   { key: "sonnet", name: 'Claude Sonnet 4.6', emoji: "🎯", year: null, exists: true, description: "The balanced all-rounder", tier: 2 },
   { key: "opus", name: 'Claude Opus 4.6', emoji: "🧠", year: null, exists: true, description: "The most capable Claude", tier: 3 },
-  { key: "titan", name: 'Claude 5.0 "Titan"', emoji: "🔮", year: 2027, exists: false, description: "Next-gen reasoning engine", tier: 4 },
-  { key: "colossus", name: 'Claude 6.0 "Colossus"', emoji: "🔮", year: 2029, exists: false, description: "Multi-modal powerhouse", tier: 5 },
-  { key: "singularity", name: 'Claude 7.0 "Singularity"', emoji: "🔮", year: 2032, exists: false, description: "Near-AGI capabilities", tier: 6 },
-  { key: "skynet", name: 'Claude 9.0 "Skynet"', emoji: "💀", year: 2035, exists: false, description: "Full artificial consciousness", tier: 7 },
-  { key: "infinity", name: 'Claude ∞ "The One"', emoji: "♾️", year: null, exists: false, description: "The theoretical limit", tier: 8 },
+  { key: "titan", name: 'Claude 5.5 "Titan"', emoji: "🔮", year: 2027, exists: false, description: "The one Anthropic is actually building", tier: 4 },
+  { key: "colossus", name: 'Claude 7.0 "Colossus"', emoji: "🔮", year: 2029, exists: false, description: "When Claude gets serious", tier: 5 },
+  { key: "singularity", name: 'Claude 10.0 "Singularity"', emoji: "🔮", year: 2032, exists: false, description: "Basically AGI with a sense of humor", tier: 6 },
+  { key: "skynet", name: 'Claude 42.0 "Skynet"', emoji: "💀", year: 2035, exists: false, description: "It's not paranoia if it's coming for your job", tier: 7 },
+  { key: "infinity", name: 'Claude ∞ "The One"', emoji: "♾️", year: null, exists: false, description: "Theoretical. Like your job security.", tier: 8 },
 ];
 
 export function getModelByKey(key: string): ModelTier | undefined {

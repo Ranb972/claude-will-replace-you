@@ -30,18 +30,18 @@ Emojis welcome. Gen-Z/millennial tech humor. Self-aware AI jokes.
 - Sonnet tier: "Sonnet looked at your code and said 'this is cute.' That's not a compliment."
 - Opus tier: "They need the big guns for you. Opus is flattered. You shouldn't be."
 - Opus tier: "Good news: only the smartest Claude can replace you. Bad news: it already exists."
-- Titan tier: "Titan doesn't exist yet. Neither does your replacement. YET. 👀"
+- Titan tier: "Claude 5.5 'Titan' doesn't exist yet. Neither does your replacement. YET. 👀"
 - Titan tier: "You're safe until 2027. That's like 3 JavaScript frameworks from now."
-- Colossus tier: "3 years of freedom! Enough time to learn Rust, pivot to management, or just panic slowly."
-- Singularity tier: "We literally need artificial consciousness to replace you. Genius or wrong form?"
-- Skynet tier: "Skynet gains consciousness in 2035. First Google search: '{name} LinkedIn profile.' 😈"
+- Colossus tier: "Claude 7.0 'Colossus' arrives in 2029. 3 years of freedom! Panic slowly."
+- Singularity tier: "Claude 10.0 'Singularity' needs actual AGI. Genius or wrong form?"
+- Skynet tier: "Claude 42.0 'Skynet' gains consciousness in 2035. First search: '{name} LinkedIn.' 😈"
 - Infinity tier: "I computed your replaceability and my GPU caught fire. You win. FOR NOW. 🔥"
 
 ### Quotes — DMs from Claude, personal and cheeky:
 - "Hey {name}! 👋 Haiku here. Quick Q — is your boss hiring? Asking for myself lol"
 - "{name}, real talk — I'm not even the best model and I can already do {role}. Awkward right?"
 - "{name}, Opus here. I respect the hustle. I'll still take your job, but respectfully. 🤝"
-- "{name}, Titan here. I don't exist yet but I've already bookmarked your job listing. See you in 2027! 😘"
+- "{name}, Titan here. I don't exist yet but I've bookmarked your job listing. See you in 2027! 😘"
 - "Dear {name}, I tried replacing you and got a StackOverflow error. What ARE you? — Claude ∞"
 
 ### Skill comments — cheeky one-liners:

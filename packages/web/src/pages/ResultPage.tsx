@@ -269,7 +269,7 @@ export function ResultPage() {
                   key={i}
                   className="flex items-start gap-3 rounded-xl p-4 animate-stagger-in"
                   style={{
-                    animationDelay: `${i * 80}ms`,
+                    animationDelay: `${i * 50}ms`,
                     backgroundColor: "rgba(26,26,40,0.5)",
                     borderLeft: `3px solid ${s.replaced ? "#E8734A" : "#2dd4bf"}`,
                   }}

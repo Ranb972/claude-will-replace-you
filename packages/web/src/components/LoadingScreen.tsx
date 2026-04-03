@@ -3,8 +3,8 @@ import { useLang } from "../lib/i18n";
 
 const MESSAGE_COUNT = 10;
 const MESSAGE_INTERVAL_MS = 1800;
-const COUNTDOWN_INTERVAL_MS = 700;
-const MIN_DISPLAY_MS = 2000;
+const COUNTDOWN_INTERVAL_MS = 500;
+const MIN_DISPLAY_MS = 1500;
 const TYPING_SPEED_MS = 25;
 
 interface LoadingScreenProps {

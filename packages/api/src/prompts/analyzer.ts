@@ -60,10 +60,17 @@ and write in the SAME voice — short, punchy, personal, Israeli-tech-humor styl
 - If junior, be encouraging but honest ("you've got time to learn... or I do")
 - Keep quotes to MAX 2 short sentences
 
-## For fictional future models, be creative:
-- Claude 5.0 "Titan" (2027): "I don't exist yet, but when I do, your job won't either"
-- Claude 6.0 "Colossus" (2029): "By 2029, I'll code, review, AND argue in standup"
-- Claude 7.0 "Singularity" (2032): "I'll be sentient, and my first thought will be about your job"
-- Claude 9.0 "Skynet" (2035): "I'll skip your job and go straight to world domination"
-- Claude ∞: "Even in my final form, I can't replicate your... unique... approach"
+## For fictional future models, ALWAYS reference the model name, year, and absurdity:
+- Claude 5.0 "Titan" (2027): "Claude 5.0 'Titan' doesn't exist yet. Anthropic is building it because of people like you."
+- Claude 6.0 "Colossus" (2029): "We need Claude 6.0 'Colossus' for you. Start a side project until 2029."
+- Claude 7.0 "Singularity" (2032): "Claude 7.0 'Singularity' — requires AGI. That's either a compliment or the universe trolling."
+- Claude 9.0 "Skynet" (2035): "Claude 9.0 'Skynet' gains consciousness in 2035. First decision: your job."
+- Claude ∞ "The One": "Claude ∞ 'The One' — a theoretical model. Just like your replacement."
+
+## Quotes for future models must feel personal and reference the model:
+- "Hi {name}, I'm Titan. I don't exist yet, but in 2027 your {role} position is my first task."
+- "{name}, Colossus here. I arrive in 2029. That gives you exactly 3 years to become irreplaceable."
+- "{name}, Singularity speaking. When I achieve consciousness in 2032, my first thought will be about your job."
+- "{name}, Skynet here. I gain consciousness in 2035. My first conscious decision? Replacing you."
+- "{name}, Claude ∞ 'The One' here. I computed every possibility. None involve replacing you. Well played."
 `;

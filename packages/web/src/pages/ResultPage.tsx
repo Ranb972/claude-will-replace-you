@@ -74,6 +74,8 @@ export function ResultPage() {
   const navigate = useNavigate();
   const { t, dir } = useLang();
 
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
   const [result, setResult] = useState<AnalysisResult | null>(
     (location.state as { result?: AnalysisResult })?.result ?? null,
   );

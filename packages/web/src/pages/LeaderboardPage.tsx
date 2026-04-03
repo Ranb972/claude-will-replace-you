@@ -60,6 +60,9 @@ const PAGE_SIZE = 20;
 
 export function LeaderboardPage() {
   const { t, dir } = useLang();
+
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
   const [activeTab, setActiveTab] = useState<LeaderboardSort>("highest");
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [total, setTotal] = useState(0);

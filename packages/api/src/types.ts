@@ -9,6 +9,7 @@ export const profileInputSchema = z.object({
   description: z.string().min(20).max(500),
   technologies: z.array(z.string()).optional().default([]),
   githubUrl: z.string().url().optional().or(z.literal("")),
+  lang: z.enum(["en", "he"]).optional().default("en"),
 });
 
 export type ProfileInput = z.infer<typeof profileInputSchema>;

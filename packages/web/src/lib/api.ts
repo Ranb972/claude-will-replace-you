@@ -5,6 +5,7 @@ export interface ProfilePayload {
   description: string;
   technologies: string[];
   githubUrl?: string;
+  lang?: "en" | "he";
 }
 
 export interface SkillAnalysis {

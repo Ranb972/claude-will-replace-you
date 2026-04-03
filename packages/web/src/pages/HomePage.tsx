@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { InputForm } from "../components/InputForm";
 import { LoadingScreen } from "../components/LoadingScreen";
 import { useAnalysis } from "../hooks/useAnalysis";
+import { useLang } from "../lib/i18n";
 import type { ProfilePayload } from "../lib/api";
 
 const RECENT_RESULTS = [
@@ -34,9 +35,10 @@ export function HomePage() {
   const navigate = useNavigate();
   const formRef = useRef<HTMLDivElement>(null);
   const { isLoading, error, errorCode, analyze } = useAnalysis();
+  const { t, dir, lang } = useLang();
 
   async function handleSubmit(data: ProfilePayload) {
-    const result = await analyze(data);
+    const result = await analyze({ ...data, lang });
     if (result) {
       navigate(`/result/${result.id}`, { state: { result } });
     }
@@ -47,6 +49,7 @@ export function HomePage() {
   }
 
   const errorIcon = errorCode ? ERROR_ICONS[errorCode] ?? "❌" : "❌";
+  const isRtl = dir === "rtl";
 
   return (
     <div className="min-h-screen bg-noise bg-scanline" style={{ backgroundColor: "#08080c" }}>
@@ -77,11 +80,11 @@ export function HomePage() {
 
           {/* Department badge */}
           <div className="font-mono text-xs sm:text-sm tracking-[0.2em] uppercase text-[var(--color-text-muted)] mb-4">
-            🤖 AI HR DEPARTMENT — OFFICIAL NOTICE
+            {t("hero.badge")}
           </div>
 
           <h1
-            dir="rtl"
+            dir={dir}
             className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight mb-4 text-glitch"
           >
             <span
@@ -91,14 +94,14 @@ export function HomePage() {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              איזה מודל של Claude
+              {t("hero.title1")}
             </span>
             <br />
-            <span className="text-white">יחליף אותך?</span>
+            <span className="text-white">{t("hero.title2")}</span>
           </h1>
 
-          <p dir="rtl" className="text-lg sm:text-xl text-[var(--color-text-muted)] max-w-md mx-auto mb-8">
-            <span className="typewriter-cursor">הכנס את הפרופיל שלך וגלה כמה ימים נשארו לך</span>
+          <p dir={dir} className="text-lg sm:text-xl text-[var(--color-text-muted)] max-w-md mx-auto mb-8">
+            <span className="typewriter-cursor">{t("hero.subtitle")}</span>
           </p>
 
           <button
@@ -108,20 +111,20 @@ export function HomePage() {
               background: "linear-gradient(135deg, #E8734A, #ef4444)",
             }}
           >
-            גלה את האמת
+            {t("hero.cta")}
           </button>
 
           {error && (
             <div
               role="alert"
-              dir="rtl"
+              dir={dir}
               className="mt-6 mx-auto max-w-md rounded-xl px-4 py-3 text-sm text-red-300"
               style={{
                 backgroundColor: "rgba(239,68,68,0.1)",
                 border: "1px solid rgba(239,68,68,0.25)",
               }}
             >
-              <span className="text-lg ml-2">{errorIcon}</span>
+              <span className={`text-lg ${isRtl ? "ml-2" : "mr-2"}`}>{errorIcon}</span>
               {error}
             </div>
           )}
@@ -145,7 +148,7 @@ export function HomePage() {
                   {r.name}, {r.role}
                   <span className="mx-2 opacity-40">·</span>
                   <span style={{ color: dotColor }}>{r.model}</span>
-                  {" "}{r.days}d
+                  {" "}{r.days}{t("hero.ticker.days")}
                 </span>
               );
             })}
@@ -172,13 +175,13 @@ export function HomePage() {
             {/* Header stamp */}
             <div className="relative z-10 text-center mb-8">
               <div className="font-mono text-xs tracking-[0.15em] uppercase text-[var(--color-accent)] mb-3">
-                📋 CLASSIFIED — PERSONNEL FILE
+                {t("form.stamp")}
               </div>
-              <h2 dir="rtl" className="font-display text-2xl sm:text-3xl font-bold text-white">
-                הפרופיל שלך
+              <h2 dir={dir} className="font-display text-2xl sm:text-3xl font-bold text-white">
+                {t("form.heading")}
               </h2>
-              <p dir="rtl" className="text-[var(--color-text-muted)] mt-2 text-sm sm:text-base">
-                ספר לנו על עצמך ונחשב את סיכוי ההחלפה שלך
+              <p dir={dir} className="text-[var(--color-text-muted)] mt-2 text-sm sm:text-base">
+                {t("form.description")}
               </p>
             </div>
 
@@ -189,14 +192,14 @@ export function HomePage() {
             {error && (
               <div
                 role="alert"
-                dir="rtl"
+                dir={dir}
                 className="relative z-10 mt-6 rounded-xl px-4 py-3 text-sm text-red-300 text-center"
                 style={{
                   backgroundColor: "rgba(239,68,68,0.1)",
                   border: "1px solid rgba(239,68,68,0.25)",
                 }}
               >
-                <span className="text-lg ml-2">{errorIcon}</span>
+                <span className={`text-lg ${isRtl ? "ml-2" : "mr-2"}`}>{errorIcon}</span>
                 {error}
               </div>
             )}

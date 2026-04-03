@@ -2,6 +2,7 @@ import { useParams, useLocation, useNavigate, Link } from "react-router-dom";
 import { useState, useEffect, useRef, type ReactNode } from "react";
 import { ReplacementMeter } from "../components/ReplacementMeter";
 import { fetchResult, getErrorMessage, type AnalysisResult } from "../lib/api";
+import { useLang } from "../lib/i18n";
 
 // ── Scroll-reveal wrapper ──
 
@@ -40,14 +41,8 @@ function RevealSection({ children, className, style }: { children: ReactNode; cl
 
 function getModelEmoji(key: string): string {
   const emojis: Record<string, string> = {
-    haiku: "⚡",
-    sonnet: "🎯",
-    opus: "🧠",
-    titan: "🔮",
-    colossus: "🌋",
-    singularity: "🌀",
-    skynet: "💀",
-    infinity: "♾️",
+    haiku: "⚡", sonnet: "🎯", opus: "🧠", titan: "🔮",
+    colossus: "🌋", singularity: "🌀", skynet: "💀", infinity: "♾️",
   };
   return emojis[key] ?? "🤖";
 }
@@ -59,16 +54,6 @@ function getScoreColor(score: number): string {
   return "#ef4444";
 }
 
-function getDaysMessage(days: number): string {
-  if (days >= 99999) return "You're safe. For now.";
-  if (days <= 7) return "Better start packing...";
-  if (days <= 30) return "You've got about a month. Use it wisely.";
-  if (days <= 180) return "Still some runway left.";
-  if (days <= 365) return "A year-ish. Not bad!";
-  if (days <= 1000) return "You've got time. Probably.";
-  return "You might actually retire before this happens.";
-}
-
 const SKILLS_COLLAPSED_LIMIT = 8;
 
 // ── Component ──
@@ -77,6 +62,7 @@ export function ResultPage() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const navigate = useNavigate();
+  const { t, dir } = useLang();
 
   const [result, setResult] = useState<AnalysisResult | null>(
     (location.state as { result?: AnalysisResult })?.result ?? null,
@@ -95,12 +81,22 @@ export function ResultPage() {
       .finally(() => setLoading(false));
   }, [id, result]);
 
+  function getDaysMessage(days: number): string {
+    if (days >= 99999) return t("result.days.safe");
+    if (days <= 7) return t("result.days.packing");
+    if (days <= 30) return t("result.days.month");
+    if (days <= 180) return t("result.days.runway");
+    if (days <= 365) return t("result.days.year");
+    if (days <= 1000) return t("result.days.time");
+    return t("result.days.retire");
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center text-white bg-grid" style={{ backgroundColor: "#08080c" }}>
         <div className="text-center space-y-4">
           <div className="text-5xl animate-bounce">🤖</div>
-          <p className="text-[var(--color-text-muted)] font-mono">Loading results...</p>
+          <p className="text-[var(--color-text-muted)] font-mono">{t("result.loading")}</p>
         </div>
       </div>
     );
@@ -111,15 +107,15 @@ export function ResultPage() {
       <div className="min-h-screen flex items-center justify-center text-white bg-grid" style={{ backgroundColor: "#08080c" }}>
         <div className="text-center space-y-4">
           <div className="text-5xl">😵</div>
-          <p dir="rtl" className="text-red-300 max-w-sm mx-auto">
-            {error ?? "לא נמצא 🔍 אולי הקישור שגוי?"}
+          <p dir={dir} className="text-red-300 max-w-sm mx-auto">
+            {error ?? t("result.notfound")}
           </p>
           <Link
             to="/"
             className="inline-block mt-4 rounded-xl px-6 py-2 text-sm font-mono transition-colors"
             style={{ backgroundColor: "#1a1a2e", color: "#d1d5db" }}
           >
-            Try Again
+            {t("result.tryagain")}
           </Link>
         </div>
       </div>
@@ -149,9 +145,7 @@ export function ResultPage() {
       <div
         className="fixed top-0 left-1/2 -translate-x-1/2 pointer-events-none"
         style={{
-          width: 800,
-          height: 600,
-          borderRadius: "50%",
+          width: 800, height: 600, borderRadius: "50%",
           background: `radial-gradient(circle, ${scoreColor}12 0%, transparent 70%)`,
           filter: "blur(100px)",
         }}
@@ -164,7 +158,7 @@ export function ResultPage() {
           <div className="text-6xl sm:text-7xl animate-float">{emoji}</div>
 
           <div className="font-mono text-xs tracking-[0.15em] uppercase text-[var(--color-text-muted)]">
-            🤖 AI REPLACEMENT ASSIGNED
+            {t("result.assigned")}
           </div>
 
           <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-extrabold" style={{ color: scoreColor }}>
@@ -176,15 +170,15 @@ export function ResultPage() {
               className="inline-block font-mono text-xs px-3 py-1 rounded-full"
               style={{ backgroundColor: "rgba(232,115,74,0.1)", color: "#E8734A", border: "1px solid rgba(232,115,74,0.3)" }}
             >
-              🔮 Expected {model.year}
+              🔮 {t("result.expected")} {model.year}
             </span>
           )}
 
           {/* Headline */}
           <div
-            dir="rtl"
+            dir={dir}
             className="max-w-lg mx-auto rounded-lg p-4"
-            style={{ borderRight: `3px dashed ${scoreColor}`, backgroundColor: "rgba(15,15,23,0.6)" }}
+            style={{ borderRight: dir === "rtl" ? `3px dashed ${scoreColor}` : undefined, borderLeft: dir === "ltr" ? `3px dashed ${scoreColor}` : undefined, backgroundColor: "rgba(15,15,23,0.6)" }}
           >
             <p className="text-lg sm:text-xl text-gray-200 font-medium font-display">
               {headline}
@@ -196,27 +190,26 @@ export function ResultPage() {
         <RevealSection className="rounded-2xl p-6 sm:p-8" style={cardStyle}>
           <div className="flex items-baseline justify-between mb-5">
             <h2 className="font-mono text-xs font-semibold text-[var(--color-accent)] uppercase tracking-[0.15em]">
-              REPLACEMENT RISK ASSESSMENT
+              {t("result.risk")}
             </h2>
             <button
               onClick={() => setShowScoreExplainer((v) => !v)}
-              dir="rtl"
               className="font-mono text-xs text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors cursor-pointer underline underline-offset-2"
             >
-              מה זה אומר?
+              {t("result.explain")}
             </button>
           </div>
 
           {showScoreExplainer && (
             <div
-              dir="rtl"
+              dir={dir}
               className="mb-5 rounded-lg p-4 text-sm space-y-1.5 font-display"
               style={{ backgroundColor: "rgba(26,26,40,0.7)", border: "1px dashed #2a2a3a" }}
             >
-              <p><span className="text-[#2dd4bf] font-bold">0-30%</span> — בטוח יחסית. Claude צריך עוד כמה שנות פיתוח</p>
-              <p><span className="text-[#f59e0b] font-bold">30-60%</span> — אזור האפור. תלוי ביום.</p>
-              <p><span className="text-[#E8734A] font-bold">60-85%</span> — סיכון גבוה. Claude כבר מתקרב.</p>
-              <p><span className="text-[#ef4444] font-bold">85-100%</span> — כמעט שם. עדכן את הלינקדאין.</p>
+              <p><span className="text-[#2dd4bf] font-bold">0-30%</span> — {t("result.explain.0")}</p>
+              <p><span className="text-[#f59e0b] font-bold">30-60%</span> — {t("result.explain.1")}</p>
+              <p><span className="text-[#E8734A] font-bold">60-85%</span> — {t("result.explain.2")}</p>
+              <p><span className="text-[#ef4444] font-bold">85-100%</span> — {t("result.explain.3")}</p>
             </div>
           )}
 
@@ -226,7 +219,7 @@ export function ResultPage() {
         {/* Days Countdown */}
         <RevealSection className="rounded-2xl p-6 sm:p-8 text-center space-y-2" style={cardStyle}>
           <p className="font-mono text-xs text-[var(--color-text-muted)] uppercase tracking-[0.15em] font-semibold">
-            DAYS UNTIL TERMINATION
+            {t("result.days.title")}
           </p>
           <p
             className="font-mono text-5xl sm:text-6xl font-bold tabular-nums"
@@ -243,7 +236,7 @@ export function ResultPage() {
         {skillsAnalysis.length > 0 && (
           <RevealSection className="rounded-2xl p-6 sm:p-8 space-y-4" style={cardStyle}>
             <h2 className="font-mono text-xs font-semibold text-[var(--color-accent)] uppercase tracking-[0.15em]">
-              SKILLS CLEARANCE STATUS
+              {t("result.skills.title")}
             </h2>
             <ul className="space-y-3">
               {visibleSkills.map((s, i) => (
@@ -255,10 +248,10 @@ export function ResultPage() {
                     borderLeft: `3px solid ${s.replaced ? "#E8734A" : "#2dd4bf"}`,
                   }}
                 >
-                  <span dir="rtl" className="font-mono text-xs mt-1 shrink-0 font-bold" style={{ color: s.replaced ? "#E8734A" : "#2dd4bf" }}>
-                    {s.replaced ? "🤖 Claude כבר יודע" : "🛡️ עדיין בטוח"}
+                  <span className="font-mono text-xs mt-1 shrink-0 font-bold" style={{ color: s.replaced ? "#E8734A" : "#2dd4bf" }}>
+                    {s.replaced ? t("result.skills.replaced") : t("result.skills.safe")}
                   </span>
-                  <div className="min-w-0 mr-auto">
+                  <div className="min-w-0 flex-1">
                     <p className="font-semibold text-white font-display">{s.skill}</p>
                     <p className="font-mono text-sm text-[var(--color-text-muted)] mt-0.5 italic">{s.comment}</p>
                   </div>
@@ -269,12 +262,11 @@ export function ResultPage() {
             {hasExtraSkills && (
               <button
                 onClick={() => setShowAllSkills((v) => !v)}
-                dir="rtl"
                 className="w-full text-center font-mono text-sm text-[var(--color-accent)] hover:brightness-125 transition-colors cursor-pointer py-2"
               >
                 {showAllSkills
-                  ? "הצג פחות ▲"
-                  : `הצג עוד ${skillsAnalysis.length - SKILLS_COLLAPSED_LIMIT} כישורות ▼`}
+                  ? t("result.skills.less")
+                  : t("result.skills.more", { n: skillsAnalysis.length - SKILLS_COLLAPSED_LIMIT })}
               </button>
             )}
           </RevealSection>
@@ -283,7 +275,6 @@ export function ResultPage() {
         {/* Quote Bubble */}
         <RevealSection className="rounded-2xl p-6 sm:p-8" style={cardStyle}>
           <div className="flex gap-4 items-start">
-            {/* Claude avatar */}
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center shrink-0 text-lg"
               style={{ backgroundColor: "rgba(232,115,74,0.15)", border: "1px solid rgba(232,115,74,0.3)" }}
@@ -297,7 +288,7 @@ export function ResultPage() {
               <p className="font-mono text-xs text-[var(--color-accent)] mb-2 font-bold tracking-wider">
                 {model.name}:
               </p>
-              <blockquote dir="rtl" className="text-gray-200 text-lg italic leading-relaxed font-display">
+              <blockquote dir={dir} className="text-gray-200 text-lg italic leading-relaxed font-display">
                 &ldquo;{quote}&rdquo;
               </blockquote>
             </div>
@@ -306,13 +297,12 @@ export function ResultPage() {
 
         {/* Action Buttons */}
         <RevealSection className="space-y-4">
-          {/* Share header */}
-          <div className="text-center mb-2">
-            <h2 dir="rtl" className="font-display text-lg font-bold text-white">
-              שתף את גזר הדין שלך
+          <div className="text-center mb-2" dir={dir}>
+            <h2 className="font-display text-lg font-bold text-white">
+              {t("result.share.title")}
             </h2>
-            <p dir="rtl" className="text-[var(--color-text-muted)] text-sm mt-1">
-              תן לעולם לדעת מי יחליף אותך
+            <p className="text-[var(--color-text-muted)] text-sm mt-1">
+              {t("result.share.subtitle")}
             </p>
           </div>
 
@@ -326,37 +316,26 @@ export function ResultPage() {
               boxShadow: "0 4px 24px rgba(232,115,74,0.25)",
             }}
           >
-            📜 Download Termination Certificate
+            {t("result.cert")}
           </a>
 
           <div className="grid grid-cols-3 gap-3">
-            <a
-              href={`https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-medium text-gray-200 transition-all hover:brightness-125 hover:shadow-[0_0_12px_rgba(232,115,74,0.15)] font-display"
-              style={cardStyle}
-            >
-              𝕏 <span className="hidden sm:inline">Twitter</span>
-            </a>
-            <a
-              href={`https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-medium text-gray-200 transition-all hover:brightness-125 hover:shadow-[0_0_12px_rgba(232,115,74,0.15)] font-display"
-              style={cardStyle}
-            >
-              💼 <span className="hidden sm:inline">LinkedIn</span>
-            </a>
-            <a
-              href={`https://wa.me/?text=${shareText}%20${shareUrl}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-medium text-gray-200 transition-all hover:brightness-125 hover:shadow-[0_0_12px_rgba(232,115,74,0.15)] font-display"
-              style={cardStyle}
-            >
-              💬 <span className="hidden sm:inline">WhatsApp</span>
-            </a>
+            {[
+              { href: `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`, icon: "𝕏", label: "Twitter" },
+              { href: `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`, icon: "💼", label: "LinkedIn" },
+              { href: `https://wa.me/?text=${shareText}%20${shareUrl}`, icon: "💬", label: "WhatsApp" },
+            ].map((btn) => (
+              <a
+                key={btn.label}
+                href={btn.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-medium text-gray-200 transition-all hover:brightness-125 hover:shadow-[0_0_12px_rgba(232,115,74,0.15)] font-display"
+                style={cardStyle}
+              >
+                {btn.icon} <span className="hidden sm:inline">{btn.label}</span>
+              </a>
+            ))}
           </div>
 
           <div className="grid grid-cols-2 gap-3">
@@ -365,14 +344,14 @@ export function ResultPage() {
               className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-gray-300 font-display transition-all hover:brightness-125"
               style={{ border: "1px dashed #2a2a3a" }}
             >
-              🏆 Leaderboard
+              {t("result.leaderboard")}
             </Link>
             <button
               onClick={() => navigate("/")}
               className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-gray-300 font-display transition-all hover:brightness-125 cursor-pointer"
               style={{ border: "1px dashed #2a2a3a" }}
             >
-              🔄 Try Again
+              {t("result.tryagain")}
             </button>
           </div>
         </RevealSection>

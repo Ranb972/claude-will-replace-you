@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useLang } from "../lib/i18n";
 
 const TECH_OPTIONS = [
   "React", "Vue", "Angular", "Svelte", "Next.js", "HTML/CSS",
@@ -38,23 +39,9 @@ const inputStyle = {
   border: "1px dashed #2a2a3a",
 };
 
-function getExperienceLabel(years: number): string {
-  if (years <= 2) return "ג'וניור 🌱";
-  if (years <= 5) return "מידלוול 💪";
-  if (years <= 10) return "סיניור 🎯";
-  if (years <= 20) return "ותיק 👑";
-  return "לג'נדה 🏆";
-}
-
-function AiComment({ text }: { text: string }) {
-  return (
-    <span dir="rtl" className="font-mono text-xs text-[var(--color-accent)] opacity-60 mr-2">
-      {text}
-    </span>
-  );
-}
-
 export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
+  const { t } = useLang();
+
   const [form, setForm] = useState<FormData>({
     name: "",
     role: "",
@@ -67,31 +54,39 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
+  function getExperienceLabel(years: number): string {
+    if (years <= 2) return t("input.experience.junior");
+    if (years <= 5) return t("input.experience.mid");
+    if (years <= 10) return t("input.experience.senior");
+    if (years <= 20) return t("input.experience.veteran");
+    return t("input.experience.legend");
+  }
+
   function validate(data: FormData): FormErrors {
     const errs: FormErrors = {};
-    if (!data.name.trim()) errs.name = "Required";
-    else if (data.name.length > 50) errs.name = "Max 50 characters";
+    if (!data.name.trim()) errs.name = t("input.error.required");
+    else if (data.name.length > 50) errs.name = t("input.error.name.max");
 
-    if (!data.role.trim()) errs.role = "Required";
-    else if (data.role.length > 100) errs.role = "Max 100 characters";
+    if (!data.role.trim()) errs.role = t("input.error.required");
+    else if (data.role.length > 100) errs.role = t("input.error.role.max");
 
-    if (!data.description.trim()) errs.description = "Required";
+    if (!data.description.trim()) errs.description = t("input.error.required");
     else if (data.description.trim().length < 20)
-      errs.description = "Tell us more! (20 chars minimum)";
+      errs.description = t("input.error.desc.min");
     else if (data.description.length > 500)
-      errs.description = "Max 500 characters";
+      errs.description = t("input.error.desc.max");
 
     if (
       data.githubUrl &&
       !/^https?:\/\/(www\.)?github\.com\/.+/i.test(data.githubUrl)
     )
-      errs.githubUrl = "Must be a valid GitHub URL";
+      errs.githubUrl = t("input.error.github");
 
     return errs;
   }
 
   function handleBlur(field: string) {
-    setTouched((t) => ({ ...t, [field]: true }));
+    setTouched((prev) => ({ ...prev, [field]: true }));
     setErrors(validate(form));
   }
 
@@ -99,7 +94,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
     setForm((f) => ({
       ...f,
       technologies: f.technologies.includes(tech)
-        ? f.technologies.filter((t) => t !== tech)
+        ? f.technologies.filter((item) => item !== tech)
         : [...f.technologies, tech],
     }));
   }
@@ -118,7 +113,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
       {/* Name */}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5 font-mono">
-          Name / Nickname *
+          {t("input.name.label")}
         </label>
         <input
           id="name"
@@ -131,7 +126,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           aria-invalid={touched.name && !!errors.name}
           className={inputClasses}
           style={inputStyle}
-          placeholder="למשל: רן"
+          placeholder={t("input.name.placeholder")}
         />
         {touched.name && errors.name && (
           <p id="name-error" role="alert" className="mt-1.5 text-sm text-red-400">{errors.name}</p>
@@ -141,7 +136,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
       {/* Role */}
       <div>
         <label htmlFor="role" className="block text-sm font-medium text-gray-300 mb-1.5 font-mono">
-          Job Title *
+          {t("input.role.label")}
         </label>
         <input
           id="role"
@@ -154,7 +149,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           aria-invalid={touched.role && !!errors.role}
           className={inputClasses}
           style={inputStyle}
-          placeholder="למשל: Full Stack Developer"
+          placeholder={t("input.role.placeholder")}
         />
         {touched.role && errors.role && (
           <p id="role-error" role="alert" className="mt-1.5 text-sm text-red-400">{errors.role}</p>
@@ -165,11 +160,13 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
       <div>
         <div className="flex items-baseline justify-between mb-1.5">
           <label htmlFor="experience" className="block text-sm font-medium text-gray-300 font-mono">
-            Years of Experience:{" "}
+            {t("input.experience.label")}{" "}
             <span className="text-[var(--color-accent)] font-bold text-base">{form.experience}</span>
-            <span dir="rtl" className="text-[var(--color-text-muted)] text-xs mr-2">{getExperienceLabel(form.experience)}</span>
+            <span className="text-[var(--color-text-muted)] text-xs ml-2">{getExperienceLabel(form.experience)}</span>
           </label>
-          <AiComment text="( כל שנה שווה פחות )" />
+          <span className="font-mono text-xs text-[var(--color-accent)] opacity-60">
+            {t("input.experience.comment")}
+          </span>
         </div>
         <input
           id="experience"
@@ -194,9 +191,11 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
       <div>
         <div className="flex items-baseline justify-between mb-1.5">
           <label htmlFor="description" className="block text-sm font-medium text-gray-300 font-mono">
-            What do you do? *
+            {t("input.description.label")}
           </label>
-          <AiComment text="( Claude קורא כל מילה )" />
+          <span className="font-mono text-xs text-[var(--color-accent)] opacity-60">
+            {t("input.description.comment")}
+          </span>
         </div>
         <textarea
           id="description"
@@ -209,7 +208,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
           aria-invalid={touched.description && !!errors.description}
           className={`${inputClasses} resize-none`}
           style={inputStyle}
-          placeholder="e.g. Building web apps, designing APIs, managing a team of 5..."
+          placeholder={t("input.description.placeholder")}
         />
         <div className="flex justify-between mt-1.5">
           {touched.description && errors.description ? (
@@ -224,7 +223,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
       {/* Technologies */}
       <div>
         <label className="block text-sm font-medium text-gray-300 mb-2 font-mono">
-          Technologies
+          {t("input.tech.label")}
         </label>
         <div className="flex flex-wrap gap-2">
           {TECH_OPTIONS.map((tech) => {
@@ -262,9 +261,11 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
       <div>
         <div className="flex items-baseline justify-between mb-1.5">
           <label htmlFor="github" className="block text-sm font-medium text-gray-300 font-mono">
-            GitHub URL <span className="text-gray-600">(optional)</span>
+            {t("input.github.label")} <span className="text-gray-600">{t("input.github.optional")}</span>
           </label>
-          <AiComment text="( +5 הגנה. אם הקוד טוב. )" />
+          <span className="font-mono text-xs text-[var(--color-accent)] opacity-60">
+            {t("input.github.comment")}
+          </span>
         </div>
         <input
           id="github"
@@ -296,9 +297,9 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
         {isSubmitting ? (
           <span className="flex items-center justify-center gap-2">
             <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin inline-block" />
-            <span>...מנתח</span>
+            <span>{t("input.submitting")}</span>
           </span>
-        ) : "📋 Submit for AI Review"}
+        ) : t("input.submit")}
       </button>
     </form>
   );

@@ -65,13 +65,15 @@ function generatedByLabel(model: string): string {
 
 export async function generateHumorContent(
   input: ProfileInput,
-  scoringResult: ScoringResult
+  scoringResult: ScoringResult,
+  lang: "en" | "he" = "en",
 ): Promise<{ content: HumorContent; generatedBy: string }> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
     const content = generateLocalFallback(
       input,
-      scoringResult.model.key
+      scoringResult.model.key,
+      lang,
     );
     return { content, generatedBy: "local-fallback" };
   }
@@ -110,6 +112,6 @@ export async function generateHumorContent(
   }
 
   // All Groq models exhausted — local fallback
-  const content = generateLocalFallback(input, scoringResult.model.key);
+  const content = generateLocalFallback(input, scoringResult.model.key, lang);
   return { content, generatedBy: "local-fallback" };
 }

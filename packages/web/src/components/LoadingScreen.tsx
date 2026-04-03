@@ -1,18 +1,7 @@
 import { useState, useEffect } from "react";
+import { useLang } from "../lib/i18n";
 
-const MESSAGES = [
-  "סורק את קורות החיים שלך... 😬",
-  "משווה אותך ל-Claude Opus... הממ...",
-  "מחשב ימים עד פיטורין... ⏳",
-  "Claude שואל אם יש לך מגש עמדות...",
-  "בודק אם הקוד שלך עובר lint... (ספויילר: לא)",
-  "סורק את הגיטהאב שלך... רגע, זה intentional?",
-  "מתייעץ עם Skynet...",
-  "Claude מוציא קורות חיים...",
-  "בודק אם אתה כותב tests... 👀",
-  "מחפש את הערך המוסף שלך... עדיין מחפש...",
-];
-
+const MESSAGE_COUNT = 10;
 const MESSAGE_INTERVAL_MS = 800;
 const COUNTDOWN_INTERVAL_MS = 700;
 const MIN_DISPLAY_MS = 2000;
@@ -23,6 +12,8 @@ interface LoadingScreenProps {
 }
 
 export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps) {
+  const { t, dir } = useLang();
+
   const [countdown, setCountdown] = useState(3);
   const [messageIndex, setMessageIndex] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -49,7 +40,7 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
     if (!visible || countdown > 0) return;
     setMessageIndex(0);
     const interval = setInterval(() => {
-      setMessageIndex((prev) => (prev + 1) % MESSAGES.length);
+      setMessageIndex((prev) => (prev + 1) % MESSAGE_COUNT);
     }, MESSAGE_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [visible, countdown]);
@@ -109,7 +100,7 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
         style={{ backgroundColor: "#08080c" }}
       >
         <div className="font-mono text-xs sm:text-sm tracking-[0.2em] uppercase text-[var(--color-text-muted)] mb-6">
-          INITIALIZING SCAN
+          {t("loading.init")}
         </div>
         <div
           key={countdown}
@@ -118,8 +109,8 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
         >
           {countdown}
         </div>
-        <p dir="rtl" className="font-mono text-sm text-[var(--color-text-muted)] mt-6">
-          ...מתחיל סריקה
+        <p dir={dir} className="font-mono text-sm text-[var(--color-text-muted)] mt-6">
+          {t("loading.starting")}
         </p>
       </div>
     );
@@ -142,7 +133,7 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
     >
       {/* Title */}
       <div className="font-mono text-xs sm:text-sm tracking-[0.2em] uppercase text-[var(--color-accent)] mb-8">
-        THREAT ASSESSMENT IN PROGRESS
+        {t("loading.title")}
       </div>
 
       {/* Robot */}
@@ -151,18 +142,18 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
       {/* Message */}
       <p
         key={messageIndex}
-        dir="rtl"
+        dir={dir}
         className="font-mono text-lg sm:text-xl text-white font-medium text-center px-6 min-h-[2em] animate-fade-in-up"
       >
-        <span className="text-[var(--color-accent)] opacity-50 mr-2">&gt;</span>
-        {MESSAGES[messageIndex]}
-        <span className="animate-terminal-blink text-[var(--color-accent)] mr-1">_</span>
+        <span className="text-[var(--color-accent)] opacity-50 mx-1">&gt;</span>
+        {t(`loading.msg.${messageIndex}`)}
+        <span className="animate-terminal-blink text-[var(--color-accent)] mx-1">_</span>
       </p>
 
       {/* Progress bar */}
       <div className="w-72 sm:w-96 mt-10">
         <div className="font-mono text-xs text-[var(--color-text-muted)] mb-2 text-center tracking-wider uppercase">
-          THREAT LEVEL
+          {t("loading.level")}
         </div>
         <div
           className="h-3 rounded-full overflow-hidden"

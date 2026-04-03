@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLang } from "../lib/i18n";
 
 interface ReplacementMeterProps {
   score: number;
@@ -19,12 +20,14 @@ function getGlow(score: number): string {
   return "0 0 16px rgba(239,68,68,0.3)";
 }
 
-function getThreatLabel(score: number): { text: string; color: string; pulse: boolean } {
-  if (score < 20) return { text: "LOW THREAT", color: "#2dd4bf", pulse: false };
-  if (score < 40) return { text: "MODERATE", color: "#f59e0b", pulse: false };
-  if (score < 60) return { text: "ELEVATED", color: "#E8734A", pulse: false };
-  if (score < 80) return { text: "HIGH THREAT", color: "#ef4444", pulse: false };
-  return { text: "CRITICAL", color: "#ef4444", pulse: true };
+type ThreatKey = "meter.low" | "meter.moderate" | "meter.elevated" | "meter.high" | "meter.critical";
+
+function getThreatInfo(score: number): { key: ThreatKey; color: string; pulse: boolean } {
+  if (score < 20) return { key: "meter.low", color: "#2dd4bf", pulse: false };
+  if (score < 40) return { key: "meter.moderate", color: "#f59e0b", pulse: false };
+  if (score < 60) return { key: "meter.elevated", color: "#E8734A", pulse: false };
+  if (score < 80) return { key: "meter.high", color: "#ef4444", pulse: false };
+  return { key: "meter.critical", color: "#ef4444", pulse: true };
 }
 
 export function ReplacementMeter({ score, duration = 2000 }: ReplacementMeterProps) {
@@ -68,7 +71,8 @@ export function ReplacementMeter({ score, duration = 2000 }: ReplacementMeterPro
     requestAnimationFrame(tick);
   }, [hasAnimated, score, duration]);
 
-  const threat = getThreatLabel(score);
+  const { t } = useLang();
+  const threat = getThreatInfo(score);
 
   return (
     <div ref={ref} className="w-full space-y-3">
@@ -81,7 +85,7 @@ export function ReplacementMeter({ score, duration = 2000 }: ReplacementMeterPro
           className={`font-mono text-xs sm:text-sm tracking-wider uppercase pb-2 font-bold ${threat.pulse ? "animate-pulse" : ""}`}
           style={{ color: threat.color }}
         >
-          {threat.text}
+          {t(threat.key)}
         </span>
       </div>
 

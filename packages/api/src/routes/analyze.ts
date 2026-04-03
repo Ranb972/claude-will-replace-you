@@ -30,13 +30,18 @@ analyze.post("/", async (c) => {
     githubUrl: input.githubUrl,
   });
 
-  // 2. Generate humor content (Groq → fallback chain)
+  // 2. Determine language: explicit lang field > Hebrew char detection > default "en"
+  const hasHebrew = /[\u0590-\u05FF]/.test(input.description);
+  const lang = input.lang ?? (hasHebrew ? "he" : "en");
+
+  // 3. Generate humor content (Groq → fallback chain)
   const { content: humor, generatedBy } = await generateHumorContent(
     input,
     scoringResult,
+    lang as "en" | "he",
   );
 
-  // 3. Generate ID + save to DB
+  // 4. Generate ID + save to DB
   const id = nanoid(12);
 
   await saveResult({
@@ -57,7 +62,7 @@ analyze.post("/", async (c) => {
     generatedBy,
   });
 
-  // 4. Return result
+  // 5. Return result
   const baseUrl =
     process.env.BASE_URL || "https://claude-will-replace-you.vercel.app";
 

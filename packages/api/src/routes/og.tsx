@@ -174,7 +174,7 @@ function renderCertificate(result: CertRow): ImageResponse {
               alignItems: "center",
             }}
           >
-            ★ {result.name} ★
+            * {result.name} *
           </div>
 
           {/* Role + Years */}
@@ -212,7 +212,7 @@ function renderCertificate(result: CertRow): ImageResponse {
               alignItems: "center",
             }}
           >
-            ✦ {result.modelName}{futureEmoji} ✦
+            > {result.modelName}{futureEmoji} >
           </div>
 
           {/* Year label */}
@@ -320,7 +320,7 @@ function renderCertificate(result: CertRow): ImageResponse {
               display: "flex",
             }}
           >
-            &ldquo;{quote}&rdquo;
+            &quot;{quote}&quot;
           </div>
 
           {/* Footer */}

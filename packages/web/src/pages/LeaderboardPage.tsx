@@ -240,8 +240,8 @@ export function LeaderboardPage() {
                     return (
                       <tr
                         key={entry.id}
-                        className="hover:bg-white/[0.02] transition-colors"
-                        style={isTop3 ? { [borderSide]: `3px solid ${getRowBorderColor(entry.score)}` } : undefined}
+                        className="hover:bg-white/[0.04] transition-all duration-200"
+                        style={isTop3 ? { [borderSide]: `3px solid ${getRowBorderColor(entry.score)}`, boxShadow: `inset 0 0 20px rgba(232,115,74,0.03)` } : undefined}
                       >
                         <td className="px-4 py-3 text-[var(--color-text-muted)] tabular-nums font-mono">
                           {rank !== null ? (

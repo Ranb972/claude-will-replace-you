@@ -54,7 +54,17 @@ function getScoreColor(score: number): string {
   return "#ef4444";
 }
 
+function isRealModel(key: string): boolean {
+  return key === "haiku" || key === "sonnet" || key === "opus";
+}
+
 const SKILLS_COLLAPSED_LIMIT = 8;
+
+const SHARE_BUTTONS = [
+  { key: "twitter", icon: "𝕏", label: "Twitter", hoverBorder: "rgba(255,255,255,0.2)" },
+  { key: "linkedin", icon: "💼", label: "LinkedIn", hoverBorder: "rgba(59,130,246,0.5)" },
+  { key: "whatsapp", icon: "💬", label: "WhatsApp", hoverBorder: "rgba(34,197,94,0.5)" },
+] as const;
 
 // ── Component ──
 
@@ -125,11 +135,18 @@ export function ResultPage() {
   const { model, score, daysLeft, headline, quote, skillsAnalysis } = result;
   const emoji = getModelEmoji(model.key);
   const scoreColor = getScoreColor(score);
+  const emojiGlow = isRealModel(model.key) ? "rgba(232,115,74,0.3)" : "rgba(168,85,247,0.3)";
 
   const shareText = encodeURIComponent(
     `${emoji} ${model.name} will replace me in ${daysLeft} days (${score}% replaceable)! Find out your fate:`,
   );
   const shareUrl = encodeURIComponent(result.shareUrl);
+
+  function getShareHref(key: string): string {
+    if (key === "twitter") return `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`;
+    if (key === "linkedin") return `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`;
+    return `https://wa.me/?text=${shareText}%20${shareUrl}`;
+  }
 
   const cardStyle = {
     backgroundColor: "#0f0f17",
@@ -153,9 +170,16 @@ export function ResultPage() {
 
       <div className="relative z-10 max-w-[800px] mx-auto px-4 py-12 sm:py-16 space-y-8">
 
-        {/* Model Card */}
-        <section className="text-center space-y-4 animate-reveal-scale">
-          <div className="text-6xl sm:text-7xl animate-float">{emoji}</div>
+        {/* Model Card — blur entrance */}
+        <section className="text-center space-y-4 animate-reveal-blur">
+          {/* Emoji with glow aura */}
+          <div className="relative inline-block">
+            <div
+              className="absolute inset-0 rounded-full animate-pulse"
+              style={{ boxShadow: `0 0 40px ${emojiGlow}, 0 0 80px ${emojiGlow}`, transform: "scale(1.5)" }}
+            />
+            <div className="relative text-6xl sm:text-7xl animate-float">{emoji}</div>
+          </div>
 
           <div className="font-mono text-xs tracking-[0.15em] uppercase text-[var(--color-text-muted)]">
             {t("result.assigned")}
@@ -174,7 +198,6 @@ export function ResultPage() {
             </span>
           )}
 
-          {/* Headline */}
           <div
             dir={dir}
             className="max-w-lg mx-auto rounded-lg p-4"
@@ -216,13 +239,13 @@ export function ResultPage() {
           <ReplacementMeter score={score} />
         </RevealSection>
 
-        {/* Days Countdown */}
+        {/* Days Countdown — digit flicker */}
         <RevealSection className="rounded-2xl p-6 sm:p-8 text-center space-y-2" style={cardStyle}>
           <p className="font-mono text-xs text-[var(--color-text-muted)] uppercase tracking-[0.15em] font-semibold">
             {t("result.days.title")}
           </p>
           <p
-            className="font-mono text-5xl sm:text-6xl font-bold tabular-nums"
+            className="font-mono text-5xl sm:text-6xl font-bold tabular-nums animate-digit-flicker"
             style={{ color: scoreColor, textShadow: `0 0 30px ${scoreColor}40` }}
           >
             {daysLeft >= 99999 ? "♾️" : daysLeft.toLocaleString()}
@@ -232,7 +255,7 @@ export function ResultPage() {
           </p>
         </RevealSection>
 
-        {/* Skills Analysis */}
+        {/* Skills Analysis — staggered */}
         {skillsAnalysis.length > 0 && (
           <RevealSection className="rounded-2xl p-6 sm:p-8 space-y-4" style={cardStyle}>
             <h2 className="font-mono text-xs font-semibold text-[var(--color-accent)] uppercase tracking-[0.15em]">
@@ -242,8 +265,9 @@ export function ResultPage() {
               {visibleSkills.map((s, i) => (
                 <li
                   key={i}
-                  className="flex items-start gap-3 rounded-xl p-4"
+                  className="flex items-start gap-3 rounded-xl p-4 animate-stagger-in"
                   style={{
+                    animationDelay: `${i * 80}ms`,
                     backgroundColor: "rgba(26,26,40,0.5)",
                     borderLeft: `3px solid ${s.replaced ? "#E8734A" : "#2dd4bf"}`,
                   }}
@@ -306,11 +330,12 @@ export function ResultPage() {
             </p>
           </div>
 
+          {/* Certificate — shimmer button, relative URL */}
           <a
-            href={result.certificateUrl}
+            href={`/api/og/${id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full rounded-xl px-6 py-3.5 font-bold text-lg text-white font-display hover:scale-[1.02] transition-all"
+            className="flex items-center justify-center gap-2 w-full rounded-xl px-6 py-3.5 font-bold text-lg text-white font-display hover:scale-[1.02] transition-all duration-200 btn-shimmer"
             style={{
               background: "linear-gradient(135deg, #E8734A, #ef4444)",
               boxShadow: "0 4px 24px rgba(232,115,74,0.25)",
@@ -319,19 +344,18 @@ export function ResultPage() {
             {t("result.cert")}
           </a>
 
+          {/* Share — branded hover */}
           <div className="grid grid-cols-3 gap-3">
-            {[
-              { href: `https://twitter.com/intent/tweet?text=${shareText}&url=${shareUrl}`, icon: "𝕏", label: "Twitter" },
-              { href: `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`, icon: "💼", label: "LinkedIn" },
-              { href: `https://wa.me/?text=${shareText}%20${shareUrl}`, icon: "💬", label: "WhatsApp" },
-            ].map((btn) => (
+            {SHARE_BUTTONS.map((btn) => (
               <a
-                key={btn.label}
-                href={btn.href}
+                key={btn.key}
+                href={getShareHref(btn.key)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-medium text-gray-200 transition-all hover:brightness-125 hover:shadow-[0_0_12px_rgba(232,115,74,0.15)] font-display"
-                style={cardStyle}
+                className="flex items-center justify-center gap-2 rounded-xl px-4 py-3.5 font-medium text-gray-200 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg font-display"
+                style={{ ...cardStyle }}
+                onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.borderColor = btn.hoverBorder; }}
+                onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.borderColor = "#1a1a2e"; }}
               >
                 {btn.icon} <span className="hidden sm:inline">{btn.label}</span>
               </a>
@@ -341,14 +365,14 @@ export function ResultPage() {
           <div className="grid grid-cols-2 gap-3">
             <Link
               to="/leaderboard"
-              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-gray-300 font-display transition-all hover:brightness-125"
+              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-gray-300 font-display transition-all duration-200 hover:brightness-125 hover:-translate-y-0.5"
               style={{ border: "1px dashed #2a2a3a" }}
             >
               {t("result.leaderboard")}
             </Link>
             <button
               onClick={() => navigate("/")}
-              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-gray-300 font-display transition-all hover:brightness-125 cursor-pointer"
+              className="flex items-center justify-center gap-2 rounded-xl px-4 py-3 font-medium text-gray-300 font-display transition-all duration-200 hover:brightness-125 hover:-translate-y-0.5 cursor-pointer"
               style={{ border: "1px dashed #2a2a3a" }}
             >
               {t("result.tryagain")}

@@ -9,10 +9,10 @@ function LangToggle() {
   return (
     <button
       onClick={() => setLang(lang === "en" ? "he" : "en")}
-      className="fixed top-4 right-4 z-50 font-mono text-xs px-3 py-1.5 rounded-full cursor-pointer transition-all hover:brightness-125"
+      className="fixed top-4 right-4 z-50 font-mono text-xs px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200 hover:brightness-125 hover:scale-105 active:scale-95"
       style={{
         backgroundColor: "rgba(15,15,23,0.85)",
-        border: "1px solid #1a1a2e",
+        border: "1px solid rgba(232,115,74,0.2)",
         color: "#EDEDED",
         backdropFilter: "blur(8px)",
       }}
@@ -27,6 +27,7 @@ export default function App() {
   return (
     <LangProvider>
       <BrowserRouter>
+        <div className="vignette" />
         <LangToggle />
         <Routes>
           <Route path="/" element={<HomePage />} />

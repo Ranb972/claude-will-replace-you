@@ -16,13 +16,44 @@ const RECENT_RESULTS = [
   { name: "Maya", role: "Data Scientist", model: "Titan", days: 1800, score: 35 },
 ];
 
-const ASCII_ROBOT = `
-  ╭─────╮
-  │ ^_^ │
-  ╰──┬──╯
-   ╭─┴─╮
-   │   │
-   ╰───╯`;
+/* CSS-art robot */
+function CssRobot() {
+  return (
+    <div className="animate-float select-none mx-auto mb-6" style={{ width: 80 }}>
+      {/* Head */}
+      <div
+        className="mx-auto rounded-2xl relative"
+        style={{
+          width: 64, height: 52,
+          background: "linear-gradient(135deg, rgba(232,115,74,0.15), rgba(232,115,74,0.05))",
+          border: "2px solid rgba(232,115,74,0.3)",
+        }}
+      >
+        {/* Eyes */}
+        <div className="absolute flex gap-4" style={{ top: 14, left: 12 }}>
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "#E8734A", boxShadow: "0 0 8px #E8734A" }} />
+          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "#E8734A", boxShadow: "0 0 8px #E8734A" }} />
+        </div>
+        {/* Mouth */}
+        <div className="absolute rounded-full" style={{ bottom: 10, left: 18, width: 28, height: 6, backgroundColor: "rgba(232,115,74,0.2)" }} />
+        {/* Antenna */}
+        <div className="absolute" style={{ top: -10, left: "50%", marginLeft: -1, width: 2, height: 10, backgroundColor: "rgba(232,115,74,0.4)" }} />
+        <div className="absolute rounded-full" style={{ top: -14, left: "50%", marginLeft: -3, width: 6, height: 6, backgroundColor: "#E8734A", boxShadow: "0 0 6px #E8734A" }} />
+      </div>
+      {/* Neck */}
+      <div className="mx-auto" style={{ width: 8, height: 6, backgroundColor: "rgba(232,115,74,0.15)" }} />
+      {/* Body */}
+      <div
+        className="mx-auto rounded-xl"
+        style={{
+          width: 48, height: 32,
+          background: "linear-gradient(180deg, rgba(232,115,74,0.1), rgba(232,115,74,0.03))",
+          border: "1.5px solid rgba(232,115,74,0.2)",
+        }}
+      />
+    </div>
+  );
+}
 
 const ERROR_ICONS: Record<string, string> = {
   RATE_LIMITED: "🐌",
@@ -52,31 +83,25 @@ export function HomePage() {
   const isRtl = dir === "rtl";
 
   return (
-    <div className="min-h-screen bg-noise bg-scanline" style={{ backgroundColor: "#08080c" }}>
+    <div className="min-h-screen bg-noise bg-scanline">
       <LoadingScreen visible={isLoading} />
 
       {/* ── Hero Section ── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden bg-grid">
-        {/* Background glow */}
+      <section className="relative min-h-screen flex flex-col items-center justify-center px-4 overflow-hidden bg-gradient-shift bg-grid">
+        {/* Background glow orb — pulsing */}
         <div
-          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none animate-pulse"
           style={{
             width: 700,
             height: 700,
             borderRadius: "50%",
-            background: "radial-gradient(circle, rgba(232,115,74,0.06) 0%, transparent 70%)",
+            background: "radial-gradient(circle, rgba(232,115,74,0.08) 0%, transparent 70%)",
             filter: "blur(80px)",
           }}
         />
 
         <div className="relative z-10 text-center max-w-[800px] mx-auto">
-          {/* ASCII Robot */}
-          <pre
-            className="font-mono text-[var(--color-accent)] text-sm sm:text-base mx-auto mb-6 animate-float select-none"
-            style={{ lineHeight: 1.2 }}
-          >
-            {ASCII_ROBOT}
-          </pre>
+          <CssRobot />
 
           {/* Department badge */}
           <div className="font-mono text-xs sm:text-sm tracking-[0.2em] uppercase text-[var(--color-text-muted)] mb-4">
@@ -89,7 +114,7 @@ export function HomePage() {
           >
             <span
               style={{
-                background: "linear-gradient(90deg, #E8734A, #ef4444)",
+                background: "linear-gradient(90deg, #E8734A, #fbbf24)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
               }}
@@ -106,7 +131,7 @@ export function HomePage() {
 
           <button
             onClick={scrollToForm}
-            className="font-display rounded-xl px-8 py-3.5 text-lg font-bold text-white cursor-pointer transition-all hover:scale-105 animate-pulse-glow"
+            className="font-display rounded-xl px-8 py-3.5 text-lg font-bold text-white cursor-pointer transition-all duration-200 hover:scale-105 animate-pulse-glow btn-shimmer"
             style={{
               background: "linear-gradient(135deg, #E8734A, #ef4444)",
             }}
@@ -132,8 +157,8 @@ export function HomePage() {
 
         {/* ── Ticker ── */}
         <div
-          className="absolute bottom-0 left-0 right-0 overflow-hidden py-3"
-          style={{ borderTop: "1px solid rgba(232,115,74,0.1)", borderBottom: "1px solid rgba(232,115,74,0.1)", backgroundColor: "rgba(8,8,12,0.8)" }}
+          className="absolute bottom-0 left-0 right-0 overflow-hidden py-3 glass-ticker"
+          style={{ borderTop: "1px solid rgba(232,115,74,0.08)", borderBottom: "1px solid rgba(232,115,74,0.08)" }}
         >
           <div className="ticker-track">
             {[...RECENT_RESULTS, ...RECENT_RESULTS, ...RECENT_RESULTS].map((r, i) => {
@@ -163,10 +188,9 @@ export function HomePage() {
       >
         <div className="w-full max-w-[800px]">
           <div
-            className="relative rounded-2xl p-6 sm:p-10 overflow-hidden"
+            className="relative rounded-2xl p-6 sm:p-10 overflow-hidden glass-card"
             style={{
-              backgroundColor: "#0f0f17",
-              border: "1px dashed rgba(232,115,74,0.25)",
+              border: "1px dashed rgba(232,115,74,0.2)",
             }}
           >
             {/* Watermark */}

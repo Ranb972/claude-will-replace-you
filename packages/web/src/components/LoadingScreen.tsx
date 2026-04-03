@@ -1,10 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLang } from "../lib/i18n";
 
 const MESSAGE_COUNT = 10;
-const MESSAGE_INTERVAL_MS = 800;
+const MESSAGE_INTERVAL_MS = 1800;
 const COUNTDOWN_INTERVAL_MS = 700;
 const MIN_DISPLAY_MS = 2000;
+const TYPING_SPEED_MS = 25;
 
 interface LoadingScreenProps {
   visible: boolean;
@@ -16,8 +17,10 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
 
   const [countdown, setCountdown] = useState(3);
   const [messageIndex, setMessageIndex] = useState(0);
+  const [displayedChars, setDisplayedChars] = useState(0);
   const [progress, setProgress] = useState(0);
   const [exiting, setExiting] = useState(false);
+  const currentMessage = useRef("");
 
   // Countdown 3 → 2 → 1 → 0
   useEffect(() => {
@@ -25,50 +28,51 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
     setCountdown(3);
     const interval = setInterval(() => {
       setCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(interval);
-          return 0;
-        }
+        if (prev <= 1) { clearInterval(interval); return 0; }
         return prev - 1;
       });
     }, COUNTDOWN_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [visible]);
 
-  // Rotate messages (only after countdown finishes)
+  // Rotate messages + typing effect
   useEffect(() => {
     if (!visible || countdown > 0) return;
     setMessageIndex(0);
+    setDisplayedChars(0);
     const interval = setInterval(() => {
       setMessageIndex((prev) => (prev + 1) % MESSAGE_COUNT);
+      setDisplayedChars(0);
     }, MESSAGE_INTERVAL_MS);
     return () => clearInterval(interval);
   }, [visible, countdown]);
 
-  // Progress bar (only after countdown)
+  // Character-by-character typing
+  useEffect(() => {
+    if (!visible || countdown > 0) return;
+    const msg = t(`loading.msg.${messageIndex}`);
+    currentMessage.current = msg;
+    if (displayedChars >= msg.length) return;
+    const timer = setTimeout(() => setDisplayedChars((c) => c + 1), TYPING_SPEED_MS);
+    return () => clearTimeout(timer);
+  }, [visible, countdown, messageIndex, displayedChars, t]);
+
+  // Progress bar
   useEffect(() => {
     if (!visible || countdown > 0) return;
     setProgress(0);
     let frame: number;
     const start = performance.now();
-
     const animate = (now: number) => {
       const elapsed = now - start;
       let pct: number;
-      if (elapsed < 600) {
-        pct = (elapsed / 600) * 40;
-      } else if (elapsed < 1400) {
-        pct = 40 + ((elapsed - 600) / 800) * 20;
-      } else if (elapsed < 2000) {
-        pct = 60 + ((elapsed - 1400) / 600) * 30;
-      } else {
-        const extra = elapsed - 2000;
-        pct = 90 + 5 * (1 - Math.exp(-extra / 3000));
-      }
+      if (elapsed < 600) pct = (elapsed / 600) * 40;
+      else if (elapsed < 1400) pct = 40 + ((elapsed - 600) / 800) * 20;
+      else if (elapsed < 2000) pct = 60 + ((elapsed - 1400) / 600) * 30;
+      else pct = 90 + 5 * (1 - Math.exp(-(elapsed - 2000) / 3000));
       setProgress(Math.min(pct, 95));
       frame = requestAnimationFrame(animate);
     };
-
     frame = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(frame);
   }, [visible, countdown]);
@@ -102,12 +106,23 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
         <div className="font-mono text-xs sm:text-sm tracking-[0.2em] uppercase text-[var(--color-text-muted)] mb-6">
           {t("loading.init")}
         </div>
-        <div
-          key={countdown}
-          className="font-mono text-8xl sm:text-9xl font-bold animate-reveal-scale"
-          style={{ color: "#E8734A", textShadow: "0 0 40px rgba(232,115,74,0.4)" }}
-        >
-          {countdown}
+        <div className="relative">
+          {/* Radar ping */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full animate-radar-ping"
+            style={{ border: "2px solid rgba(232,115,74,0.3)" }}
+          />
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full animate-radar-ping"
+            style={{ border: "2px solid rgba(232,115,74,0.15)", animationDelay: "0.5s" }}
+          />
+          <div
+            key={countdown}
+            className="relative font-mono text-8xl sm:text-9xl font-bold animate-reveal-blur"
+            style={{ color: "#E8734A", textShadow: "0 0 40px rgba(232,115,74,0.4)" }}
+          >
+            {countdown}
+          </div>
         </div>
         <p dir={dir} className="font-mono text-sm text-[var(--color-text-muted)] mt-6">
           {t("loading.starting")}
@@ -115,6 +130,9 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
       </div>
     );
   }
+
+  const typedText = currentMessage.current.slice(0, displayedChars);
+  const isTyping = displayedChars < currentMessage.current.length;
 
   return (
     <div
@@ -128,6 +146,7 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
           setProgress(0);
           setMessageIndex(0);
           setCountdown(3);
+          setDisplayedChars(0);
         }
       }}
     >
@@ -139,15 +158,15 @@ export function LoadingScreen({ visible, onMinimumElapsed }: LoadingScreenProps)
       {/* Robot */}
       <div className="text-6xl sm:text-7xl mb-8 animate-bounce">🤖</div>
 
-      {/* Message */}
+      {/* Message — typing effect */}
       <p
-        key={messageIndex}
         dir={dir}
-        className="font-mono text-lg sm:text-xl text-white font-medium text-center px-6 min-h-[2em] animate-fade-in-up"
+        className="font-mono text-lg sm:text-xl text-white font-medium text-center px-6 min-h-[2em]"
       >
         <span className="text-[var(--color-accent)] opacity-50 mx-1">&gt;</span>
-        {t(`loading.msg.${messageIndex}`)}
-        <span className="animate-terminal-blink text-[var(--color-accent)] mx-1">_</span>
+        {typedText}
+        {isTyping && <span className="animate-terminal-blink text-[var(--color-accent)] mx-0.5">|</span>}
+        {!isTyping && <span className="animate-terminal-blink text-[var(--color-accent)] mx-0.5">_</span>}
       </p>
 
       {/* Progress bar */}

@@ -33,7 +33,7 @@ interface InputFormProps {
 }
 
 const inputClasses =
-  "w-full rounded-lg px-4 py-3 text-white placeholder-gray-600 font-display focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]/60 transition-colors";
+  "w-full rounded-lg px-4 py-3 text-white placeholder-gray-600 font-display focus:outline-none input-focus-glow transition-all duration-200";
 const inputStyle = {
   backgroundColor: "rgba(26,26,40,0.8)",
   border: "1px dashed #2a2a3a",
@@ -108,8 +108,23 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
     onSubmit(form);
   }
 
+  const filledCount = [form.name.trim(), form.role.trim(), form.description.trim().length >= 20 ? "ok" : ""].filter(Boolean).length;
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-[600px] mx-auto">
+      {/* Field progress */}
+      <div className="flex items-center justify-between font-mono text-xs text-[var(--color-text-muted)]">
+        <span>{filledCount}/3 required fields</span>
+        <div className="flex gap-1">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-6 h-1 rounded-full transition-all duration-300"
+              style={{ backgroundColor: i < filledCount ? "#E8734A" : "#1a1a2e" }}
+            />
+          ))}
+        </div>
+      </div>
       {/* Name */}
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1.5 font-mono">
@@ -234,14 +249,14 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
                 type="button"
                 onClick={() => toggleTech(tech)}
                 aria-pressed={selected}
-                className="px-3 py-1.5 rounded-full text-sm font-medium transition-all cursor-pointer font-display"
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all duration-200 cursor-pointer font-display ${selected ? "animate-chip-bounce" : ""}`}
                 style={
                   selected
                     ? {
                         backgroundColor: "rgba(232,115,74,0.15)",
                         color: "#E8734A",
                         border: "1px solid rgba(232,115,74,0.5)",
-                        boxShadow: "0 0 8px rgba(232,115,74,0.2)",
+                        boxShadow: "0 0 10px rgba(232,115,74,0.25)",
                       }
                     : {
                         backgroundColor: "rgba(26,26,40,0.8)",
@@ -288,7 +303,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full rounded-xl px-6 py-3.5 text-lg font-bold text-white font-display transition-all disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:scale-[1.02] hover:animate-pulse-glow"
+        className="w-full rounded-xl px-6 py-3.5 text-lg font-bold text-white font-display transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer hover:scale-[1.02] hover:animate-pulse-glow btn-shimmer"
         style={{
           background: "linear-gradient(135deg, #E8734A, #ef4444)",
           boxShadow: "0 4px 24px rgba(232,115,74,0.25)",

@@ -20,6 +20,8 @@ export interface SaveResultData {
   description: string;
   technologies?: string[];
   githubUrl?: string;
+  gender?: string;
+  showOnLeaderboard?: number;
   modelKey: string;
   modelName: string;
   score: number;
@@ -38,6 +40,8 @@ export interface ResultRow {
   description: string;
   technologies: string[];
   githubUrl: string | null;
+  gender: string | null;
+  showOnLeaderboard: number | null;
   modelKey: string;
   modelName: string;
   score: number;
@@ -61,6 +65,8 @@ export async function saveResult(data: SaveResultData): Promise<string> {
     description: data.description,
     technologies: data.technologies ? JSON.stringify(data.technologies) : null,
     githubUrl: data.githubUrl || null,
+    gender: data.gender || null,
+    showOnLeaderboard: data.showOnLeaderboard ?? 0,
     modelKey: data.modelKey,
     modelName: data.modelName,
     score: data.score,
@@ -102,9 +108,11 @@ export async function getLeaderboard(
         ? asc(results.score)
         : desc(results.createdAt);
 
+  const leaderboardFilter = eq(results.showOnLeaderboard, 1);
+
   const [rows, totalResult] = await Promise.all([
-    db.select().from(results).orderBy(orderBy).limit(limit).offset(offset),
-    db.select({ count: count() }).from(results),
+    db.select().from(results).where(leaderboardFilter).orderBy(orderBy).limit(limit).offset(offset),
+    db.select({ count: count() }).from(results).where(leaderboardFilter),
   ]);
 
   const entries = rows.map(

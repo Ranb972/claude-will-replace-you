@@ -20,6 +20,8 @@ export const results = sqliteTable("results", {
   skillsAnalysis: text("skills_analysis").notNull(), // JSON array
   generatedBy: text("generated_by").notNull(), // 'groq-scout'|'groq-70b'|'groq-8b'|'local-fallback'
 
+  gender: text("gender"),
+  showOnLeaderboard: integer("show_on_leaderboard").default(0),
   createdAt: text("created_at").default(sql`(datetime('now'))`),
   shareCount: integer("share_count").default(0),
 });

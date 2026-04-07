@@ -6,6 +6,8 @@ export interface ProfilePayload {
   technologies: string[];
   githubUrl?: string;
   lang?: "en" | "he";
+  gender?: "male" | "female" | "other";
+  showOnLeaderboard?: boolean;
 }
 
 export interface SkillAnalysis {

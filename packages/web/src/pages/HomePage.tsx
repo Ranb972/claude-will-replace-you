@@ -45,17 +45,19 @@ export function HomePage() {
         />
 
         <div className="relative z-10 text-center max-w-[720px] mx-auto">
-          {/* Three icons */}
-          <div className="flex items-center justify-center gap-3 mb-6">
-            {[">_", "</>", "//"].map((icon, i) => (
-              <div
-                key={i}
-                className="w-10 h-10 rounded-lg flex items-center justify-center font-mono text-xs text-[var(--color-text-muted)]"
-                style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" }}
-              >
-                {icon}
+          {/* Claude mascot orb */}
+          <div className="flex justify-center mb-6 animate-float">
+            <div className="relative">
+              <div className="w-16 h-16 rounded-full" style={{ background: "linear-gradient(135deg, #E8734A, #ef4444)" }}>
+                {/* Eyes */}
+                <div className="absolute flex gap-3" style={{ top: 22, left: 16 }}>
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/30" />
+                  <div className="w-2.5 h-2.5 rounded-full bg-white/30" />
+                </div>
               </div>
-            ))}
+              {/* Reflection */}
+              <div className="w-10 h-1.5 rounded-full mx-auto mt-2 opacity-20" style={{ background: "linear-gradient(90deg, transparent, #E8734A, transparent)" }} />
+            </div>
           </div>
 
           <p className="font-display text-xs sm:text-sm tracking-[0.15em] uppercase text-[var(--color-text-muted)] mb-4 animate-fade-in-up">

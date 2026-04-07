@@ -10,6 +10,8 @@ export const profileInputSchema = z.object({
   technologies: z.array(z.string()).optional().default([]),
   githubUrl: z.string().url().optional().or(z.literal("")),
   lang: z.enum(["en", "he"]).optional().default("en"),
+  gender: z.enum(["male", "female", "other"]).optional().default("other"),
+  showOnLeaderboard: z.boolean().optional().default(false),
 });
 
 export type ProfileInput = z.infer<typeof profileInputSchema>;

@@ -28,6 +28,8 @@ interface FormData {
   experience: number;
   technologies: string[];
   githubUrl: string;
+  gender: "male" | "female" | "other";
+  showOnLeaderboard: boolean;
 }
 
 interface InputFormProps {
@@ -46,6 +48,7 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
   const { t } = useLang();
   const [form, setForm] = useState<FormData>({
     name: "", role: "", experience: 3, technologies: [], githubUrl: "",
+    gender: "other", showOnLeaderboard: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
@@ -180,6 +183,34 @@ export function InputForm({ onSubmit, isSubmitting }: InputFormProps) {
         />
         {touched.githubUrl && errors.githubUrl && <p className="mt-1 text-xs text-red-400">{errors.githubUrl}</p>}
       </div>
+
+      {/* Gender */}
+      <div>
+        <label className="block text-sm font-medium text-gray-300 mb-1.5">{t("input.gender.label")}</label>
+        <div className="flex gap-2">
+          {(["male", "female", "other"] as const).map((g) => (
+            <button key={g} type="button" onClick={() => setForm((f) => ({ ...f, gender: g }))}
+              className="px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-150 cursor-pointer"
+              style={form.gender === g
+                ? { backgroundColor: "rgba(232,115,74,0.12)", color: "#E8734A", border: "1px solid rgba(232,115,74,0.3)" }
+                : { backgroundColor: "rgba(255,255,255,0.03)", color: "#8B8B8B", border: "1px solid rgba(255,255,255,0.06)" }
+              }>
+              {t(`input.gender.${g}`)}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Leaderboard opt-in */}
+      <label className="flex items-center gap-2.5 cursor-pointer group">
+        <input type="checkbox" checked={form.showOnLeaderboard}
+          onChange={(e) => setForm((f) => ({ ...f, showOnLeaderboard: e.target.checked }))}
+          className="w-4 h-4 rounded accent-[var(--color-accent)] cursor-pointer"
+        />
+        <span className="text-sm text-[var(--color-text-muted)] group-hover:text-white transition-colors">
+          {t("input.leaderboard")}
+        </span>
+      </label>
 
       {/* Submit */}
       <button type="submit" disabled={isSubmitting}

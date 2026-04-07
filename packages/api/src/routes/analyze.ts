@@ -30,15 +30,17 @@ analyze.post("/", async (c) => {
     githubUrl: input.githubUrl,
   });
 
-  // 2. Determine language: explicit lang field > Hebrew char detection > default "en"
-  const hasHebrew = /[\u0590-\u05FF]/.test(input.description);
+  // 2. Determine language
+  const hasHebrew = /[\u0590-\u05FF]/.test(input.description ?? "");
   const lang = input.lang ?? (hasHebrew ? "he" : "en");
+  const gender = (input.gender as "male" | "female" | "other") ?? "other";
 
   // 3. Generate humor content (Groq → fallback chain)
   const { content: humor, generatedBy } = await generateHumorContent(
     input,
     scoringResult,
     lang as "en" | "he",
+    gender,
   );
 
   // 4. Generate ID + save to DB
@@ -52,6 +54,8 @@ analyze.post("/", async (c) => {
     description: input.description,
     technologies: input.technologies,
     githubUrl: input.githubUrl || undefined,
+    gender: input.gender || "other",
+    showOnLeaderboard: input.showOnLeaderboard ? 1 : 0,
     modelKey: scoringResult.model.key,
     modelName: scoringResult.model.name,
     score: scoringResult.score,

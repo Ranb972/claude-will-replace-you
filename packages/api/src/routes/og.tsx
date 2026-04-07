@@ -34,10 +34,6 @@ og.get("/:id", async (c) => {
 
 export default og;
 
-// ---------------------------------------------------------------------------
-// Certificate renderer
-// ---------------------------------------------------------------------------
-
 interface CertRow {
   id: string;
   name: string;
@@ -55,358 +51,121 @@ function renderCertificate(result: CertRow): ImageResponse {
   const model = getModelByKey(result.modelKey);
   const colors = MODEL_COLORS[result.modelKey] ?? MODEL_COLORS.opus;
   const accent = colors.accent;
-  const bgColor = colors.bg;
-
-  const yearLabel = model?.year ? `Expected ${model.year}` : model?.exists ? "Available Now" : "";
-  const futureEmoji = model?.exists ? "" : " 🔮";
-  const daysLabel = formatDaysLeft(result.daysLeft);
   const scorePercent = Math.min(100, Math.max(0, result.score));
+  const daysLabel = formatDaysLeft(result.daysLeft);
+  const yearLabel = model?.year ? `Expected ${model.year}` : model?.exists ? "Available Now" : "";
   const dateStr = result.createdAt
     ? new Date(result.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
     : new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-
-  const quote = result.quote.length > 120 ? result.quote.slice(0, 117) + "..." : result.quote;
+  const quote = result.quote.length > 110 ? result.quote.slice(0, 107) + "..." : result.quote;
 
   return new ImageResponse(
     (
-      <div
-        style={{
-          width: "1200px",
-          height: "630px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: bgColor,
-          fontFamily: "sans-serif",
-          color: "#e0e0e0",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        {/* Border glow */}
-        <div
-          style={{
-            position: "absolute",
-            top: "0",
-            left: "0",
-            right: "0",
-            bottom: "0",
-            border: `3px solid ${accent}`,
-            borderRadius: "0px",
-            boxShadow: `inset 0 0 60px ${colors.glow}, 0 0 60px ${colors.glow}`,
-            display: "flex",
-          }}
-        />
-
-        {/* Inner border */}
-        <div
-          style={{
-            position: "absolute",
-            top: "12px",
-            left: "12px",
-            right: "12px",
-            bottom: "12px",
-            border: `1px solid ${accent}40`,
-            display: "flex",
-          }}
-        />
+      <div style={{
+        width: "1200px", height: "630px", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", backgroundColor: "#0f0f1a",
+        fontFamily: "sans-serif", color: "#e0e0e0", position: "relative", overflow: "hidden",
+      }}>
+        {/* Accent border */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, border: `2px solid ${accent}40`, display: "flex" }} />
 
         {/* Content */}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            padding: "40px 60px",
-            width: "100%",
-            height: "100%",
-          }}
-        >
-          {/* Title */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              fontSize: "26px",
-              fontWeight: 700,
-              color: accent,
-              letterSpacing: "3px",
-              textTransform: "uppercase" as const,
-              marginBottom: "4px",
-            }}
-          >
-            🤖 OFFICIAL REPLACEMENT CERTIFICATE
-          </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "50px 80px", width: "100%", height: "100%" }}>
 
-          {/* Divider */}
-          <div
-            style={{
-              width: "500px",
-              height: "2px",
-              backgroundColor: accent,
-              marginBottom: "20px",
-              display: "flex",
-            }}
-          />
-
-          {/* "This certifies that" */}
-          <div
-            style={{
-              fontSize: "16px",
-              color: "#888",
-              marginBottom: "8px",
-              display: "flex",
-            }}
-          >
-            This certifies that
+          {/* Header */}
+          <div style={{ display: "flex", fontSize: "14px", fontWeight: 600, color: "#888", letterSpacing: "4px", textTransform: "uppercase" as const, marginBottom: "24px" }}>
+            CLAUDE WILL REPLACE YOU
           </div>
 
           {/* Name */}
-          <div
-            style={{
-              fontSize: "38px",
-              fontWeight: 700,
-              color: "#ffffff",
-              marginBottom: "4px",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            * {result.name} *
+          <div style={{ display: "flex", fontSize: "44px", fontWeight: 800, color: "#ffffff", marginBottom: "6px" }}>
+            {result.name}
           </div>
 
-          {/* Role + Years */}
-          <div
-            style={{
-              fontSize: "18px",
-              color: "#aaa",
-              marginBottom: "16px",
-              display: "flex",
-            }}
-          >
-            {result.role} • {result.experience} years
+          {/* Role */}
+          <div style={{ display: "flex", fontSize: "18px", color: "#999", marginBottom: "28px" }}>
+            {result.role} - {result.experience} years
           </div>
 
-          {/* "will be officially replaced by" */}
-          <div
-            style={{
-              fontSize: "15px",
-              color: "#888",
-              marginBottom: "8px",
-              display: "flex",
-            }}
-          >
-            will be officially replaced by
+          {/* Replaced by label */}
+          <div style={{ display: "flex", fontSize: "13px", color: "#666", letterSpacing: "2px", textTransform: "uppercase" as const, marginBottom: "8px" }}>
+            WILL BE REPLACED BY
           </div>
 
           {/* Model name */}
-          <div
-            style={{
-              fontSize: "32px",
-              fontWeight: 700,
-              color: accent,
-              marginBottom: "4px",
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            > {result.modelName}{futureEmoji} >
+          <div style={{ display: "flex", fontSize: "36px", fontWeight: 700, color: accent, marginBottom: "6px" }}>
+            {result.modelName}
           </div>
 
-          {/* Year label */}
+          {/* Year */}
           {yearLabel && (
-            <div
-              style={{
-                fontSize: "14px",
-                color: accent,
-                opacity: 0.8,
-                marginBottom: "14px",
-                display: "flex",
-              }}
-            >
-              🔮 {yearLabel}
+            <div style={{ display: "flex", fontSize: "13px", color: accent, opacity: 0.7, marginBottom: "24px" }}>
+              {yearLabel}
             </div>
           )}
-          {!yearLabel && (
-            <div style={{ marginBottom: "14px", display: "flex" }} />
-          )}
+          {!yearLabel && <div style={{ marginBottom: "24px", display: "flex" }} />}
 
           {/* Score bar */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              marginBottom: "10px",
-              width: "100%",
-            }}
-          >
-            <div
-              style={{
-                fontSize: "14px",
-                color: "#888",
-                marginBottom: "6px",
-                display: "flex",
-              }}
-            >
-              Replacement Score:
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", width: "440px", marginBottom: "16px" }}>
+            <div style={{ display: "flex", width: "380px", height: "14px", backgroundColor: "rgba(255,255,255,0.06)", borderRadius: "7px", overflow: "hidden" }}>
+              <div style={{ width: `${scorePercent}%`, height: "100%", background: `linear-gradient(90deg, ${accent}, ${accent}cc)`, borderRadius: "7px", display: "flex" }} />
             </div>
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "row",
-                alignItems: "center",
-                width: "420px",
-              }}
-            >
-              <div
-                style={{
-                  display: "flex",
-                  width: "360px",
-                  height: "24px",
-                  backgroundColor: "#222",
-                  borderRadius: "12px",
-                  overflow: "hidden",
-                  position: "relative",
-                }}
-              >
-                <div
-                  style={{
-                    width: `${scorePercent}%`,
-                    height: "100%",
-                    backgroundColor: accent,
-                    borderRadius: "12px",
-                    display: "flex",
-                  }}
-                />
-              </div>
-              <div
-                style={{
-                  fontSize: "20px",
-                  fontWeight: 700,
-                  color: accent,
-                  marginLeft: "12px",
-                  display: "flex",
-                }}
-              >
-                {scorePercent}%
-              </div>
+            <div style={{ fontSize: "22px", fontWeight: 700, color: accent, marginLeft: "14px", display: "flex" }}>
+              {scorePercent}%
             </div>
           </div>
 
-          {/* Days remaining */}
-          <div
-            style={{
-              fontSize: "16px",
-              color: "#ccc",
-              marginBottom: "12px",
-              display: "flex",
-            }}
-          >
-            Days Remaining: <span style={{ fontWeight: 700, color: accent, marginLeft: "6px" }}>{daysLabel}</span>
+          {/* Days */}
+          <div style={{ display: "flex", fontSize: "15px", color: "#aaa", marginBottom: "20px" }}>
+            Time remaining: <span style={{ fontWeight: 700, color: "#f59e0b", marginLeft: "6px" }}>{daysLabel}</span>
           </div>
 
           {/* Quote */}
-          <div
-            style={{
-              fontSize: "15px",
-              color: "#bbb",
-              fontStyle: "italic",
-              textAlign: "center" as const,
-              maxWidth: "700px",
-              marginBottom: "16px",
-              display: "flex",
-            }}
-          >
-            &quot;{quote}&quot;
+          <div style={{ display: "flex", fontSize: "14px", color: "#999", fontStyle: "italic", textAlign: "center" as const, maxWidth: "650px", marginBottom: "24px", lineHeight: 1.5 }}>
+            "{quote}"
           </div>
 
           {/* Footer */}
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "row",
-              justifyContent: "space-between",
-              alignItems: "center",
-              width: "100%",
-              paddingLeft: "40px",
-              paddingRight: "40px",
-            }}
-          >
-            <div style={{ fontSize: "12px", color: "#555", display: "flex" }}>
-              Certificate #{result.id} • {dateStr}
-            </div>
-            <div style={{ fontSize: "12px", color: "#555", display: "flex" }}>
-              claude-will-replace-you.vercel.app
-            </div>
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%", paddingLeft: "20px", paddingRight: "20px" }}>
+            <div style={{ fontSize: "11px", color: "#444", display: "flex" }}>#{result.id} - {dateStr}</div>
+            <div style={{ fontSize: "11px", color: "#444", display: "flex" }}>claude-will-replace-you.vercel.app</div>
           </div>
         </div>
       </div>
     ),
-    {
-      width: 1200,
-      height: 630,
-    }
+    { width: 1200, height: 630 },
   );
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 function formatDaysLeft(days: number): string {
-  if (days >= 99999) return "♾️";
+  if (days >= 99999) return "Forever";
   if (days >= 365) {
     const years = Math.floor(days / 365);
-    return `~${years} year${years > 1 ? "s" : ""} (${days.toLocaleString()} days)`;
+    return `~${years} year${years > 1 ? "s" : ""}`;
   }
-  return `${days}`;
+  return `${days} days`;
 }
 
 function createFallbackImage(): Response {
   const fallback = new ImageResponse(
     (
-      <div
-        style={{
-          width: "1200px",
-          height: "630px",
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          backgroundColor: "#0a0a0a",
-          fontFamily: "sans-serif",
-          color: "#e0e0e0",
-        }}
-      >
-        <div style={{ fontSize: "40px", marginBottom: "16px", display: "flex" }}>
-          🤖
-        </div>
-        <div
-          style={{
-            fontSize: "28px",
-            fontWeight: 700,
-            color: "#f97316",
-            marginBottom: "12px",
-            display: "flex",
-          }}
-        >
+      <div style={{
+        width: "1200px", height: "630px", display: "flex", flexDirection: "column",
+        alignItems: "center", justifyContent: "center", backgroundColor: "#0f0f1a",
+        fontFamily: "sans-serif", color: "#e0e0e0",
+      }}>
+        <div style={{ fontSize: "28px", fontWeight: 700, color: "#E8734A", marginBottom: "12px", display: "flex" }}>
           Claude Will Replace You
         </div>
-        <div style={{ fontSize: "18px", color: "#888", display: "flex" }}>
+        <div style={{ fontSize: "16px", color: "#888", display: "flex" }}>
           Find out which Claude model will take your job
         </div>
       </div>
     ),
-    { width: 1200, height: 630 }
+    { width: 1200, height: 630 },
   );
 
   return new Response(fallback.body, {
-    headers: {
-      "Content-Type": "image/png",
-      "Cache-Control": "public, max-age=86400, s-maxage=86400",
-    },
+    headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=86400, s-maxage=86400" },
   });
 }

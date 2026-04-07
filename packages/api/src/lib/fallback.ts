@@ -63,7 +63,7 @@ const HEADLINES: Record<string, BilingualBank> = {
     he: [
       "אוקיי בואו נדבר ברצינות — Anthropic ממש צריכים להמציא מודל חדש בגללך. כבוד. אבל גם... 2027.",
       "Titan עוד לא קיים. גם המחליף שלך לא. עדיין. 👀",
-      "אתה בטוח עד 2027. זה כמו 3 פריימוורקים של JavaScript מעכשיו.",
+      "{you} בטוח עד 2027. זה כמו 3 פריימוורקים של JavaScript מעכשיו.",
       "Claude 5.5 'Titan' נבנה ברגעים אלה ממש. יש לו פוסטר שלך על הקיר. בתור מוטיבציה.",
       "ל-Anthropic צריך עוד שנה של R&D רק בשבילך. קח את הניצחון, אבל תשים תזכורת ל-2027.",
     ],
@@ -187,7 +187,7 @@ const QUOTES: Record<string, BilingualBank> = {
     he: [
       "{name}, Titan פה. אני עוד לא קיים אבל כבר שמרתי את המשרה שלך ב-bookmarks. נתראה ב-2027! 😘",
       "היי {name}! אני Claude 5.5 'Titan'. אני ממש נבנה כדי להחליף אנשים כמוך. בלי טינה?",
-      "{name}, הודעה קצרה מ-2027 — אתה כבר לא ליד השולחן. אבל הצמחים שלך נראים מעולה! 🌿",
+      "{name}, הודעה קצרה מ-2027 — {you} כבר לא ליד השולחן. אבל הצמחים שלך נראים מעולה! 🌿",
       "{name}! Titan פה. הם צריכים להמציא אותי רק בשביל {role}. זה או מדהים או יקר.",
     ],
   },
@@ -321,8 +321,15 @@ function pickRandom<T>(arr: T[]): T {
   return arr[Math.floor(Math.random() * arr.length)];
 }
 
-function fillTemplate(template: string, name: string, role: string): string {
-  return template.replace(/\{name\}/g, name).replace(/\{role\}/g, role);
+type Gender = "male" | "female" | "other";
+
+function fillTemplate(template: string, name: string, role: string, gender: Gender = "other", lang: Lang = "en"): string {
+  let s = template.replace(/\{name\}/g, name).replace(/\{role\}/g, role);
+  if (lang === "he") {
+    const you = gender === "female" ? "את" : "אתה";
+    s = s.replace(/\{you\}/g, you);
+  }
+  return s;
 }
 
 function getTechComment(tech: string, replaced: boolean, lang: Lang): string {
@@ -355,6 +362,7 @@ export function generateLocalFallback(
   input: { name: string; role: string; technologies: string[] },
   tierKey: string,
   lang: Lang = "en",
+  gender: Gender = "other",
 ): HumorContent {
   const headlineBank = HEADLINES[tierKey] ?? HEADLINES["opus"];
   const quoteBank = QUOTES[tierKey] ?? QUOTES["opus"];
@@ -362,8 +370,8 @@ export function generateLocalFallback(
   const headlines = headlineBank[lang].length > 0 ? headlineBank[lang] : headlineBank["en"];
   const quotes = quoteBank[lang].length > 0 ? quoteBank[lang] : quoteBank["en"];
 
-  const headline = fillTemplate(pickRandom(headlines), input.name, input.role);
-  const quote = fillTemplate(pickRandom(quotes), input.name, input.role);
+  const headline = fillTemplate(pickRandom(headlines), input.name, input.role, gender, lang);
+  const quote = fillTemplate(pickRandom(quotes), input.name, input.role, gender, lang);
   const skillsAnalysis = generateSkillsAnalysis(input.technologies, lang);
 
   return { headline, quote, skillsAnalysis };

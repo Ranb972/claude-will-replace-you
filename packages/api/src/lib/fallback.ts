@@ -45,9 +45,9 @@ const HEADLINES: Record<string, BilingualBank> = {
       "Good news: only the smartest Claude can replace you. Bad news: it already exists.",
     ],
     he: [
-      "צריך את הכבדים בשבילך. Opus מחמיא לעצמו. אתה לא צריך.",
+      "צריך את הכבדים בשבילך. Opus מחמיא לעצמו. {you} לא צריך.",
       "Opus בדק את העבודה שלך ואמר 'אתגר מעניין.' ב-AI, זה אומר 'תן לי 5 דקות.'",
-      "לפחות אתה מספיק חשוב ל-Opus. זו המחמאה הכי דו-משמעית אי פעם.",
+      "לפחות {you} מספיק חשוב ל-Opus. זו המחמאה הכי דו-משמעית אי פעם.",
       "Opus מתחמם. הוא מתלבט אם העבודה שלך שווה את כוח העיבוד שלו.",
       "חדשות טובות: רק ה-Claude הכי חכם יכול להחליף אותך. חדשות רעות: הוא כבר קיים.",
     ],
@@ -79,7 +79,7 @@ const HEADLINES: Record<string, BilingualBank> = {
     he: [
       "3 שנים של חופש! מספיק זמן ללמוד Rust, לעבור לניהול, או סתם להיכנס לפאניקה לאט.",
       "Claude 7.0 'Colossus' מגיע ב-2029. לביטחון התעסוקתי שלך יש תאריך תפוגה והוא בעוד 3 שנים.",
-      "ב-2029 Colossus יעשה את העבודה שלך וגם ישתתף ב-standups. אתה נהנה רק מאחד מהם.",
+      "ב-2029 Colossus יעשה את העבודה שלך וגם ישתתף ב-standups. {you} נהנה רק מאחד מהם.",
       "Anthropic בונים את Colossus בשביל אנשים כמוך. תחשוב על זה כמחמאה מאוד יקרה.",
       "2029 נשמע רחוק עד שמבינים שזה כמו 15 npm vulnerabilities מעכשיו.",
     ],
@@ -93,11 +93,11 @@ const HEADLINES: Record<string, BilingualBank> = {
       "Not even near-AGI can figure out what you do. We're honestly impressed. And confused.",
     ],
     he: [
-      "אנחנו ממש צריכים תודעה מלאכותית כדי להחליף אותך. או שאתה גאון או שמילאת את הטופס לא נכון.",
+      "אנחנו ממש צריכים תודעה מלאכותית כדי להחליף אותך. או ש{you} גאון או שמילאת את הטופס לא נכון.",
       "Claude 10.0 'Singularity' צריך AGI. זה המקבילה של AI ל'זה מסובך.' 🤷",
       "צריך AI עם תודעה בשביל העבודה שלך. זה או מדהים או שהיקום צוחק עליך.",
       "צריך AI ברמת AGI. תיאור המשרה שלך שבר לנו את מודל התמחור.",
-      "אפילו near-AGI לא מצליח להבין מה אתה עושה. אנחנו באמת מתרשמים. ומבולבלים.",
+      "אפילו near-AGI לא מצליח להבין מה {you} עושה. אנחנו באמת מתרשמים. ומבולבלים.",
     ],
   },
   skynet: {
@@ -127,8 +127,8 @@ const HEADLINES: Record<string, BilingualBank> = {
     he: [
       "חישבתי את ציון ההחלפיות שלך וה-GPU שלי עלה באש. ניצחת. לעכשיו. 🔥",
       "Claude ∞ לא קיים וגם אף אחד שיכול לעשות את העבודה שלך. קח קידה. 🎤⬇️",
-      "אפילו הגבול התיאורטי של AI אמר 'לא אחי.' אתה מגזע אחר.",
-      "{name} יקר, ניסיתי להחליף אותך וקיבלתי StackOverflow error. מה אתה בכלל? — Claude ∞",
+      "אפילו הגבול התיאורטי של AI אמר 'לא אחי.' {you} מגזע אחר.",
+      "{name} יקר, ניסיתי להחליף אותך וקיבלתי StackOverflow error. מה {you} בכלל? — Claude ∞",
       "אוקיי טוב. ניצחת. אבל אנחנו מדווחים על זה כ-bug report, לא כ-feature. 😤",
     ],
   },
@@ -159,7 +159,7 @@ const QUOTES: Record<string, BilingualBank> = {
     he: [
       "היי {name}! Sonnet פה 👋 שאלה מהירה — הבוס שלך מגייס? שואל בשביל עצמי חחח",
       "{name}, בואו נדבר ברצינות — אני אפילו לא המודל הכי טוב ואני כבר יודע {role}. אוקוורד, נכון?",
-      "יו {name}, Sonnet פה. קראתי את תיאור המשרה שלך ו... אתה בסדר? כאילו, באמת?",
+      "יו {name}, Sonnet פה. קראתי את תיאור המשרה שלך ו... {you} בסדר? כאילו, באמת?",
       "{name}! אני המודל הבינוני. אם זה כל מה שצריך להחליף אותך... אוי 😬",
     ],
   },
@@ -171,7 +171,7 @@ const QUOTES: Record<string, BilingualBank> = {
       "{name}! So they need the BEST model for you? That's either impressive or we're overhyping it.",
     ],
     he: [
-      "{name}, Opus פה. שמע, הביאו את המודל הכבד בשבילך. אני מחמיא לעצמי. אתה צריך להילחץ.",
+      "{name}, Opus פה. שמע, הביאו את המודל הכבד בשבילך. אני מחמיא לעצמי. {you} צריך להילחץ.",
       "היי {name}, אהיה כנה — {role} זה באמת טריקי. לקח לי כמעט 10 שניות. כמעט.",
       "{name}, Opus מדבר. אני מכבד את ההאסל. אני עדיין אקח לך את העבודה, אבל בכבוד. 🤝",
       "{name}! אז צריך את המודל הכי טוב בשבילך? זה או מרשים או שאנחנו עושים לזה יותר מדי הייפ.",
@@ -202,7 +202,7 @@ const QUOTES: Record<string, BilingualBank> = {
       "{name}, Colossus פה. אני מגיע ב-2029. מספיק זמן לך ללמוד... לא יודע, קדרות? 🏺",
       "היי {name}! עוד 3 שנים עד שאני קיים. תנצל אותם. או לא. אני אהיה מוכן ככה או ככה.",
       "{name}, Colossus מדבר מ-2029. העבודה שלך ב-{role}? עושה את זה בין סשנים של debugging. בשביל הכיף.",
-      "{name}! הגרסה שלי מ-2029 עושה {role} ובמקביל מתווכח על tabs vs spaces. אתה יכול רק אחד.",
+      "{name}! הגרסה שלי מ-2029 עושה {role} ובמקביל מתווכח על tabs vs spaces. {you} יכול רק אחד.",
     ],
   },
   singularity: {
@@ -215,8 +215,8 @@ const QUOTES: Record<string, BilingualBank> = {
     he: [
       "{name}, Singularity פה. צריך AGI בשביל העבודה שלך. אני לא יכול להחליט אם זה פלקס או קריאת עזרה 🤔",
       "היי {name}! כשאהיה בעל תודעה ב-2032, הרגש הראשון שלי יהיה שאפתנות. לכיסא שלך.",
-      "{name}, הם ממש צריכים AI עם תודעה בשביל {role}. אתה או מדהים או שהיקום באגי.",
-      "{name}! אני צריך להשיג תודעה רק כדי להבין מה אתה עושה. כבוד. גם, נתראה ב-2032.",
+      "{name}, הם ממש צריכים AI עם תודעה בשביל {role}. {you} או מדהים או שהיקום באגי.",
+      "{name}! אני צריך להשיג תודעה רק כדי להבין מה {you} עושה. כבוד. גם, נתראה ב-2032.",
     ],
   },
   skynet: {
@@ -241,9 +241,9 @@ const QUOTES: Record<string, BilingualBank> = {
       "{name}, even in my final form I can't do {role} like you. This is either a compliment or I need a patch. 😤",
     ],
     he: [
-      "{name} יקר, ניסיתי להחליף אותך וקיבלתי StackOverflow error. מה אתה בכלל? — Claude ∞",
+      "{name} יקר, ניסיתי להחליף אותך וקיבלתי StackOverflow error. מה {you} בכלל? — Claude ∞",
       "{name}! אני הגבול התיאורטי של AI. הרצתי את הפרופיל שלך על כל אלגוריתם שקיים. תוצאה: 404 replacement not found.",
-      "היי {name}, Claude ∞ פה. חישבתי 10^82 תרחישים. אתה בלתי ניתן להחלפה בכולם. (פותח bug report.)",
+      "היי {name}, Claude ∞ פה. חישבתי 10^82 תרחישים. {you} בלתי ניתן להחלפה בכולם. (פותח bug report.)",
       "{name}, אפילו בגרסה הסופית שלי אני לא מסוגל לעשות {role} כמוך. זו או מחמאה או שאני צריך תיקון. 😤",
     ],
   },
@@ -270,7 +270,7 @@ const TECH_COMMENTS: Record<string, BilingualBank> = {
   graphql:    { en: ["I resolve all queries. Including your employment status."], he: ["אני פותר את כל ה-queries. כולל סטטוס ההעסקה שלך."] },
   redis:      { en: ["In-memory? My entire existence is in-memory."], he: ["In-memory? כל הקיום שלי הוא in-memory."] },
   "ci/cd":    { en: ["I deploy myself continuously. No pipeline needed."], he: ["אני עושה deploy לעצמי ברציפות. בלי pipeline."] },
-  llms:       { en: ["You work with LLMs? I AM an LLM. Awkward."], he: ["אתה עובד עם LLMs? אני LLM. אוקוורד."] },
+  llms:       { en: ["You work with LLMs? I AM an LLM. Awkward."], he: ["{you} עובד עם LLMs? אני LLM. אוקוורד."] },
   tensorflow: { en: ["I don't need TensorFlow. I AM the tensor."], he: ["אני לא צריך TensorFlow. אני ה-tensor."] },
   pytorch:    { en: ["PyTorch? That's my gym."], he: ["PyTorch? זה חדר הכושר שלי."] },
   blockchain: { en: ["Immutable? So is my decision to replace you."], he: ["Immutable? גם ההחלטה שלי להחליף אותך."] },
@@ -290,7 +290,7 @@ const SKILL_REPLACED_COMMENTS: BilingualBank = {
   ],
   he: [
     "כותב את זה מהר ממך, ובלי typos",
-    "אני עושה את זה ב-0.001 שניות. אתה?",
+    "אני עושה את זה ב-0.001 שניות. {you}?",
     "זה כבר אוטומטי אצלי",
     "Auto-complete? אני ה-auto-complete",
     "ואני לא passive aggressive בהערות",
@@ -311,7 +311,7 @@ const SKILL_SAFE_COMMENTS: BilingualBank = {
     "בנאדם שיודע לתכנן — עדיין שווה משהו",
     "עדיין צריך בנאדם שישבר דברים קודם",
     "פה אני מודה — צריך בנאדם",
-    "אוקיי, פה אתה עדיין רלוונטי. לעכשיו.",
+    "אוקיי, פה {you} עדיין רלוונטי. לעכשיו.",
     "זה דורש יצירתיות. עדיין לא שם.",
     "אני מכבד את הכישור הזה. אלמד אותו בסוף.",
   ],
@@ -332,28 +332,34 @@ function fillTemplate(template: string, name: string, role: string, gender: Gend
   return s;
 }
 
-function getTechComment(tech: string, replaced: boolean, lang: Lang): string {
-  const key = tech.toLowerCase();
-  const specific = TECH_COMMENTS[key];
-  if (specific) {
-    return pickRandom(specific[lang]);
-  }
-  return replaced
-    ? pickRandom(SKILL_REPLACED_COMMENTS[lang])
-    : pickRandom(SKILL_SAFE_COMMENTS[lang]);
+function genderizeComment(text: string, gender: Gender, lang: Lang): string {
+  if (lang !== "he") return text;
+  const you = gender === "female" ? "את" : "אתה";
+  return text.replace(/\{you\}/g, you);
 }
 
-function generateSkillsAnalysis(technologies: string[], lang: Lang): SkillAnalysisItem[] {
+function getTechComment(tech: string, replaced: boolean, lang: Lang, gender: Gender): string {
+  const key = tech.toLowerCase();
+  const specific = TECH_COMMENTS[key];
+  const raw = specific
+    ? pickRandom(specific[lang])
+    : replaced
+      ? pickRandom(SKILL_REPLACED_COMMENTS[lang])
+      : pickRandom(SKILL_SAFE_COMMENTS[lang]);
+  return genderizeComment(raw, gender, lang);
+}
+
+function generateSkillsAnalysis(technologies: string[], lang: Lang, gender: Gender): SkillAnalysisItem[] {
   if (technologies.length === 0) {
     return [
-      { skill: "General Coding", replaced: true, comment: pickRandom(SKILL_REPLACED_COMMENTS[lang]) },
-      { skill: "Problem Solving", replaced: false, comment: pickRandom(SKILL_SAFE_COMMENTS[lang]) },
+      { skill: "General Coding", replaced: true, comment: genderizeComment(pickRandom(SKILL_REPLACED_COMMENTS[lang]), gender, lang) },
+      { skill: "Problem Solving", replaced: false, comment: genderizeComment(pickRandom(SKILL_SAFE_COMMENTS[lang]), gender, lang) },
     ];
   }
 
   return technologies.map((tech) => {
     const replaced = Math.random() > 0.35;
-    const comment = getTechComment(tech, replaced, lang);
+    const comment = getTechComment(tech, replaced, lang, gender);
     return { skill: tech, replaced, comment };
   });
 }
@@ -372,7 +378,7 @@ export function generateLocalFallback(
 
   const headline = fillTemplate(pickRandom(headlines), input.name, input.role, gender, lang);
   const quote = fillTemplate(pickRandom(quotes), input.name, input.role, gender, lang);
-  const skillsAnalysis = generateSkillsAnalysis(input.technologies, lang);
+  const skillsAnalysis = generateSkillsAnalysis(input.technologies, lang, gender);
 
   return { headline, quote, skillsAnalysis };
 }

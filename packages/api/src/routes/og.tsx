@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { ImageResponse } from "@vercel/og";
-import { MODEL_COLORS, getModelByKey } from "../lib/models.js";
+import { getModelByKey } from "../lib/models.js";
 import { getResult } from "../lib/db.js";
 
 const og = new Hono();
@@ -47,88 +47,128 @@ interface CertRow {
   createdAt: string | null;
 }
 
+function getBarColor(score: number): string {
+  if (score < 30) return "#2dd4bf";
+  if (score < 60) return "#f59e0b";
+  if (score < 85) return "#E8734A";
+  return "#ef4444";
+}
+
 function renderCertificate(result: CertRow): ImageResponse {
   const model = getModelByKey(result.modelKey);
-  const colors = MODEL_COLORS[result.modelKey] ?? MODEL_COLORS.opus;
-  const accent = colors.accent;
+  const isReal = model?.exists ?? false;
   const scorePercent = Math.min(100, Math.max(0, result.score));
+  const barColor = getBarColor(scorePercent);
   const daysLabel = formatDaysLeft(result.daysLeft);
-  const yearLabel = model?.year ? `Expected ${model.year}` : model?.exists ? "Available Now" : "";
-  const dateStr = result.createdAt
-    ? new Date(result.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
-    : new Date().toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
-  const quote = result.quote.length > 110 ? result.quote.slice(0, 107) + "..." : result.quote;
+  const badgeText = isReal ? "Current Model" : `Future Model - ${model?.year ?? "TBD"}`;
+  const badgeBg = isReal ? "rgba(45,212,191,0.15)" : "rgba(168,85,247,0.15)";
+  const badgeColor = isReal ? "#2dd4bf" : "#c084fc";
+  const quote = result.quote.length > 100 ? result.quote.slice(0, 97) + "..." : result.quote;
+
+  const line = { width: "100%", height: "1px", backgroundColor: "rgba(255,255,255,0.06)", display: "flex" as const };
 
   return new ImageResponse(
     (
       <div style={{
         width: "1200px", height: "630px", display: "flex", flexDirection: "column",
-        alignItems: "center", justifyContent: "center", backgroundColor: "#0f0f1a",
-        fontFamily: "sans-serif", color: "#e0e0e0", position: "relative", overflow: "hidden",
+        backgroundColor: "#0f0f1a", fontFamily: "sans-serif", color: "#e0e0e0",
+        padding: "40px 56px",
       }}>
-        {/* Accent border */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, border: `2px solid ${accent}40`, display: "flex" }} />
 
-        {/* Content */}
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "50px 80px", width: "100%", height: "100%" }}>
+        {/* Chat header: avatar + name + timestamp */}
+        <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginBottom: "16px" }}>
+          {/* Orange avatar with C */}
+          <div style={{
+            width: "44px", height: "44px", borderRadius: "22px", display: "flex",
+            alignItems: "center", justifyContent: "center",
+            background: "linear-gradient(135deg, #E8734A, #ef4444)",
+          }}>
+            <div style={{ fontSize: "22px", fontWeight: 700, color: "#fff", display: "flex" }}>C</div>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", marginLeft: "14px", flex: 1 }}>
+            <div style={{ fontSize: "18px", fontWeight: 700, color: "#fff", display: "flex" }}>Claude</div>
+          </div>
+          <div style={{ fontSize: "14px", color: "#555", display: "flex" }}>just now</div>
+        </div>
 
-          {/* Header */}
-          <div style={{ display: "flex", fontSize: "14px", fontWeight: 600, color: "#888", letterSpacing: "4px", textTransform: "uppercase" as const, marginBottom: "24px" }}>
-            CLAUDE WILL REPLACE YOU
+        {/* Separator */}
+        <div style={line} />
+
+        {/* Greeting */}
+        <div style={{ display: "flex", fontSize: "28px", fontWeight: 700, color: "#fff", marginTop: "24px" }}>
+          Hey {result.name}!
+        </div>
+        <div style={{ display: "flex", fontSize: "16px", color: "#999", marginTop: "8px", marginBottom: "20px" }}>
+          So about your {result.role} position...
+        </div>
+
+        {/* Embedded card */}
+        <div style={{
+          display: "flex", flexDirection: "column",
+          backgroundColor: "#0a0a14", borderRadius: "12px",
+          border: "1px solid rgba(255,255,255,0.06)",
+          padding: "24px 28px",
+          marginBottom: "20px",
+        }}>
+          {/* Card header */}
+          <div style={{ display: "flex", fontSize: "11px", fontWeight: 600, color: "#666", letterSpacing: "2px", textTransform: "uppercase" as const, marginBottom: "12px" }}>
+            YOUR REPLACEMENT
           </div>
 
-          {/* Name */}
-          <div style={{ display: "flex", fontSize: "44px", fontWeight: 800, color: "#ffffff", marginBottom: "6px" }}>
-            {result.name}
-          </div>
-
-          {/* Role */}
-          <div style={{ display: "flex", fontSize: "18px", color: "#999", marginBottom: "28px" }}>
-            {result.role} - {result.experience} years
-          </div>
-
-          {/* Replaced by label */}
-          <div style={{ display: "flex", fontSize: "13px", color: "#666", letterSpacing: "2px", textTransform: "uppercase" as const, marginBottom: "8px" }}>
-            WILL BE REPLACED BY
-          </div>
-
-          {/* Model name */}
-          <div style={{ display: "flex", fontSize: "36px", fontWeight: 700, color: accent, marginBottom: "6px" }}>
-            {result.modelName}
-          </div>
-
-          {/* Year */}
-          {yearLabel && (
-            <div style={{ display: "flex", fontSize: "13px", color: accent, opacity: 0.7, marginBottom: "24px" }}>
-              {yearLabel}
+          {/* Model name + badge row */}
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginBottom: "16px" }}>
+            <div style={{ display: "flex", fontSize: "26px", fontWeight: 700, color: "#E8734A" }}>
+              {result.modelName}
             </div>
-          )}
-          {!yearLabel && <div style={{ marginBottom: "24px", display: "flex" }} />}
+            <div style={{
+              display: "flex", fontSize: "11px", fontWeight: 600,
+              marginLeft: "14px", padding: "3px 10px", borderRadius: "20px",
+              backgroundColor: badgeBg, color: badgeColor,
+            }}>
+              {badgeText}
+            </div>
+          </div>
 
           {/* Score bar */}
-          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", width: "440px", marginBottom: "16px" }}>
-            <div style={{ display: "flex", width: "380px", height: "14px", backgroundColor: "rgba(255,255,255,0.06)", borderRadius: "7px", overflow: "hidden" }}>
-              <div style={{ width: `${scorePercent}%`, height: "100%", background: `linear-gradient(90deg, ${accent}, ${accent}cc)`, borderRadius: "7px", display: "flex" }} />
+          <div style={{ display: "flex", flexDirection: "row", alignItems: "center", marginBottom: "12px" }}>
+            <div style={{
+              display: "flex", flex: 1, height: "10px",
+              backgroundColor: "rgba(255,255,255,0.06)", borderRadius: "5px", overflow: "hidden",
+            }}>
+              <div style={{
+                width: `${scorePercent}%`, height: "100%",
+                backgroundColor: barColor, borderRadius: "5px", display: "flex",
+              }} />
             </div>
-            <div style={{ fontSize: "22px", fontWeight: 700, color: accent, marginLeft: "14px", display: "flex" }}>
+            <div style={{ display: "flex", fontSize: "18px", fontWeight: 700, color: barColor, marginLeft: "14px" }}>
               {scorePercent}%
             </div>
           </div>
 
           {/* Days */}
-          <div style={{ display: "flex", fontSize: "15px", color: "#aaa", marginBottom: "20px" }}>
-            Time remaining: <span style={{ fontWeight: 700, color: "#f59e0b", marginLeft: "6px" }}>{daysLabel}</span>
+          <div style={{ display: "flex", fontSize: "13px", color: "#aaa" }}>
+            Time left: <span style={{ fontWeight: 600, color: "#f59e0b", marginLeft: "4px" }}>{daysLabel}</span>
           </div>
+        </div>
 
-          {/* Quote */}
-          <div style={{ display: "flex", fontSize: "14px", color: "#999", fontStyle: "italic", textAlign: "center" as const, maxWidth: "650px", marginBottom: "24px", lineHeight: 1.5 }}>
-            "{quote}"
+        {/* Quote */}
+        <div style={{
+          display: "flex", fontSize: "15px", color: "#bbb",
+          fontStyle: "italic", lineHeight: 1.6, marginBottom: "auto",
+        }}>
+          "{quote}"
+        </div>
+
+        {/* Footer separator */}
+        <div style={line} />
+
+        {/* Footer */}
+        <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: "12px" }}>
+          <div style={{ display: "flex", fontSize: "12px", color: "#555" }}>
+            claude-will-replace-you.vercel.app
           </div>
-
-          {/* Footer */}
-          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", alignItems: "center", width: "100%", paddingLeft: "20px", paddingRight: "20px" }}>
-            <div style={{ fontSize: "11px", color: "#444", display: "flex" }}>#{result.id} - {dateStr}</div>
-            <div style={{ fontSize: "11px", color: "#444", display: "flex" }}>claude-will-replace-you.vercel.app</div>
+          <div style={{ display: "flex", fontSize: "13px", fontWeight: 600, color: "#E8734A" }}>
+            Find out YOUR fate -&gt;
           </div>
         </div>
       </div>
@@ -141,7 +181,8 @@ function formatDaysLeft(days: number): string {
   if (days >= 99999) return "Forever";
   if (days >= 365) {
     const years = Math.floor(days / 365);
-    return `~${years} year${years > 1 ? "s" : ""}`;
+    const rem = days % 365;
+    return `~${years} year${years > 1 ? "s" : ""} (${days.toLocaleString()} days)`;
   }
   return `${days} days`;
 }

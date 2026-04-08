@@ -73,7 +73,7 @@ function renderCertificate(result: CertRow): ImageResponse {
   const yearLine = isReal ? "Current Model" : `Expected ${model?.year ?? "TBD"}`;
   const rawQuote = result.quote.length > 100 ? result.quote.slice(0, 97) + "..." : result.quote;
   const quote = reverseForSatori(rawQuote);
-  const rawInfo = `${result.name}  -  ${result.role}  -  ${result.experience} years`;
+  const rawInfo = `${result.name}  \u00b7  ${result.role}  \u00b7  ${result.experience} years`;
   const infoLine = reverseForSatori(rawInfo);
 
   const gold = "#e8c56d";
@@ -88,26 +88,32 @@ function renderCertificate(result: CertRow): ImageResponse {
         padding: "44px 80px",
       }}>
 
-        {/* Top label */}
+        {/* Decorative line top */}
+        <div style={{ display: "flex", width: "120px", height: "1px", backgroundColor: "rgba(232,197,109,0.2)", marginBottom: "10px" }} />
+
+        {/* Title */}
         <div style={{
-          display: "flex", fontSize: "11px", fontWeight: 600,
-          color: "rgba(255,255,255,0.3)", letterSpacing: "4px",
-          textTransform: "uppercase" as const, marginBottom: "14px",
+          display: "flex", fontSize: "14px", fontWeight: 600,
+          color: gold, letterSpacing: "6px",
+          textTransform: "uppercase" as const, marginBottom: "10px",
         }}>
           CLAUDE WILL REPLACE YOU
         </div>
 
+        {/* Decorative line bottom */}
+        <div style={{ display: "flex", width: "120px", height: "1px", backgroundColor: "rgba(232,197,109,0.2)", marginBottom: "20px" }} />
+
         {/* Name / Role / Years */}
         <div style={{
           display: "flex", fontSize: "13px", color: "rgba(255,255,255,0.45)",
-          marginBottom: "28px",
+          marginBottom: "36px",
         }}>
           {infoLine}
         </div>
 
         {/* Hero score */}
         <div style={{
-          display: "flex", fontSize: "80px", fontWeight: 800,
+          display: "flex", fontSize: "80px", fontWeight: 900,
           color: gold, lineHeight: 1, marginBottom: "6px",
         }}>
           {scorePercent}%
@@ -117,7 +123,7 @@ function renderCertificate(result: CertRow): ImageResponse {
         <div style={{
           display: "flex", fontSize: "13px", fontWeight: 600,
           color: "rgba(255,255,255,0.35)", letterSpacing: "3px",
-          textTransform: "uppercase" as const, marginBottom: "28px",
+          textTransform: "uppercase" as const, marginBottom: "32px",
         }}>
           REPLACEABLE
         </div>
@@ -128,9 +134,9 @@ function renderCertificate(result: CertRow): ImageResponse {
           backgroundColor: "rgba(232,197,109,0.08)",
           border: "1px solid rgba(232,197,109,0.15)",
           borderRadius: "12px", padding: "14px 32px",
-          marginBottom: "24px",
+          marginBottom: "28px",
         }}>
-          <div style={{ display: "flex", fontSize: "20px", fontWeight: 700, color: gold, marginBottom: "4px" }}>
+          <div style={{ display: "flex", fontSize: "24px", fontWeight: 700, color: gold, marginBottom: "4px" }}>
             {result.modelName}
           </div>
           <div style={{ display: "flex", fontSize: "11px", color: "rgba(255,255,255,0.3)", marginBottom: "3px" }}>
@@ -143,7 +149,7 @@ function renderCertificate(result: CertRow): ImageResponse {
 
         {/* Quote */}
         <div style={{
-          display: "flex", fontSize: "12px", color: "rgba(255,255,255,0.35)",
+          display: "flex", fontSize: "14px", color: "rgba(255,255,255,0.35)",
           fontStyle: "italic", textAlign: "center" as const,
           maxWidth: "800px", lineHeight: 1.6,
           marginBottom: "auto",
@@ -160,7 +166,7 @@ function renderCertificate(result: CertRow): ImageResponse {
           <div style={{ display: "flex", fontSize: "10px", color: "rgba(255,255,255,0.2)" }}>
             claude-will-replace-you.vercel.app
           </div>
-          <div style={{ display: "flex", fontSize: "10px", fontWeight: 600, color: gold }}>
+          <div style={{ display: "flex", fontSize: "12px", fontWeight: 600, color: gold }}>
             Find out YOUR fate
           </div>
         </div>

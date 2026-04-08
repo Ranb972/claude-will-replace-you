@@ -51,8 +51,18 @@ function hasHebrew(text: string): boolean {
   return /[\u0590-\u05FF]/.test(text);
 }
 
-function rtlStyle(text: string): Record<string, string> {
-  return hasHebrew(text) ? { direction: "rtl", textAlign: "right" } : {};
+/**
+ * Satori renders all text LTR regardless of direction:rtl.
+ * To make Hebrew readable, reverse the entire string char-by-char
+ * (so Satori's LTR layout shows Hebrew correctly), then re-reverse
+ * any English/number runs so they stay readable.
+ */
+function reverseForSatori(text: string): string {
+  if (!hasHebrew(text)) return text;
+  const reversed = [...text].reverse().join("");
+  return reversed.replace(/[A-Za-z0-9][A-Za-z0-9 ._\-:%\/]*/g, (match) =>
+    [...match].reverse().join(""),
+  );
 }
 
 function renderCertificate(result: CertRow): ImageResponse {
@@ -61,8 +71,10 @@ function renderCertificate(result: CertRow): ImageResponse {
   const scorePercent = Math.min(100, Math.max(0, result.score));
   const daysLabel = formatDaysLeft(result.daysLeft);
   const yearLine = isReal ? "Current Model" : `Expected ${model?.year ?? "TBD"}`;
-  const quote = result.quote.length > 100 ? result.quote.slice(0, 97) + "..." : result.quote;
-  const infoLine = `${result.name}  -  ${result.role}  -  ${result.experience} years`;
+  const rawQuote = result.quote.length > 100 ? result.quote.slice(0, 97) + "..." : result.quote;
+  const quote = reverseForSatori(rawQuote);
+  const rawInfo = `${result.name}  -  ${result.role}  -  ${result.experience} years`;
+  const infoLine = reverseForSatori(rawInfo);
 
   const gold = "#e8c56d";
 
@@ -88,7 +100,7 @@ function renderCertificate(result: CertRow): ImageResponse {
         {/* Name / Role / Years */}
         <div style={{
           display: "flex", fontSize: "13px", color: "rgba(255,255,255,0.45)",
-          marginBottom: "28px", ...rtlStyle(infoLine),
+          marginBottom: "28px",
         }}>
           {infoLine}
         </div>
@@ -135,7 +147,6 @@ function renderCertificate(result: CertRow): ImageResponse {
           fontStyle: "italic", textAlign: "center" as const,
           maxWidth: "800px", lineHeight: 1.6,
           marginBottom: "auto",
-          ...rtlStyle(quote),
         }}>
           "{quote}"
         </div>

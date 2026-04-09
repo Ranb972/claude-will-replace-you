@@ -71,10 +71,10 @@ function renderCertificate(result: CertRow): ImageResponse {
   const scorePercent = Math.min(100, Math.max(0, result.score));
   const daysLabel = formatDaysLeft(result.daysLeft);
   const yearLine = isReal ? "Current Model" : `Expected ${model?.year ?? "TBD"}`;
-  const rawQuote = result.quote.length > 100 ? result.quote.slice(0, 97) + "..." : result.quote;
+  const rawQuote = result.quote.length > 120 ? result.quote.slice(0, 117) + "..." : result.quote;
   const quote = reverseForSatori(rawQuote);
-  const rawInfo = `${result.name}  \u00b7  ${result.role}  \u00b7  ${result.experience} years`;
-  const infoLine = reverseForSatori(rawInfo);
+  const reversedName = reverseForSatori(result.name);
+  const infoLine = `${reversedName}  \u00b7  ${result.role}  \u00b7  ${result.experience} years`;
 
   const gold = "#e8c56d";
 
@@ -89,7 +89,7 @@ function renderCertificate(result: CertRow): ImageResponse {
       }}>
 
         {/* Decorative line top */}
-        <div style={{ display: "flex", width: "120px", height: "1px", backgroundColor: "rgba(232,197,109,0.2)", marginBottom: "10px" }} />
+        <div style={{ display: "flex", width: "160px", height: "1px", backgroundColor: "rgba(232,197,109,0.2)", marginBottom: "10px" }} />
 
         {/* Title */}
         <div style={{
@@ -101,19 +101,19 @@ function renderCertificate(result: CertRow): ImageResponse {
         </div>
 
         {/* Decorative line bottom */}
-        <div style={{ display: "flex", width: "120px", height: "1px", backgroundColor: "rgba(232,197,109,0.2)", marginBottom: "20px" }} />
+        <div style={{ display: "flex", width: "160px", height: "1px", backgroundColor: "rgba(232,197,109,0.2)", marginBottom: "20px" }} />
 
         {/* Name / Role / Years */}
         <div style={{
-          display: "flex", fontSize: "13px", color: "rgba(255,255,255,0.45)",
-          marginBottom: "36px",
+          display: "flex", fontSize: "15px", fontWeight: 500, color: "rgba(255,255,255,0.75)",
+          marginBottom: "36px", textAlign: "center" as const,
         }}>
           {infoLine}
         </div>
 
         {/* Hero score */}
         <div style={{
-          display: "flex", fontSize: "80px", fontWeight: 900,
+          display: "flex", fontSize: "84px", fontWeight: 900,
           color: gold, lineHeight: 1, marginBottom: "6px",
         }}>
           {scorePercent}%
@@ -121,8 +121,8 @@ function renderCertificate(result: CertRow): ImageResponse {
 
         {/* REPLACEABLE label */}
         <div style={{
-          display: "flex", fontSize: "13px", fontWeight: 600,
-          color: "rgba(255,255,255,0.35)", letterSpacing: "3px",
+          display: "flex", fontSize: "14px", fontWeight: 600,
+          color: "rgba(255,255,255,0.55)", letterSpacing: "4px",
           textTransform: "uppercase" as const, marginBottom: "32px",
         }}>
           REPLACEABLE
@@ -133,23 +133,23 @@ function renderCertificate(result: CertRow): ImageResponse {
           display: "flex", flexDirection: "column", alignItems: "center",
           backgroundColor: "rgba(232,197,109,0.08)",
           border: "1px solid rgba(232,197,109,0.15)",
-          borderRadius: "12px", padding: "14px 32px",
+          borderRadius: "12px", padding: "16px 36px",
           marginBottom: "28px",
         }}>
-          <div style={{ display: "flex", fontSize: "24px", fontWeight: 700, color: gold, marginBottom: "4px" }}>
+          <div style={{ display: "flex", fontSize: "26px", fontWeight: 700, color: gold, marginBottom: "5px" }}>
             {result.modelName}
           </div>
-          <div style={{ display: "flex", fontSize: "11px", color: "rgba(255,255,255,0.3)", marginBottom: "3px" }}>
+          <div style={{ display: "flex", fontSize: "12px", fontWeight: 500, color: "rgba(255,255,255,0.55)", marginBottom: "3px" }}>
             {yearLine}
           </div>
-          <div style={{ display: "flex", fontSize: "12px", color: "rgba(255,255,255,0.35)" }}>
+          <div style={{ display: "flex", fontSize: "14px", fontWeight: 500, color: "rgba(255,255,255,0.6)" }}>
             {daysLabel} left
           </div>
         </div>
 
         {/* Quote */}
         <div style={{
-          display: "flex", fontSize: "14px", color: "rgba(255,255,255,0.35)",
+          display: "flex", fontSize: "15px", fontWeight: 400, color: "rgba(255,255,255,0.65)",
           fontStyle: "italic", textAlign: "center" as const,
           maxWidth: "800px", lineHeight: 1.6,
           marginBottom: "auto",
@@ -163,10 +163,10 @@ function renderCertificate(result: CertRow): ImageResponse {
           justifyContent: "space-between", alignItems: "center",
           width: "100%",
         }}>
-          <div style={{ display: "flex", fontSize: "10px", color: "rgba(255,255,255,0.2)" }}>
+          <div style={{ display: "flex", fontSize: "11px", color: "rgba(255,255,255,0.35)" }}>
             claude-will-replace-you.vercel.app
           </div>
-          <div style={{ display: "flex", fontSize: "12px", fontWeight: 600, color: gold }}>
+          <div style={{ display: "flex", fontSize: "13px", fontWeight: 600, color: gold }}>
             Find out YOUR fate
           </div>
         </div>

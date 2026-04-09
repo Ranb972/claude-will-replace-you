@@ -1,7 +1,12 @@
 {
-  "buildCommand": "bun run build",
+  "buildCommand": "cd packages/web && npx vite build",
   "installCommand": "bun install",
   "outputDirectory": "packages/web/dist",
+  "functions": {
+    "api/index.ts": {
+      "includeFiles": "packages/api/**,drizzle/**"
+    }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },
     { "source": "/r/:id", "destination": "/api" },

@@ -7,7 +7,7 @@
   },
   "scripts": {
     "dev": "bun run --filter '*' dev",
-    "build": "bun run --filter '*' build",
+    "build": "bun run --filter @cwru/web build",
     "db:push": "bun run --filter @cwru/api db:push"
   }
 }

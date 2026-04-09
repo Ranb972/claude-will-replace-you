@@ -1,8 +1,10 @@
 {
   "name": "claude-will-replace-you",
   "private": true,
+  "type": "module",
   "workspaces": ["packages/*"],
   "devDependencies": {
+    "drizzle-kit": "^0.31.10",
     "drizzle-orm": "^0.39.0"
   },
   "scripts": {

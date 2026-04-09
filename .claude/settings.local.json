@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(taskkill //F //IM \"bun.exe\")",
+      "Bash(taskkill //F //IM \"node.exe\")",
+      "Bash(timeout 10 bun run dev)",
+      "Bash(git commit:*)",
+      "Bash(curl -s http://localhost:5173/)",
+      "Bash(curl.exe --version)",
+      "Bash(curl.exe -v http://localhost:5173/)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(f'Score: {d[\\\\\"score\\\\\"]}  Model: {d[\\\\\"model\\\\\"][\\\\\"name\\\\\"]}'\\); print\\(f'Headline: {d[\\\\\"headline\\\\\"]}'\\)\")",
+      "Bash(curl.exe -s -X POST http://localhost:3001/api/analyze -H 'Content-Type: application/json' -d '{\"name\":\"Sarah\",\"role\":\"CTO\",\"experience\":25,\"description\":\"Lead engineering org, manage budget, hire VPs\",\"technologies\":[\"Rust\",\"Kubernetes\",\"Cryptography\"],\"githubUrl\":\"https://github.com/sarah\",\"lang\":\"en\"}')"
+    ]
+  }
+}

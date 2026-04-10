@@ -3,7 +3,7 @@
   "installCommand": "bun install",
   "outputDirectory": "packages/web/dist",
   "functions": {
-    "api/index.js": {
+    "api/index.mjs": {
       "includeFiles": "packages/api/**,drizzle/**"
     }
   },

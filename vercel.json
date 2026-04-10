@@ -4,7 +4,7 @@
   "outputDirectory": "packages/web/dist",
   "functions": {
     "api/index.mjs": {
-      "includeFiles": "node_modules/@libsql/**,node_modules/@vercel/og/**,node_modules/react/**"
+      "includeFiles": "node_modules/@vercel/og/**"
     }
   },
   "rewrites": [

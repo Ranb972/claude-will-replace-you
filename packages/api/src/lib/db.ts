@@ -1,5 +1,3 @@
-import { createClient, type Client } from "@libsql/client";
-import { drizzle, type LibSQLDatabase } from "drizzle-orm/libsql";
 import { eq, desc, asc, sql, count } from "drizzle-orm";
 import { results } from "../schema.js";
 
@@ -16,19 +14,33 @@ function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise
 
 const DB_TIMEOUT = 5000;
 
-// --- Lazy client ---
+// --- Lazy + dynamic DB init ---
 
-let _client: Client | null = null;
-let _db: LibSQLDatabase | null = null;
+let _db: any = null;
+let _dbEnabled = true;
+let _initAttempted = false;
 
-function getDb(): LibSQLDatabase {
-  if (!_db) {
-    _client = createClient({
+async function getDb(): Promise<any> {
+  if (_initAttempted) return _db;
+  _initAttempted = true;
+
+  try {
+    console.log("CWRU: Initializing DB...");
+    const { createClient } = await import("@libsql/client");
+    const { drizzle } = await import("drizzle-orm/libsql");
+
+    const client = createClient({
       url: process.env.TURSO_DATABASE_URL ?? "file:local.db",
       authToken: process.env.TURSO_AUTH_TOKEN,
     });
-    _db = drizzle(_client);
+    _db = drizzle(client);
+    console.log("CWRU: DB initialized OK");
+  } catch (err) {
+    console.error("CWRU: DB init failed, running without DB:", err instanceof Error ? err.message : err);
+    _dbEnabled = false;
+    _db = null;
   }
+
   return _db;
 }
 
@@ -36,7 +48,8 @@ function getDb(): LibSQLDatabase {
 
 export async function checkDb(): Promise<{ ok: boolean; error?: string }> {
   try {
-    const db = getDb();
+    const db = await getDb();
+    if (!db || !_dbEnabled) return { ok: false, error: "DB disabled" };
     await withTimeout(
       db.select({ v: sql`1` }).from(results).limit(1),
       3000,
@@ -92,10 +105,14 @@ export interface ResultRow {
   shareCount: number | null;
 }
 
-// --- CRUD (all with timeouts) ---
+// --- CRUD (all with timeouts + graceful fallback) ---
 
 export async function saveResult(data: SaveResultData): Promise<string> {
-  const db = getDb();
+  const db = await getDb();
+  if (!db || !_dbEnabled) {
+    console.log("CWRU: DB unavailable, skipping save");
+    return data.id;
+  }
   await withTimeout(
     db.insert(results).values({
       id: data.id,
@@ -123,7 +140,8 @@ export async function saveResult(data: SaveResultData): Promise<string> {
 }
 
 export async function getResult(id: string): Promise<ResultRow | null> {
-  const db = getDb();
+  const db = await getDb();
+  if (!db || !_dbEnabled) return null;
   const rows = await withTimeout(
     db.select().from(results).where(eq(results.id, id)).limit(1),
     DB_TIMEOUT,
@@ -145,7 +163,9 @@ export async function getLeaderboard(
   limit = 20,
   offset = 0,
 ): Promise<{ entries: ResultRow[]; total: number }> {
-  const db = getDb();
+  const db = await getDb();
+  if (!db || !_dbEnabled) return { entries: [], total: 0 };
+
   const orderBy =
     sort === "highest"
       ? desc(results.score)
@@ -165,7 +185,7 @@ export async function getLeaderboard(
   );
 
   const entries = rows.map(
-    (row) =>
+    (row: any) =>
       ({
         ...row,
         technologies: row.technologies ? JSON.parse(row.technologies) : [],
@@ -177,7 +197,8 @@ export async function getLeaderboard(
 }
 
 export async function incrementShareCount(id: string): Promise<void> {
-  const db = getDb();
+  const db = await getDb();
+  if (!db || !_dbEnabled) return;
   await withTimeout(
     db.update(results).set({ shareCount: sql`${results.shareCount} + 1` }).where(eq(results.id, id)),
     DB_TIMEOUT,

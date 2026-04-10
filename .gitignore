@@ -7,4 +7,3 @@ dist
 *.tsbuildinfo
 package-lock.json
 *.db
-api/index.mjs

@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { nanoid } from "nanoid";
+import { randomBytes } from "node:crypto";
 import { profileInputSchema } from "../types.js";
 import { calculateScore } from "../lib/scoring.js";
 import { generateHumorContent } from "../lib/groq.js";
@@ -44,7 +44,7 @@ analyze.post("/", async (c) => {
   );
 
   // 4. Generate ID + save to DB
-  const id = nanoid(12);
+  const id = randomBytes(9).toString("base64url").slice(0, 12);
 
   await saveResult({
     id,

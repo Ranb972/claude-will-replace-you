@@ -42,16 +42,26 @@ async function callGroq(
   model: string,
   userMessage: string
 ): Promise<HumorContent> {
-  const response = await client.chat.completions.create({
-    model,
-    messages: [
-      { role: "system", content: ANALYZER_SYSTEM_PROMPT },
-      { role: "user", content: userMessage },
-    ],
-    temperature: 0.9,
-    max_tokens: 800,
-    response_format: { type: "json_object" },
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 10000);
+  let response;
+  try {
+    response = await client.chat.completions.create(
+      {
+        model,
+        messages: [
+          { role: "system", content: ANALYZER_SYSTEM_PROMPT },
+          { role: "user", content: userMessage },
+        ],
+        temperature: 0.9,
+        max_tokens: 800,
+        response_format: { type: "json_object" },
+      },
+      { signal: controller.signal as any },
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
 
   const text = response.choices[0]?.message?.content || "";
   return JSON.parse(text) as HumorContent;

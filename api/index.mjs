@@ -24111,16 +24111,26 @@ function isRateLimited(err) {
   return err instanceof Error && "status" in err && err.status === 429;
 }
 async function callGroq(client2, model, userMessage) {
-  const response = await client2.chat.completions.create({
-    model,
-    messages: [
-      { role: "system", content: ANALYZER_SYSTEM_PROMPT },
-      { role: "user", content: userMessage }
-    ],
-    temperature: 0.9,
-    max_tokens: 800,
-    response_format: { type: "json_object" }
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 1e4);
+  let response;
+  try {
+    response = await client2.chat.completions.create(
+      {
+        model,
+        messages: [
+          { role: "system", content: ANALYZER_SYSTEM_PROMPT },
+          { role: "user", content: userMessage }
+        ],
+        temperature: 0.9,
+        max_tokens: 800,
+        response_format: { type: "json_object" }
+      },
+      { signal: controller.signal }
+    );
+  } finally {
+    clearTimeout(timeout);
+  }
   const text2 = response.choices[0]?.message?.content || "";
   return JSON.parse(text2);
 }
@@ -29736,66 +29746,89 @@ async function incrementShareCount(id) {
 }
 
 // packages/api/src/routes/analyze.ts
+function withTimeout(promise2, ms, label) {
+  return Promise.race([
+    promise2,
+    new Promise(
+      (_, reject) => setTimeout(() => reject(new Error(`Timeout: ${label} took longer than ${ms}ms`)), ms)
+    )
+  ]);
+}
 var analyze = new Hono2();
 analyze.post("/", async (c) => {
-  const body = await c.req.json().catch(() => null);
-  const parsed = profileInputSchema.safeParse(body);
-  if (!parsed.success) {
-    return c.json(
-      { error: "Invalid input", details: parsed.error.flatten().fieldErrors },
-      400
+  try {
+    console.log("Step 1: Validating input...");
+    const body = await c.req.json().catch(() => null);
+    const parsed = profileInputSchema.safeParse(body);
+    if (!parsed.success) {
+      return c.json(
+        { error: "Invalid input", details: parsed.error.flatten().fieldErrors },
+        400
+      );
+    }
+    const input = parsed.data;
+    console.log("Step 2: Calculating score...");
+    const scoringResult = calculateScore({
+      experience: input.experience,
+      role: input.role,
+      description: input.description,
+      technologies: input.technologies,
+      githubUrl: input.githubUrl
+    });
+    console.log("Step 3: Generating humor...");
+    const hasHebrew2 = /[\u0590-\u05FF]/.test(input.description ?? "");
+    const lang = input.lang ?? (hasHebrew2 ? "he" : "en");
+    const gender = input.gender ?? "other";
+    const { content: humor, generatedBy } = await withTimeout(
+      generateHumorContent(input, scoringResult, lang, gender),
+      1e4,
+      "generateHumorContent"
     );
+    console.log(`Step 3 done: generatedBy=${generatedBy}`);
+    console.log("Step 4: Saving to DB...");
+    const id = randomBytes(9).toString("base64url").slice(0, 12);
+    await withTimeout(
+      saveResult({
+        id,
+        name: input.name,
+        role: input.role,
+        experience: input.experience,
+        description: input.description,
+        technologies: input.technologies,
+        githubUrl: input.githubUrl || void 0,
+        gender: input.gender || "other",
+        showOnLeaderboard: input.showOnLeaderboard ? 1 : 0,
+        modelKey: scoringResult.model.key,
+        modelName: scoringResult.model.name,
+        score: scoringResult.score,
+        daysLeft: scoringResult.daysLeft,
+        headline: humor.headline,
+        quote: humor.quote,
+        skillsAnalysis: humor.skillsAnalysis,
+        generatedBy
+      }),
+      5e3,
+      "saveResult"
+    );
+    console.log("Step 5: Returning result...");
+    const baseUrl = process.env.BASE_URL || "https://claude-will-replace-you.vercel.app";
+    return c.json({
+      id,
+      model: scoringResult.model,
+      score: scoringResult.score,
+      daysLeft: scoringResult.daysLeft,
+      headline: humor.headline,
+      quote: humor.quote,
+      skillsAnalysis: humor.skillsAnalysis,
+      shareUrl: `${baseUrl}/r/${id}`,
+      certificateUrl: `${baseUrl}/api/og/${id}`,
+      generatedBy
+    });
+  } catch (err) {
+    console.error("Analyze error:", err);
+    const message = err instanceof Error ? err.message : "Unknown error";
+    return c.json({ error: `Analysis failed: ${message}` }, 500);
   }
-  const input = parsed.data;
-  const scoringResult = calculateScore({
-    experience: input.experience,
-    role: input.role,
-    description: input.description,
-    technologies: input.technologies,
-    githubUrl: input.githubUrl
-  });
-  const hasHebrew2 = /[\u0590-\u05FF]/.test(input.description ?? "");
-  const lang = input.lang ?? (hasHebrew2 ? "he" : "en");
-  const gender = input.gender ?? "other";
-  const { content: humor, generatedBy } = await generateHumorContent(
-    input,
-    scoringResult,
-    lang,
-    gender
-  );
-  const id = randomBytes(9).toString("base64url").slice(0, 12);
-  await saveResult({
-    id,
-    name: input.name,
-    role: input.role,
-    experience: input.experience,
-    description: input.description,
-    technologies: input.technologies,
-    githubUrl: input.githubUrl || void 0,
-    gender: input.gender || "other",
-    showOnLeaderboard: input.showOnLeaderboard ? 1 : 0,
-    modelKey: scoringResult.model.key,
-    modelName: scoringResult.model.name,
-    score: scoringResult.score,
-    daysLeft: scoringResult.daysLeft,
-    headline: humor.headline,
-    quote: humor.quote,
-    skillsAnalysis: humor.skillsAnalysis,
-    generatedBy
-  });
-  const baseUrl = process.env.BASE_URL || "https://claude-will-replace-you.vercel.app";
-  return c.json({
-    id,
-    model: scoringResult.model,
-    score: scoringResult.score,
-    daysLeft: scoringResult.daysLeft,
-    headline: humor.headline,
-    quote: humor.quote,
-    skillsAnalysis: humor.skillsAnalysis,
-    shareUrl: `${baseUrl}/r/${id}`,
-    certificateUrl: `${baseUrl}/api/og/${id}`,
-    generatedBy
-  });
 });
 var analyze_default = analyze;
 

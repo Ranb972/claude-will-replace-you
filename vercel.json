@@ -1,10 +1,10 @@
 {
-  "buildCommand": "cd packages/web && npx vite build",
+  "buildCommand": "bun scripts/build-api.ts && cd packages/web && npx vite build",
   "installCommand": "bun install",
   "outputDirectory": "packages/web/dist",
   "functions": {
     "api/index.mjs": {
-      "includeFiles": "packages/api/**,drizzle/**"
+      "includeFiles": "node_modules/@libsql/**,node_modules/@vercel/og/**,node_modules/react/**"
     }
   },
   "rewrites": [

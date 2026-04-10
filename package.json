@@ -8,11 +8,12 @@
     "@types/node": "^25.6.0",
     "@types/react": "^19.2.14",
     "drizzle-kit": "^0.31.10",
-    "drizzle-orm": "^0.45.1"
+    "drizzle-orm": "^0.45.1",
+    "esbuild": "^0.28.0"
   },
   "scripts": {
     "dev": "bun run --filter '*' dev",
-    "build": "bun run --filter @cwru/web build",
+    "build": "bun scripts/build-api.ts && bun run --filter @cwru/web build",
     "db:push": "bun run --filter @cwru/api db:push"
   }
 }

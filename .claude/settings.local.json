@@ -12,7 +12,10 @@
       "Bash(curl.exe -s -X POST http://localhost:3001/api/analyze -H 'Content-Type: application/json' -d '{\"name\":\"Sarah\",\"role\":\"CTO\",\"experience\":25,\"description\":\"Lead engineering org, manage budget, hire VPs\",\"technologies\":[\"Rust\",\"Kubernetes\",\"Cryptography\"],\"githubUrl\":\"https://github.com/sarah\",\"lang\":\"en\"}')",
       "Bash(bunx tsc:*)",
       "Bash(bun:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(ls /c/Users/ranbe/claude-will-replace-you/node_modules/.bun/@libsql+client@*/node_modules/@libsql/client/lib-esm/)",
+      "Bash(head -10 echo \"---\" ls /c/Users/ranbe/claude-will-replace-you/node_modules/.bun/@libsql+client@*/node_modules/@libsql/client/*.node)",
+      "Bash(echo \"No native bindings\" echo \"---\" grep -l \"\\\\.wasm\" /c/Users/ranbe/claude-will-replace-you/node_modules/.bun/@libsql+client@*/node_modules/@libsql/client/lib-esm/*.js)"
     ]
   }
 }

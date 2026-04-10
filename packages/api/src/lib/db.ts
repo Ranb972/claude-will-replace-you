@@ -1,7 +1,7 @@
 import { createClient } from "@libsql/client";
 import { drizzle } from "drizzle-orm/libsql";
 import { eq, desc, asc, sql, count } from "drizzle-orm";
-import { results } from "../../../../drizzle/schema.js";
+import { results } from "../schema.js";
 
 const client = createClient({
   url: process.env.TURSO_DATABASE_URL ?? "file:local.db",

@@ -4,8 +4,11 @@
   "type": "module",
   "workspaces": ["packages/*"],
   "devDependencies": {
+    "@libsql/client": "^0.17.0",
+    "@types/node": "^25.6.0",
+    "@types/react": "^19.2.14",
     "drizzle-kit": "^0.31.10",
-    "drizzle-orm": "^0.39.0"
+    "drizzle-orm": "^0.45.1"
   },
   "scripts": {
     "dev": "bun run --filter '*' dev",

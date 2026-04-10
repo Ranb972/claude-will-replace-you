@@ -11,14 +11,14 @@ export const results = sqliteTable("results", {
   githubUrl: text("github_url"),
 
   // Result
-  modelKey: text("model_key").notNull(), // 'haiku'|'sonnet'|'opus'|'titan'|'colossus'|'singularity'|'skynet'|'infinity'
+  modelKey: text("model_key").notNull(),
   modelName: text("model_name").notNull(),
   score: integer("score").notNull(), // 0-100
   daysLeft: integer("days_left").notNull(),
   headline: text("headline").notNull(),
   quote: text("quote").notNull(),
   skillsAnalysis: text("skills_analysis").notNull(), // JSON array
-  generatedBy: text("generated_by").notNull(), // 'groq-scout'|'groq-70b'|'groq-8b'|'local-fallback'
+  generatedBy: text("generated_by").notNull(),
 
   gender: text("gender"),
   showOnLeaderboard: integer("show_on_leaderboard").default(0),

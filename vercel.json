@@ -3,9 +3,7 @@
   "installCommand": "bun install",
   "outputDirectory": "packages/web/dist",
   "functions": {
-    "api/index.mjs": {
-      "includeFiles": "node_modules/@vercel/og/**"
-    }
+    "api/index.mjs": {}
   },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" },

@@ -13,7 +13,7 @@ await build({
   target: "node18",
   format: "esm",
   outfile: "api/index.mjs",
-  external: ["@vercel/og"],
+  external: [],
   alias: {
     "hono/vercel": resolve(honoDir, "dist/adapter/vercel/index.js"),
     "hono/cors": resolve(honoDir, "dist/middleware/cors/index.js"),

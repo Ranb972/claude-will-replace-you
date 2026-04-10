@@ -5,20 +5,30 @@ import { calculateScore } from "../lib/scoring.js";
 import { generateHumorContent } from "../lib/groq.js";
 import { saveResult } from "../lib/db.js";
 
-function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<never>((_, reject) =>
-      setTimeout(() => reject(new Error(`Timeout: ${label} took longer than ${ms}ms`)), ms),
-    ),
-  ]);
-}
+const HANDLER_TIMEOUT = 15000;
 
 const analyze = new Hono();
 
 analyze.post("/", async (c) => {
+  console.log("CWRU: Request received");
+
+  // 15-second overall timeout
+  const result = await Promise.race([
+    handleAnalyze(c),
+    new Promise<Response>((resolve) =>
+      setTimeout(() => {
+        console.error("CWRU: Handler timeout (15s)");
+        resolve(c.json({ error: "Analysis timed out. Please try again." }, 504));
+      }, HANDLER_TIMEOUT),
+    ),
+  ]);
+
+  return result;
+});
+
+async function handleAnalyze(c: any): Promise<Response> {
   try {
-    console.log("Step 1: Validating input...");
+    console.log("CWRU: Validating input...");
     const body = await c.req.json().catch(() => null);
     const parsed = profileInputSchema.safeParse(body);
 
@@ -30,8 +40,9 @@ analyze.post("/", async (c) => {
     }
 
     const input = parsed.data;
+    console.log("CWRU: Input validated");
 
-    console.log("Step 2: Calculating score...");
+    console.log("CWRU: Calculating score...");
     const scoringResult = calculateScore({
       experience: input.experience,
       role: input.role,
@@ -39,25 +50,43 @@ analyze.post("/", async (c) => {
       technologies: input.technologies,
       githubUrl: input.githubUrl,
     });
+    console.log(`CWRU: Score calculated: ${scoringResult.score}`);
 
-    console.log("Step 3: Generating humor...");
+    console.log("CWRU: Generating humor...");
     const hasHebrew = /[\u0590-\u05FF]/.test(input.description ?? "");
     const lang = input.lang ?? (hasHebrew ? "he" : "en");
     const gender = (input.gender as "male" | "female" | "other") ?? "other";
 
-    const { content: humor, generatedBy } = await withTimeout(
-      generateHumorContent(input, scoringResult, lang as "en" | "he", gender),
-      10000,
-      "generateHumorContent",
+    const { content: humor, generatedBy } = await generateHumorContent(
+      input,
+      scoringResult,
+      lang as "en" | "he",
+      gender,
     );
+    console.log(`CWRU: Humor generated via: ${generatedBy}`);
 
-    console.log(`Step 3 done: generatedBy=${generatedBy}`);
-
-    console.log("Step 4: Saving to DB...");
+    // Build the response BEFORE DB save — so we can return even if DB fails
     const id = randomBytes(9).toString("base64url").slice(0, 12);
+    const baseUrl =
+      process.env.BASE_URL || "https://claude-will-replace-you.vercel.app";
 
-    await withTimeout(
-      saveResult({
+    const responseData = {
+      id,
+      model: scoringResult.model,
+      score: scoringResult.score,
+      daysLeft: scoringResult.daysLeft,
+      headline: humor.headline,
+      quote: humor.quote,
+      skillsAnalysis: humor.skillsAnalysis,
+      shareUrl: `${baseUrl}/r/${id}`,
+      certificateUrl: `${baseUrl}/api/og/${id}`,
+      generatedBy,
+    };
+
+    // DB save — best effort, don't block the response
+    console.log("CWRU: Saving to DB...");
+    try {
+      await saveResult({
         id,
         name: input.name,
         role: input.role,
@@ -75,32 +104,19 @@ analyze.post("/", async (c) => {
         quote: humor.quote,
         skillsAnalysis: humor.skillsAnalysis,
         generatedBy,
-      }),
-      5000,
-      "saveResult",
-    );
+      });
+      console.log("CWRU: DB save success");
+    } catch (dbErr) {
+      console.error("CWRU: DB save failed (returning result anyway):", dbErr instanceof Error ? dbErr.message : dbErr);
+    }
 
-    console.log("Step 5: Returning result...");
-    const baseUrl =
-      process.env.BASE_URL || "https://claude-will-replace-you.vercel.app";
-
-    return c.json({
-      id,
-      model: scoringResult.model,
-      score: scoringResult.score,
-      daysLeft: scoringResult.daysLeft,
-      headline: humor.headline,
-      quote: humor.quote,
-      skillsAnalysis: humor.skillsAnalysis,
-      shareUrl: `${baseUrl}/r/${id}`,
-      certificateUrl: `${baseUrl}/api/og/${id}`,
-      generatedBy,
-    });
+    console.log("CWRU: Response sent");
+    return c.json(responseData);
   } catch (err) {
-    console.error("Analyze error:", err);
+    console.error("CWRU: Unexpected error:", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return c.json({ error: `Analysis failed: ${message}` }, 500);
   }
-});
+}
 
 export default analyze;

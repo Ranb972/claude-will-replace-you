@@ -2,6 +2,7 @@ import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { rateLimit } from "./middleware/rate-limit.js";
+import { checkDb } from "./lib/db.js";
 import analyze from "./routes/analyze.js";
 import result from "./routes/result.js";
 import share from "./routes/share.js";
@@ -42,8 +43,13 @@ app.onError((err, c) => {
 // Health check
 // ---------------------------------------------------------------------------
 
-app.get("/api/health", (c) => {
-  return c.json({ status: "ok" });
+app.get("/api/health", async (c) => {
+  const dbStatus = await checkDb();
+  return c.json({
+    status: "ok",
+    db: dbStatus.ok ? "connected" : `error: ${dbStatus.error}`,
+    region: process.env.VERCEL_REGION ?? "local",
+  });
 });
 
 // ---------------------------------------------------------------------------

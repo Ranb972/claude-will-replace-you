@@ -43,7 +43,7 @@ async function callGroq(
   userMessage: string
 ): Promise<HumorContent> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000);
+  const timeout = setTimeout(() => controller.abort(), 8000);
   let response;
   try {
     response = await client.chat.completions.create(
@@ -81,49 +81,48 @@ export async function generateHumorContent(
 ): Promise<{ content: HumorContent; generatedBy: string }> {
   const apiKey = process.env.GROQ_API_KEY;
   if (!apiKey) {
-    const content = generateLocalFallback(
-      input,
-      scoringResult.model.key,
-      lang,
-      gender,
-    );
+    console.log("CWRU: No GROQ_API_KEY, using local fallback");
+    const content = generateLocalFallback(input, scoringResult.model.key, lang, gender);
     return { content, generatedBy: "local-fallback" };
   }
 
-  const client = new OpenAI({
-    baseURL: "https://api.groq.com/openai/v1",
-    apiKey,
-  });
-
-  const userMessage = buildUserMessage(input, scoringResult);
-
-  // Round-robin between primary models
-  const primaryIndex = requestCounter % MODELS.primary.length;
-  requestCounter++;
-  const orderedPrimaries = [
-    MODELS.primary[primaryIndex],
-    MODELS.primary[(primaryIndex + 1) % MODELS.primary.length],
-  ];
-
-  // Try primary models in round-robin order
-  for (const model of orderedPrimaries) {
-    try {
-      const content = await callGroq(client, model, userMessage);
-      return { content, generatedBy: generatedByLabel(model) };
-    } catch (err) {
-      if (!isRateLimited(err)) throw err;
-    }
-  }
-
-  // Both primaries rate limited — try 8B fallback
+  // Wrap entire Groq attempt in try-catch — any failure falls back to local
   try {
-    const content = await callGroq(client, MODELS.fallback, userMessage);
-    return { content, generatedBy: "groq-8b" };
+    const client = new OpenAI({
+      baseURL: "https://api.groq.com/openai/v1",
+      apiKey,
+    });
+
+    const userMessage = buildUserMessage(input, scoringResult);
+
+    const primaryIndex = requestCounter % MODELS.primary.length;
+    requestCounter++;
+    const orderedPrimaries = [
+      MODELS.primary[primaryIndex],
+      MODELS.primary[(primaryIndex + 1) % MODELS.primary.length],
+    ];
+
+    for (const model of orderedPrimaries) {
+      try {
+        const content = await callGroq(client, model, userMessage);
+        return { content, generatedBy: generatedByLabel(model) };
+      } catch (err) {
+        console.log(`CWRU: Groq ${model} failed:`, err instanceof Error ? err.message : err);
+        if (!isRateLimited(err)) break; // Non-rate-limit error — skip to fallback
+      }
+    }
+
+    try {
+      const content = await callGroq(client, MODELS.fallback, userMessage);
+      return { content, generatedBy: "groq-8b" };
+    } catch (err) {
+      console.log(`CWRU: Groq fallback failed:`, err instanceof Error ? err.message : err);
+    }
   } catch (err) {
-    if (!isRateLimited(err)) throw err;
+    console.log("CWRU: Groq client error, using local fallback:", err instanceof Error ? err.message : err);
   }
 
-  // All Groq models exhausted — local fallback
+  // All Groq attempts failed — local fallback (always works)
   const content = generateLocalFallback(input, scoringResult.model.key, lang, gender);
   return { content, generatedBy: "local-fallback" };
 }

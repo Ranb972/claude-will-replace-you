@@ -13,7 +13,8 @@
   },
   "scripts": {
     "dev": "bun run --filter '*' dev",
-    "build": "bun scripts/build-api.ts && bun run --filter @cwru/web build",
+    "build": "bun install && cd packages/web && npx vite build",
+    "start": "bun packages/api/src/index.ts",
     "db:push": "bun run --filter @cwru/api db:push"
   }
 }

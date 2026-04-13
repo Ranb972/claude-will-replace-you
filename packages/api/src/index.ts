@@ -1,4 +1,6 @@
 import { serve } from "@hono/node-server";
+import { serveStatic } from "@hono/node-server/serve-static";
+import { existsSync } from "fs";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { rateLimit } from "./middleware/rate-limit.js";
@@ -13,18 +15,13 @@ import sharePage from "./routes/share-page.js";
 const app = new Hono();
 
 // ---------------------------------------------------------------------------
-// CORS — * in dev, deployment URL in production
+// CORS — open; API and SPA are same-origin on Render
 // ---------------------------------------------------------------------------
-
-const allowedOrigins =
-  process.env.NODE_ENV === "production"
-    ? [process.env.BASE_URL || "https://claude-will-replace-you.vercel.app"]
-    : ["*"];
 
 app.use(
   "/api/*",
   cors({
-    origin: allowedOrigins,
+    origin: "*",
     allowMethods: ["GET", "POST", "OPTIONS"],
     allowHeaders: ["Content-Type"],
   }),
@@ -73,13 +70,23 @@ app.route("/", leaderboard);
 app.route("/r", sharePage);
 
 // ---------------------------------------------------------------------------
-// Dev server (skip on Vercel — the Edge Function entry point handles it)
+// Static frontend (production) — mount only if the built SPA exists.
+// Registered AFTER API routes so /api/* takes precedence.
 // ---------------------------------------------------------------------------
 
-if (!process.env.VERCEL) {
-  const port = Number(process.env.PORT) || 3001;
-  console.log(`API server running on http://localhost:${port}`);
-  serve({ fetch: app.fetch, port });
+const distPath = "./packages/web/dist";
+if (existsSync(distPath)) {
+  app.use("/*", serveStatic({ root: distPath }));
+  app.get("*", serveStatic({ path: `${distPath}/index.html` }));
 }
+
+// ---------------------------------------------------------------------------
+// Server — Render provides PORT; bind to 0.0.0.0 so it's reachable.
+// ---------------------------------------------------------------------------
+
+const port = Number(process.env.PORT) || 3001;
+const hostname = "0.0.0.0";
+console.log(`API server running on http://${hostname}:${port}`);
+serve({ fetch: app.fetch, port, hostname });
 
 export default app;

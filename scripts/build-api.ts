@@ -12,7 +12,7 @@ await build({
   platform: "node",
   target: "node18",
   format: "esm",
-  outfile: "api/index.mjs",
+  outfile: "api/index.js",
   external: [],
   alias: {
     "hono/vercel": resolve(honoDir, "dist/adapter/vercel/index.js"),
@@ -24,4 +24,4 @@ await build({
   },
 });
 
-console.log("API bundled to api/index.mjs");
+console.log("API bundled to api/index.js");

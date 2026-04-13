@@ -27,7 +27,6 @@ app.get("/:id", async (c) => {
   const baseUrl = getBaseUrl(c);
   const ogTitle = `${row.name} יוחלף ע״י ${modelName} בעוד ${formatDays(row.daysLeft)}!`;
   const ogDescription = "גלה איזה מודל של Claude יחליף אותך בעבודה 🤖";
-  const ogImage = `${baseUrl}/api/og/${row.id}`;
   const ogUrl = `${baseUrl}/r/${row.id}`;
   const spaUrl = `${baseUrl}/result/${row.id}`;
 
@@ -41,16 +40,14 @@ app.get("/:id", async (c) => {
   <!-- OG Meta Tags -->
   <meta property="og:title" content="${escapeAttr(ogTitle)}" />
   <meta property="og:description" content="${escapeAttr(ogDescription)}" />
-  <meta property="og:image" content="${escapeAttr(ogImage)}" />
   <meta property="og:url" content="${escapeAttr(ogUrl)}" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Claude Will Replace You" />
 
   <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:card" content="summary" />
   <meta name="twitter:title" content="${escapeAttr(ogTitle)}" />
   <meta name="twitter:description" content="${escapeAttr(ogDescription)}" />
-  <meta name="twitter:image" content="${escapeAttr(ogImage)}" />
 
   <!-- Redirect to SPA -->
   <meta http-equiv="refresh" content="0;url=${escapeAttr(spaUrl)}" />

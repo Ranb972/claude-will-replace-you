@@ -67,8 +67,7 @@ async function handleAnalyze(c: any): Promise<Response> {
 
     // Build the response BEFORE DB save — so we can return even if DB fails
     const id = randomBytes(9).toString("base64url").slice(0, 12);
-    const baseUrl =
-      process.env.BASE_URL || "https://claude-will-replace-you.vercel.app";
+    const baseUrl = process.env.BASE_URL || "";
 
     const responseData = {
       id,
@@ -79,7 +78,6 @@ async function handleAnalyze(c: any): Promise<Response> {
       quote: humor.quote,
       skillsAnalysis: humor.skillsAnalysis,
       shareUrl: `${baseUrl}/r/${id}`,
-      certificateUrl: `${baseUrl}/api/og/${id}`,
       generatedBy,
     };
 

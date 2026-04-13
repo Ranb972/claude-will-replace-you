@@ -8,7 +8,6 @@ import { checkDb } from "./lib/db.js";
 import analyze from "./routes/analyze.js";
 import result from "./routes/result.js";
 import share from "./routes/share.js";
-import og from "./routes/og.js";
 import { leaderboard } from "./routes/leaderboard.js";
 import sharePage from "./routes/share-page.js";
 
@@ -59,7 +58,6 @@ app.route("/api/analyze", analyze);
 
 app.route("/api/result", result);
 app.route("/api/result", share);
-app.route("/api/og", og);
 app.route("/", leaderboard);
 
 // ---------------------------------------------------------------------------

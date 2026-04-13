@@ -14,6 +14,8 @@ result.get("/:id", async (c) => {
 
   const model = MODEL_TIERS.find((m) => m.key === row.modelKey) ?? MODEL_TIERS[0];
 
+  const baseUrl = process.env.BASE_URL || "";
+
   return c.json({
     id: row.id,
     model,
@@ -22,8 +24,7 @@ result.get("/:id", async (c) => {
     headline: row.headline,
     quote: row.quote,
     skillsAnalysis: row.skillsAnalysis,
-    shareUrl: `${process.env.BASE_URL || "https://claude-will-replace-you.vercel.app"}/r/${row.id}`,
-    certificateUrl: `${process.env.BASE_URL || "https://claude-will-replace-you.vercel.app"}/api/og/${row.id}`,
+    shareUrl: `${baseUrl}/r/${row.id}`,
     generatedBy: row.generatedBy,
   });
 });

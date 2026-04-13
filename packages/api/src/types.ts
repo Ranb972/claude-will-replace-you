@@ -62,6 +62,5 @@ export interface AnalysisResult {
   quote: string;
   skillsAnalysis: SkillAnalysis[];
   shareUrl: string;
-  certificateUrl: string;
   generatedBy: string;
 }

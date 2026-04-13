@@ -88,5 +88,3 @@ const port = Number(process.env.PORT) || 3001;
 const hostname = "0.0.0.0";
 console.log(`API server running on http://${hostname}:${port}`);
 serve({ fetch: app.fetch, port, hostname });
-
-export default app;

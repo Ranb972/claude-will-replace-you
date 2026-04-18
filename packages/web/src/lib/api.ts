@@ -29,6 +29,8 @@ export interface ModelInfo {
 export interface AnalysisResult {
   id: string;
   name?: string;
+  role?: string;
+  experience?: number;
   model: ModelInfo;
   score: number;
   daysLeft: number;

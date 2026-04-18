@@ -18,6 +18,9 @@ result.get("/:id", async (c) => {
 
   return c.json({
     id: row.id,
+    name: row.name,
+    role: row.role,
+    experience: row.experience,
     model,
     score: row.score,
     daysLeft: row.daysLeft,

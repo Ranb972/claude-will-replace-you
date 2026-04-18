@@ -71,6 +71,9 @@ async function handleAnalyze(c: any): Promise<Response> {
 
     const responseData = {
       id,
+      name: input.name,
+      role: input.role,
+      experience: input.experience,
       model: scoringResult.model,
       score: scoringResult.score,
       daysLeft: scoringResult.daysLeft,

@@ -315,13 +315,15 @@ function generateCertificateSvg(
   const daysLabel = escapeXml(formatDaysLeftLabel(result.daysLeft));
   const modelName = escapeXml(result.model.name);
 
-  // Quote: single-language fix
+  // Quote cleaning: strip emoji (both languages), replace Hebrew in EN mode
   let displayQuote = result.quote;
   if (lang === "en") {
-    displayQuote = displayQuote
-      .replace(/[\u0590-\u05FF]+/g, "you")
-      .replace(/\s{2,}/g, " ");
+    displayQuote = displayQuote.replace(/[\u0590-\u05FF]+/g, "you");
   }
+  displayQuote = displayQuote
+    .replace(/\p{Extended_Pictographic}/gu, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
   if (displayQuote.length > 140) {
     displayQuote = displayQuote.slice(0, 137) + "...";
   }
@@ -331,7 +333,7 @@ function generateCertificateSvg(
   const expText =
     experience != null && experience > 0
       ? lang === "he"
-        ? `${experience} \u05E9\u05E0\u05D5\u05EA \u05E0\u05D9\u05E1\u05D9\u05D5\u05DF`
+        ? `\u2067${experience} \u05E9\u05E0\u05D5\u05EA \u05E0\u05D9\u05E1\u05D9\u05D5\u05DF\u2069`
         : `${experience} year${experience !== 1 ? "s" : ""} experience`
       : "";
   const infoParts = [name, role, escapeXml(expText)].filter(Boolean);
@@ -369,17 +371,8 @@ function generateCertificateSvg(
   <circle cx="600" cy="80" r="34" fill="none" stroke="${gold}" stroke-opacity="0.4" stroke-width="1"/>
   <text x="600" y="87" text-anchor="middle" fill="${gold}" font-family="${FONT}" font-size="18" font-weight="700" letter-spacing="1.8">CWRU</text>
 
-  <!-- Separator 1 -->
-  <line x1="520" y1="128" x2="680" y2="128" stroke="${gold}" stroke-opacity="0.2" stroke-width="1"/>
-
-  <!-- Title -->
-  <text x="600" y="150" text-anchor="middle" fill="${gold}" font-family="${FONT}" font-size="14" font-weight="700" letter-spacing="6">CLAUDE WILL REPLACE YOU</text>
-
-  <!-- Separator 2 -->
-  <line x1="520" y1="164" x2="680" y2="164" stroke="${gold}" stroke-opacity="0.2" stroke-width="1"/>
-
   <!-- Info line -->
-  <text x="600" y="200"${heDir} text-anchor="middle" fill="#b0b0b0" font-family="${FONT}" font-size="13">${infoLine}</text>
+  <text x="600" y="170"${heDir} text-anchor="middle" fill="#b0b0b0" font-family="${FONT}" font-size="13">${infoLine}</text>
 
   <!-- Score -->
   <text x="600" y="340" text-anchor="middle" fill="${gold}" font-family="${FONT}" font-size="140" font-weight="900" letter-spacing="-5">${score}%</text>

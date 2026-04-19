@@ -5,7 +5,7 @@ import { calculateScore } from "../lib/scoring.js";
 import { generateHumorContent } from "../lib/groq.js";
 import { saveResult } from "../lib/db.js";
 
-const HANDLER_TIMEOUT = 15000;
+const HANDLER_TIMEOUT = 18000;
 
 const analyze = new Hono();
 

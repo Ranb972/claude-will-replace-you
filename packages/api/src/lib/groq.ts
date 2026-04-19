@@ -12,6 +12,9 @@ const MODELS = {
   fallback: "llama-3.1-8b-instant",
 } as const;
 
+const PRIMARY_TIMEOUT_MS = 4000;
+const FALLBACK_TIMEOUT_MS = 8000;
+
 let requestCounter = 0;
 
 function buildUserMessage(input: ProfileInput, result: ScoringResult): string {
@@ -40,10 +43,11 @@ function isRateLimited(err: unknown): boolean {
 async function callGroq(
   client: OpenAI,
   model: string,
-  userMessage: string
+  userMessage: string,
+  timeoutMs: number,
 ): Promise<HumorContent> {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
   let response;
   try {
     response = await client.chat.completions.create(
@@ -104,7 +108,7 @@ export async function generateHumorContent(
 
     for (const model of orderedPrimaries) {
       try {
-        const content = await callGroq(client, model, userMessage);
+        const content = await callGroq(client, model, userMessage, PRIMARY_TIMEOUT_MS);
         return { content, generatedBy: generatedByLabel(model) };
       } catch (err) {
         console.log(`CWRU: Groq ${model} failed:`, err instanceof Error ? err.message : err);
@@ -113,7 +117,7 @@ export async function generateHumorContent(
     }
 
     try {
-      const content = await callGroq(client, MODELS.fallback, userMessage);
+      const content = await callGroq(client, MODELS.fallback, userMessage, FALLBACK_TIMEOUT_MS);
       return { content, generatedBy: "groq-8b" };
     } catch (err) {
       console.log(`CWRU: Groq fallback failed:`, err instanceof Error ? err.message : err);
